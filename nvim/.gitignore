@@ -1,0 +1,8 @@
+# Local configuration files with sensitive data
+lua/local/
+
+# Lazy.nvim lock file (optional - uncomment if you don't want to track it)
+# lazy-lock.json
+
+# Neovim runtime files
+*.log

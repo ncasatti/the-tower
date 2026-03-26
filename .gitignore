@@ -1,0 +1,25 @@
+# Nix build artifacts
+result
+result-*
+
+# Backup files
+*.backup
+*.bak
+*.swp
+*.swo
+*~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Secrets (never commit)
+*.secret
+*.key
+*.pem
+.env
+rclone/
+
+# Neovim runtime
+nvim/lazy-lock.json
+nvim/plugin/packer_compiled.lua

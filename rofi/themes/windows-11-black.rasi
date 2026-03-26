@@ -1,0 +1,169 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* KooL Hyprland Rofi Style 11 - Windows 11 List Dark */
+/* source: https://github.com/newmanls */
+
+@import "~/.cache/wallust/colors-rofi.rasi"
+
+/* Integrating Wallust and More tweaks */
+
+/* ---- Configuration ---- */
+configuration {
+    show-icons:      true;
+    hover-select:    true;
+    me-select-entry: "MouseSecondary";
+    me-accept-entry: "MousePrimary";
+}
+
+/*****----- Global Properties -----*****/
+* {
+  bg0    : #00000040;
+  bg1    : #00000099;
+  bg2    : #00000000;
+  bg3    : #00000000;
+  fg0    : #ffffff;
+  fg1    : #cecece;
+  /* accent : #2C3279; */
+  accent : @color11;
+  accent-light : #FFFFFF4D;
+  accent-dim   : #FFFFFF66;
+  accent-medium: #FFFFFF99;
+  urgent : @accent;
+
+  background-color : @bg2;
+  text-color       : @fg0;
+
+  margin  : 0;
+  padding : 0;
+  spacing : 0;
+}
+
+/*****-- Elements Font Size -----*****/
+element-text {
+  font: "Roboto 10";
+}
+
+element-icon, element-text, scrollbar {
+  background-color: transparent;
+  cursor: pointer;
+}
+
+window {
+  location : center;
+  width    : 50%;
+  height   : 60%;
+
+  background-color : @bg1;
+  border-radius    : 2px;
+  border           : 1px solid;
+  border-color     : @accent-light;
+}
+
+mainbox {
+  padding : 12px;
+  spacing : 8px;
+}
+
+inputbar {
+  padding          : 12px 16px;
+  spacing          : 8px;
+  children         : [ icon-search, entry ];
+  border           : 0;
+  border-radius    : 2px;
+  background-color : @bg0;
+}
+
+icon-search, entry, element-icon, element-text {
+  vertical-align: 0.5;
+}
+
+icon-search {
+  expand   : false;
+  filename : "search-symbolic";
+  size     : 24px;
+}
+
+entry {
+  placeholder       : "";
+  text-color		: @fg1;
+  horizontal-align  : 0.5;
+}
+
+listview {
+  columns       : 2;
+  spacing       : 4px;
+  fixed-height  : true;
+  fixed-columns : true;
+}
+
+element {
+  spacing       : 4em;
+  padding       : 16px;
+  border-radius : 2px;
+  background-color: transparent;
+  border           : 1px solid;
+  border-color     : transparent;
+}
+
+element normal urgent {
+  text-color: @urgent;
+}
+
+element normal active {
+  text-color: @accent;
+}
+
+element alternate active {
+  text-color: @accent;
+}
+
+element selected active {
+  text-color: @accent;
+}
+
+element-text selected,
+element selected {
+  padding: 16px;
+  border-radius: 2px;
+}
+
+element selected {
+  border-color: @accent-dim;
+  border: 1px solid;
+  background-color: #00000060;
+}
+
+element selected urgent {
+  background-color: @urgent;
+}
+
+element-icon {
+  size: 1.5em;
+}
+
+element-text {
+  text-color: inherit;
+  background-color: transparent;
+}
+
+/* ---- Scrollbar ---- */
+scrollbar {
+  border:			0px;
+  border-radius:	10px;
+  background-color:	inherit;
+  handle-color: 	@accent;
+  handle-width: 	2px ;
+  padding:      	0;
+}
+
+/*****----- Message -----*****/
+error-message {
+  padding: 20px;
+}
+
+textbox {
+  padding			: 10px;
+  background-color	: @bg0;
+  text-color		: @fg0;
+  vertical-align	: 0.5;
+  horizontal-align	: 0.5;
+}

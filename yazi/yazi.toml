@@ -1,0 +1,8 @@
+[open]
+vlc = { run = "vlc '$1'", desc = "Abrir con VLC" }
+mpv = { run = "mpv '$1'", desc = "Abrir con MPV" }
+xdg = { run = "xdg-open '$1'", desc = "Abrir con la app predeterminada" }
+
+[[open.rules]]
+mime = "video/*"
+use = ["vlc", "mpv", "xdg", "play", "reveal"]

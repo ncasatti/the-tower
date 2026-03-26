@@ -1,0 +1,44 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+
+// ### DEFAULT - Top ### //
+{
+"include": [
+  "$HOME/.config/waybar/Modules",
+  "$HOME/.config/waybar/ModulesWorkspaces",
+  "$HOME/.config/waybar/ModulesCustom",
+  "$HOME/.config/waybar/ModulesGroups",
+  "$HOME/.config/waybar/UserModules",
+  ],
+"layer": "top",
+//"mode": "dock",
+"exclusive": true,
+"passthrough": false,
+"position": "top",
+"spacing": 2,
+"fixed-center": true,
+"ipc": true,
+"margin-top": 0,
+"margin-left": 0,
+"margin-right": 0,
+
+"modules-left": [
+	"custom/separator#dot-line",
+	"tray",
+	"group/notify",
+	"custom/separator#blank_2",
+	"custom/cava_mviz",
+	"custom/playerctl",
+	],
+
+"modules-center": [
+	// "hyprland/window",
+	"hyprland/workspaces#rw",
+	],
+
+"modules-right": [
+	"group/mobo_drawer",
+	"custom/separator#blank",
+	"clock",
+	"custom/separator#dot-line",
+	],
+}
