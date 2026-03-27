@@ -34,7 +34,7 @@
       # 1. THE MAINFRAME (NixOS System-Level Configuration for the Notebook)
       # Deployment command: sudo nixos-rebuild switch --flake .#the-grid-mainframe
       # =======================================================================
-      nixosConfigurations."the-grid-mainframe" = nixpkgs.lib.nixosSystem {
+      nixosConfigurations."the-grid" = nixpkgs.lib.nixosSystem {
         inherit system;
 
         # Pass flake inputs directly to all internal modules

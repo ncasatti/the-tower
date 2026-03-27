@@ -17,7 +17,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # --- NETWORKING & DISCOVERY ---
-  networking.hostName = "the-grid-mainframe";
+  networking.hostName = "the-grid";
   networking.networkmanager.enable = true;
   # Enables Avahi daemon for local network discovery (matches your active services)
   services.avahi.enable = true;
@@ -59,6 +59,7 @@
 
   # --- GLOBAL SHELL ---
   programs.fish.enable = true;
+  programs.dconf.enable = true;
 
   # --- USER IDENTITY ---
   users.users.flyn = {
