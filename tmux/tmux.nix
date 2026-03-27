@@ -112,6 +112,9 @@
           chmod +x $target/*.tmux
           chmod +x $target/scripts/*.sh 2>/dev/null || true
           '';
+          postPatch = ''
+            cp ${./oasis_lagoon.conf} themes/oasis_lagoon.conf
+          '';
         };
         extraConfig = ''
           set -g @oasis_flavor "lagoon"
