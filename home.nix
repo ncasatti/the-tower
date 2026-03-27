@@ -15,7 +15,7 @@
     neovim yazi starship ripgrep fd git fzf gcc unzip glow
 
     # --- Wayland UI ---
-    hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade
+    hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade swww
     cool-retro-term
     inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
 
