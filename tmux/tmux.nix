@@ -99,7 +99,7 @@
 
       {
         plugin = pkgs.tmuxPlugins.mkTmuxPlugin {
-          pluginName = "tmux-oasis";
+          pluginName = "oasis";
           version = "unstable-2024-01-01";
           src = pkgs.fetchFromGitHub {
             owner = "uhs-robert";
