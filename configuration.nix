@@ -66,11 +66,39 @@
   # --- CORE SYSTEM PACKAGES ---
   # Only absolute necessities. UI and dev tools go to home.nix.
   environment.systemPackages = with pkgs; [
+    # --- Core Utilities ---
     git
     curl
     wget
-    carla
-    hyprshade
+
+    # --- Pro Audio: DAWs & Hosts ---
+    ardour          # Professional DAW
+    carla           # Plugin host (LV2, VST, SF2, SFZ)
+    qjackctl        # JACK control GUI
+    qpwgraph        # PipeWire graph GUI
+
+    # --- Pro Audio: LV2/LADSPA Plugins ---
+    calf            # LV2 plugin suite (EQ, compressors, reverbs)
+    x42-plugins     # Professional meters, EQ, analyzers
+    gxplugins-lv2   # Guitarix LV2 plugins (amp sims, effects)
+
+    # --- Pro Audio: Libraries & Engines ---
+    fluidsynth      # SoundFont synthesizer (used by Carla for SF2)
+    lilv            # LV2 plugin host library
+    lv2             # LV2 plugin standard
+    aubio           # Audio analysis (pitch detection, onset)
+
+    # --- Audio Utilities ---
+    pavucontrol     # PipeWire/PulseAudio volume control GUI
+    pamixer         # CLI mixer
+  ];
+
+  # --- REALTIME AUDIO LIMITS (Pro Audio) ---
+  # Required for low-latency operation with Focusrite interface.
+  security.pam.loginLimits = [
+    { domain = "@audio"; item = "memlock"; type = "-"; value = "unlimited"; }
+    { domain = "@audio"; item = "rtprio";  type = "-"; value = "99"; }
+    { domain = "@audio"; item = "nice";    type = "-"; value = "-19"; }
   ];
 
   # Do NOT change this value.

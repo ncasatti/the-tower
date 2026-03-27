@@ -1,11 +1,11 @@
 {
-  description = "The Grid - Terminal Sub-system";
+  description = "The Grid - Mainframe System & Terminal Sub-system";
 
   inputs = {
-    # Using the unstable branch to access the latest rolling-release packages
+    # Core NixOS packages (Unstable branch for rolling release updates)
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
-    # Home Manager, strictly tracking the same nixpkgs version
+    # Home Manager input, strictly tracking the same nixpkgs version
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,14 +17,49 @@
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
     in {
-      homeConfigurations."flyn" = home-manager.lib.homeManagerConfiguration {
+
+      # =======================================================================
+      # 1. THE MAINFRAME (NixOS System-Level Configuration for the Notebook)
+      # Deployment command: sudo nixos-rebuild switch --flake .#the-grid-mainframe
+      # =======================================================================
+      nixosConfigurations."the-grid-mainframe" = nixpkgs.lib.nixosSystem {
+        inherit system;
+
+        # Pass flake inputs directly to all internal modules
+        specialArgs = { inherit inputs; };
+
+        modules = [
+          # The core OS configuration (Bootloader, Kernel, Hardware, Services)
+          ./configuration.nix
+
+          # Inject Home Manager natively as a NixOS module
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+
+            # Map the 'flyn' user to its declarative environment payload
+            home-manager.users.flyn = import ./home.nix;
+
+            # Pass inputs specifically to Home Manager
+            home-manager.extraSpecialArgs = { inherit inputs; };
+          }
+        ];
+      };
+
+      # =======================================================================
+      # 2. THE TOWER (User-Level Standalone Configuration for Arch Linux)
+      # Deployment command: nix run home-manager/master -- switch --flake .#ncasatti
+      # =======================================================================
+      homeConfigurations."ncasatti" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
-        # Pass additional inputs to modules if required
+        # Pass inputs specifically to Home Manager
         extraSpecialArgs = { inherit inputs; };
 
-        # The declarative payload module
+        # The declarative user payload
         modules = [ ./home.nix ];
       };
+
     };
 }
