@@ -12,5 +12,6 @@
   home.packages = with pkgs; [
     cool-retro-term
     kitty
+    brave
   ];
 }
