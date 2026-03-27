@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -17,6 +17,7 @@
     # --- Wayland UI ---
     hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade
     cool-retro-term
+    inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
 
     # --- RECENTLY ASSIMILATED MODULES ---
     swaynotificationcenter
