@@ -127,6 +127,24 @@ return {
        -- Markdown bold - bright white for emphasis
        ["@markup.strong"] = { fg = "#FFFFFF", bold = true },
        markdownBold = { fg = "#FFFFFF", bold = true },
+
+      -- Callout custom colors for render-markdown
+      RenderMarkdownInfo = { fg = "#39BAE6" },        -- Note (blue)
+      RenderMarkdownHint = { fg = "#7FD962" },         -- Tip (green mint)
+      RenderMarkdownWarn = { fg = "#FFB454" },         -- Warning (amber)
+      RenderMarkdownError = { fg = "#F07178" },        -- Error (red)
+      RenderMarkdownSuccess = { fg = "#4CAF50" },      -- Success (emerald)
+      RenderMarkdownQuote = { fg = "#ACB6BF" },        -- Quote (gray)
+
+      -- Custom per-callout highlights for maximum color variety
+      RenderMarkdownCalloutInfo = { fg = "#59C2FF" },       -- Info (cyan)
+      RenderMarkdownCalloutAbstract = { fg = "#00BCD4" },   -- Abstract (teal)
+      RenderMarkdownCalloutTodo = { fg = "#AAD94C" },       -- Todo (lime green)
+      RenderMarkdownCalloutFaq = { fg = "#E6B450" },        -- FAQ (yellow)
+      RenderMarkdownCalloutBug = { fg = "#FF5370" },        -- Bug (hot pink)
+      RenderMarkdownCalloutFail = { fg = "#D95757" },       -- Fail (dark red)
+      RenderMarkdownCalloutExample = { fg = "#D2A6FF" },    -- Example (purple)
+      RenderMarkdownCalloutImportant = { fg = "#95E6CB" },  -- Important (mint)
      }
 
     require('ayu').setup({
@@ -166,6 +184,24 @@ return {
      -- Markdown bold - bright white
      vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#FFFFFF", bold = true })
      vim.api.nvim_set_hl(0, "markdownBold", { fg = "#FFFFFF", bold = true })
+
+    -- Callout colors
+    vim.api.nvim_set_hl(0, "RenderMarkdownInfo", { fg = "#39BAE6" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownHint", { fg = "#7FD962" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownWarn", { fg = "#FFB454" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownError", { fg = "#F07178" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownSuccess", { fg = "#4CAF50" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownQuote", { fg = "#ACB6BF" })
+
+    -- Custom per-callout highlights for maximum color variety
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutInfo", { fg = "#59C2FF" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutAbstract", { fg = "#00BCD4" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutTodo", { fg = "#AAD94C" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutFaq", { fg = "#E6B450" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutBug", { fg = "#FF5370" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutFail", { fg = "#D95757" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutExample", { fg = "#D2A6FF" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutImportant", { fg = "#95E6CB" })
    end,
  }
 

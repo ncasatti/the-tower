@@ -23,9 +23,9 @@ vim.o.termguicolors = true
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"
 
--- Obsidian plugin requires conceallevel for markdown features
--- vim.o.conceallevel = 2
-vim.o.conceallevel = 3
+-- Obsidian plugin requires conceallevel 2 for markdown features
+-- Level 2: conceal with substitution chars. Level 3: hide all (breaks Obsidian UI)
+vim.o.conceallevel = 2
 
 -- Themes
 -- vim.cmd.colorscheme "catppuccin"
