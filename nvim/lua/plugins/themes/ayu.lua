@@ -123,8 +123,11 @@ return {
       ["@text.literal.block"] = { bg = "None" },
       markdownCode = { bg = "None" },
       markdownCodeBlock = { bg = "None" },
-      markdownCodeDelimiter = { bg = "None" },
-    }
+       markdownCodeDelimiter = { bg = "None" },
+       -- Markdown bold - bright white for emphasis
+       ["@markup.strong"] = { fg = "#FFFFFF", bold = true },
+       markdownBold = { fg = "#FFFFFF", bold = true },
+     }
 
     require('ayu').setup({
       mirage = false,
@@ -159,7 +162,10 @@ return {
     vim.api.nvim_set_hl(0, "markdownCode", { bg = "None" })
     vim.api.nvim_set_hl(0, "markdownCodeBlock", { bg = "None" })
     vim.api.nvim_set_hl(0, "RenderMarkdownCode", { bg = "None" })
-    vim.api.nvim_set_hl(0, "RenderMarkdownCodeInline", { bg = "None" })
-  end,
-}
+     vim.api.nvim_set_hl(0, "RenderMarkdownCodeInline", { bg = "None" })
+     -- Markdown bold - bright white
+     vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#FFFFFF", bold = true })
+     vim.api.nvim_set_hl(0, "markdownBold", { fg = "#FFFFFF", bold = true })
+   end,
+ }
 

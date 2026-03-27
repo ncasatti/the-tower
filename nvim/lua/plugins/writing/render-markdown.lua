@@ -108,15 +108,89 @@ return {
 			vim.api.nvim_set_hl(0, "@markup.quote", { fg = normal_fg })
 		end
 
-		-- Keybindings
-		vim.keymap.set("n", "<leader>mr", ":RenderMarkdown toggle<CR>", {
-			desc = "Toggle Markdown Rendering",
-			silent = true,
-		})
+		-- Keybindings (leader+m = Markdown)
+		local md_opts = { silent = true }
 
-		vim.keymap.set("n", "<leader>me", ":RenderMarkdown expand<CR>", {
-			desc = "Expand Markdown Heading",
-			silent = true,
-		})
+		-- Render control
+		vim.keymap.set("n", "<leader>mr", ":RenderMarkdown toggle<CR>",
+			vim.tbl_extend("force", md_opts, { desc = "Markdown: Toggle rendering" }))
+
+		-- Heading fold/unfold
+		vim.keymap.set("n", "<leader>me", ":RenderMarkdown expand<CR>",
+			vim.tbl_extend("force", md_opts, { desc = "Markdown: Expand all headings" }))
+		vim.keymap.set("n", "<leader>mc", function()
+			-- Collapse all headings by setting foldlevel to 0
+			vim.opt_local.foldmethod = "expr"
+			vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+			vim.opt_local.foldenable = true
+			vim.opt_local.foldlevel = 0
+			vim.notify("Headings collapsed", vim.log.levels.INFO)
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Collapse all headings" }))
+
+		-- Heading level cycle
+		vim.keymap.set("n", "<leader>mh", function()
+			local line = vim.api.nvim_get_current_line()
+			if line:match("^######") then
+				vim.api.nvim_set_current_line(line:gsub("^######%s*", "# "))
+			elseif line:match("^#") then
+				vim.api.nvim_set_current_line("#" .. line)
+			else
+				vim.api.nvim_set_current_line("# " .. line)
+			end
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Cycle heading level" }))
+
+		-- Toggle checkbox
+		vim.keymap.set("n", "<leader>mt", function()
+			local line = vim.api.nvim_get_current_line()
+			if line:match("%- %[x%]") then
+				vim.api.nvim_set_current_line((line:gsub("%- %[x%]", "- [ ]")))
+			elseif line:match("%- %[ %]") then
+				vim.api.nvim_set_current_line((line:gsub("%- %[ %]", "- [x]")))
+			else
+				-- Add unchecked checkbox at start of list item or line
+				if line:match("^%s*%-") then
+					vim.api.nvim_set_current_line((line:gsub("^(%s*%-)%s*", "%1 [ ] ")))
+				else
+					local indent = line:match("^(%s*)")
+					vim.api.nvim_set_current_line(indent .. "- [ ] " .. line:gsub("^%s*", ""))
+				end
+			end
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Toggle checkbox" }))
+
+		-- Bold wrap (visual mode)
+		vim.keymap.set("v", "<leader>mb", function()
+			-- Get visual selection, wrap with **
+			vim.cmd('normal! "zc**' .. vim.fn.getreg("z") .. "**")
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Bold selection" }))
+
+		-- Italic wrap (visual mode)
+		vim.keymap.set("v", "<leader>mi", function()
+			vim.cmd('normal! "zc*' .. vim.fn.getreg("z") .. "*")
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Italic selection" }))
+
+		-- Insert link (visual = wrap selection as link text, normal = template)
+		vim.keymap.set("n", "<leader>ml", function()
+			vim.api.nvim_put({ "[](url)" }, "c", true, true)
+			-- Place cursor inside []
+			vim.cmd("normal! F[la")
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Insert link" }))
+		vim.keymap.set("v", "<leader>ml", function()
+			vim.cmd('normal! "zc[' .. vim.fn.getreg("z") .. "](url)")
+			vim.cmd("normal! F)i")
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Link selection" }))
+
+		-- Insert code block
+		vim.keymap.set("n", "<leader>mk", function()
+			local row = vim.api.nvim_win_get_cursor(0)[1]
+			vim.api.nvim_buf_set_lines(0, row, row, false, { "```", "", "```" })
+			vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
+			vim.cmd("startinsert")
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Insert code block" }))
+
+		-- Preview in browser (uses glow or markdown-preview if available)
+		vim.keymap.set("n", "<leader>mp", function()
+			local file = vim.fn.expand("%:p")
+			vim.fn.jobstart({ "xdg-open", file }, { detach = true })
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview in browser" }))
 	end,
 }

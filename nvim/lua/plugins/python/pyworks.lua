@@ -80,30 +80,30 @@ return {
           local opts = { buffer = true, silent = true }
           
           -- Molten: Initialize/manage kernels
-          vim.keymap.set("n", "<leader>mi", ":MoltenInit<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Initialize kernel" }))
+          vim.keymap.set("n", "<leader>rji", ":MoltenInit<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Initialize kernel" }))
           
-          vim.keymap.set("n", "<leader>mD", ":MoltenDeinit<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Deinitialize kernel" }))
+          vim.keymap.set("n", "<leader>rjD", ":MoltenDeinit<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Deinitialize kernel" }))
           
-          vim.keymap.set("n", "<leader>mk", ":MoltenShowOutput<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Show output" }))
+          vim.keymap.set("n", "<leader>rjk", ":MoltenShowOutput<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Show output" }))
           
-          vim.keymap.set("n", "<leader>mh", ":MoltenHideOutput<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Hide output" }))
+          vim.keymap.set("n", "<leader>rjh", ":MoltenHideOutput<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Hide output" }))
           
           -- Molten: Execute code
-          vim.keymap.set("n", "<leader>me", ":MoltenEvaluateOperator<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Evaluate operator" }))
+          vim.keymap.set("n", "<leader>rje", ":MoltenEvaluateOperator<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Evaluate operator" }))
           
-          vim.keymap.set("n", "<leader>ml", ":MoltenEvaluateLine<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Evaluate line" }))
+          vim.keymap.set("n", "<leader>rjl", ":MoltenEvaluateLine<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Evaluate line" }))
           
-          vim.keymap.set("v", "<leader>me", ":<C-u>MoltenEvaluateVisual<CR>gv",
-            vim.tbl_extend("force", opts, { desc = "Molten: Evaluate selection" }))
+          vim.keymap.set("v", "<leader>rje", ":<C-u>MoltenEvaluateVisual<CR>gv",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Evaluate selection" }))
           
-          vim.keymap.set("n", "<leader>mc", ":MoltenReevaluateCell<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Re-evaluate cell" }))
+          vim.keymap.set("n", "<leader>rjc", ":MoltenReevaluateCell<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Re-evaluate cell" }))
           
           -- Molten: Navigation
           vim.keymap.set("n", "[m", ":MoltenPrev<CR>",
@@ -113,11 +113,11 @@ return {
             vim.tbl_extend("force", opts, { desc = "Molten: Next cell" }))
           
           -- Molten: Delete output
-          vim.keymap.set("n", "<leader>md", ":MoltenDelete<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Delete cell output" }))
+          vim.keymap.set("n", "<leader>rjd", ":MoltenDelete<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Delete cell output" }))
           
-          vim.keymap.set("n", "<leader>mx", ":MoltenInterrupt<CR>",
-            vim.tbl_extend("force", opts, { desc = "Molten: Interrupt execution" }))
+          vim.keymap.set("n", "<leader>rjx", ":MoltenInterrupt<CR>",
+            vim.tbl_extend("force", opts, { desc = "Jupyter: Interrupt execution" }))
         end,
       })
     end,
