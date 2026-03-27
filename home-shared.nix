@@ -19,7 +19,7 @@
 
     # --- Fonts ---
     nerd-fonts.jetbrains-mono
-    nerd-fonts._3270
+    # nerd-fonts._3270
     roboto
     inter
 

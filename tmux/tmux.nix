@@ -113,11 +113,18 @@
           chmod +x $target/scripts/*.sh 2>/dev/null || true
           '';
           postPatch = ''
-            cp ${./oasis_lagoon.conf} themes/oasis_lagoon.conf
+            # cp ${./oasis_lagoon.conf} themes/dark/oasis_lagoon_dark.conf
+            # cp ${./oasis_starlight.conf} themes/dark/oasis_starlight_dark.conf
+            cat ${./oasis_lagoon.conf} > themes/dark/oasis_lagoon_dark.conf
+            # cat ${./oasis_starlight.conf} > themes/dark/oasis_starlight_dark.conf
           '';
         };
         extraConfig = ''
-          set -g @oasis_flavor "lagoon"
+          # set -g @oasis_flavor "starlight_dark"
+          set -g @oasis_flavor "lagoon_dark"
+          set -g pane-border-style "fg=#333333"
+          set -g pane-active-border-style "fg=#00ffff,bold"
+          set -g @oasis_session_color "#{E:@thm_fg}"
         '';
       }
     ];
@@ -191,7 +198,7 @@
 
       # Theme override (must be after plugin initialization)
       # Oasis theme uses pure black (#000000) which makes selection invisible
-      set -g mode-style 'fg=#101825,bg=#6EB5FF,bold'
+      # set -g mode-style 'fg=#101825,bg=#6EB5FF,bold'
     '';
   };
 }
