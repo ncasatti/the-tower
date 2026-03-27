@@ -8,7 +8,6 @@
 
     # --- Wayland UI ---
     hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade swww
-    cool-retro-term
     inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
 
     # --- RECENTLY ASSIMILATED MODULES ---
@@ -16,7 +15,6 @@
     wallust
     rclone
     lazygit
-    kitty
     fish
 
     # --- Fonts ---
@@ -80,6 +78,7 @@
       gtk-xft-hintstyle = "hintslight";
       gtk-xft-rgba = "rgb";
     };
+    gtk4.theme = config.gtk.theme;
     gtk4.extraConfig = {
       gtk-application-prefer-dark-theme = true;
       gtk-cursor-theme-name = "default";
@@ -96,6 +95,7 @@
       core.editor = "nvim";
       credential.helper = "store";
     };
+    signing.format = null;
   };
 
   # 3. WRITABLE CONFIGS
