@@ -108,6 +108,10 @@
             # Run: nix-prefetch-url --unpack https://github.com/uhs-robert/tmux-oasis/archive/4caf1674660ee8b9e7373cf183562679b70406c7.tar.gz
             sha256 = "sha256-Yz5zD3msNpzd6LMvjpL2J6zeTU2Kr4MYxOfQB2EuYSU=";
           };
+          postInstall = ''
+          chmod +x $target/*.tmux
+          chmod +x $target/scripts/*.sh 2>/dev/null || true
+          '';
         };
         extraConfig = ''
           set -g @oasis_flavor "lagoon"
@@ -145,7 +149,7 @@
 
       # Reload config
       unbind r
-      bind r source-file ~/.tmux.conf \; display "Reloaded!"
+      bind r source-file ~/.config/tmux/tmux.conf \; display "Reloaded!"
 
       # Split windows
       bind v split-window -v
