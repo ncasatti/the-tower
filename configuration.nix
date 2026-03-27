@@ -86,6 +86,7 @@
     git
     curl
     wget
+    eza
 
     # --- Secret Management ---
     inputs.agenix.packages.x86_64-linux.default  # agenix CLI
