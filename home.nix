@@ -13,6 +13,7 @@
   home.packages = with pkgs; [
     # --- CLI & Core ---
     neovim yazi starship ripgrep fd git fzf gcc unzip glow
+    nettools zoxide
 
     # --- Wayland UI ---
     hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade swww
