@@ -29,8 +29,8 @@
   services.power-profiles-daemon.enable = true; # Power management for the notebook
 
   # --- KEY RE-MAPPING (keyd) ---
-  # Enables the keyd daemon. You can define your layout directly here.
   services.keyd.enable = true;
+  environment.etc."keyd/default.conf".source = ./keyd/default.conf;
 
   # --- SSH DAEMON ---
   services.openssh = {
@@ -69,7 +69,8 @@
     git
     curl
     wget
-    carla 
+    carla
+    hyprshade
   ];
 
   # Do NOT change this value.

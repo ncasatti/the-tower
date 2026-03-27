@@ -11,7 +11,7 @@
     neovim tmux yazi starship ripgrep fd git fzf gcc unzip glow
 
     # --- Wayland UI ---
-    hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard
+    hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade
 
     # --- RECENTLY ASSIMILATED MODULES ---
     swaynotificationcenter
@@ -50,6 +50,11 @@
     ".config/fish" = { source = ./fish; recursive = true; };
     ".config/lazygit" = { source = ./lazygit; recursive = true; };
     ".config/Kvantum" = { source = ./hypr/.configs/Kvantum; recursive = true; };
+
+    # --- System Reference (keyd needs /etc/keyd on NixOS) ---
+    ".config/keyd" = { source = ./keyd; recursive = true; };
+
+    ".config/hyprshade" = { source = ./hyprshade; recursive = true; };
   };
 
   # 2.5. GTK THEMING: Declarative GTK configuration
@@ -82,6 +87,17 @@
       gtk-application-prefer-dark-theme = true;
       gtk-cursor-theme-name = "default";
       gtk-cursor-theme-size = 24;
+    };
+  };
+
+  # 2.7. GIT: Declarative git configuration
+  programs.git = {
+    enable = true;
+    settings = {
+      user.name = "Nicolas Casatti";
+      user.email = "ncasatti@gmail.com";
+      core.editor = "nvim";
+      credential.helper = "store";
     };
   };
 
