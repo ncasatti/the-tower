@@ -23,3 +23,5 @@ rclone/
 # Neovim runtime
 nvim/lazy-lock.json
 nvim/plugin/packer_compiled.lua
+# Legacy tmux plugins (managed by Nix now)
+tmux/tmux/plugins/
