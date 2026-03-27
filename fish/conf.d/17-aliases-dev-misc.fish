@@ -22,6 +22,7 @@ abbr -a aws-ecr-describe 'aws ecr describe-images --repository-name'
 
 # NixOS
 abbr -a nrs 'sudo nixos-rebuild switch'
+abbr -a nr-grid 'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#the-grid'
 abbr -a nrt 'sudo nixos-rebuild test'
 abbr -a ne 'sudo -E nvim /etc/nixos/configuration.nix'
 abbr -a ng 'sudo nix-collect-garbage'
