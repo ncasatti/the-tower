@@ -34,6 +34,9 @@
   hardware.bluetooth.enable = true; # Enables Bluetooth hardware support
   services.power-profiles-daemon.enable = true; # Power management for the notebook
 
+  # --- GRAPHICS ACCELERATION ---
+  hardware.graphics.enable = true;
+
   # --- KEY RE-MAPPING (keyd) ---
   services.keyd.enable = true;
   environment.etc."keyd/default.conf".source = ./keyd/default.conf;
