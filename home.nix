@@ -13,7 +13,7 @@
   home.packages = with pkgs; [
     # --- CLI & Core ---
     neovim yazi starship ripgrep fd git fzf gcc unzip glow
-    nettools zoxide
+    nettools zoxide brightnessctl
 
     # --- Wayland UI ---
     hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade swww
@@ -115,6 +115,11 @@
 
   home.activation.refreshSystem = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD $HOME/.config/hypr/scripts/system/refresh.sh
+  '';
+
+  # --- HYPRLAND PLUGINS (Declarativo) ---
+  home.file.".config/hypr-nix-plugins.conf".text = ''
+    plugin = ${pkgs.hyprlandPlugins.hy3}/lib/libhy3.so
   '';
 
   programs.home-manager.enable = true;
