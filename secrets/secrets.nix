@@ -11,7 +11,7 @@ let
   user = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPNEWwxKAqP5NgqoXz8p4UydYcqDHBKJINCOlmjMaKwJ nc@nc-development";
 
   # Current machine host key (will change after NixOS install — rekey required)
-  system = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJNJQw7mUI7Autq8Ztj4+ihNO3iI9QUe0rIWzacpWMey root@ncasatti-work";
+  system = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINR7Uby1nD4LgFKQ1SjPkzOBIJM9uj5sYketaTHOdKGs root@the-grid";
 
   allKeys = [ user system ];
 in
