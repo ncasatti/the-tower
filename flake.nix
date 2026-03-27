@@ -10,9 +10,15 @@
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Agenix: Encrypted secret management for NixOS
+    agenix = {
+      url = "github:ryantm/agenix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs: 
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -29,6 +35,9 @@
         specialArgs = { inherit inputs; };
 
         modules = [
+          # Agenix NixOS module (secret decryption at activation time)
+          agenix.nixosModules.default
+
           # The core OS configuration (Bootloader, Kernel, Hardware, Services)
           ./configuration.nix
 

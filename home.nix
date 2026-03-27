@@ -100,17 +100,10 @@
     };
   };
 
-  # 3. WRITABLE CONFIGS: Copied (not symlinked) for apps that need write access
-  home.activation.copyRcloneConfig = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    mkdir -p "$HOME/.config/rclone"
-    # Read from a secure location outside the git repo
-    if [ -f "$HOME/.the-grid/.private/rclone/rclone.conf" ]; then
-      cp -f "$HOME/.the-grid/.private/rclone/rclone.conf" "$HOME/.config/rclone/rclone.conf"
-      chmod 600 "$HOME/.config/rclone/rclone.conf"
-    else
-      echo "Warning: rclone.conf not found in ~/.the-grid/.private/rclone/"
-    fi
-  '';
+  # 3. WRITABLE CONFIGS
+  # NOTE: Secrets (SSH keys, AWS credentials, rclone) are managed by agenix
+  # in configuration.nix. They are decrypted at activation to /run/agenix/
+  # and symlinked to their expected paths.
 
 
   home.activation.refreshSystem = config.lib.dag.entryAfter [ "writeBoundary" ] ''
