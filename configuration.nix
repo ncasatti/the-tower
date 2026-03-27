@@ -61,6 +61,12 @@
   programs.fish.enable = true;
   programs.dconf.enable = true;
 
+  # --- WINDOW MANAGER ---
+  programs.hyprland = {
+      enable = true;
+      xwayland.enable = true;
+  };
+
   # --- USER IDENTITY ---
   users.users.flyn = {
     isNormalUser = true;
