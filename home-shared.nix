@@ -1,14 +1,5 @@
 { config, pkgs, inputs, ... }:
-
 {
-  imports = [
-    ./tmux/tmux.nix
-  ];
-
-  home.username = "flyn";
-  home.homeDirectory ="/home/flyn";
-  home.stateVersion = "23.11"; 
-
   # 1. THE SOFTWARE: Assignment of new computing cycles
   home.packages = with pkgs; [
     # --- CLI & Core ---
@@ -108,11 +99,6 @@
   };
 
   # 3. WRITABLE CONFIGS
-  # NOTE: Secrets (SSH keys, AWS credentials, rclone) are managed by agenix
-  # in configuration.nix. They are decrypted at activation to /run/agenix/
-  # and symlinked to their expected paths.
-
-
   home.activation.refreshSystem = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD $HOME/.config/hypr/scripts/system/refresh.sh
   '';

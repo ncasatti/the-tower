@@ -54,7 +54,7 @@
             home-manager.useUserPackages = true;
 
             # Map the 'flyn' user to its declarative environment payload
-            home-manager.users.flyn = import ./home.nix;
+            home-manager.users.flyn = import ./home-notebook.nix;
 
             # Pass inputs specifically to Home Manager
             home-manager.extraSpecialArgs = { inherit inputs; };
@@ -73,7 +73,7 @@
         extraSpecialArgs = { inherit inputs; };
 
         # The declarative user payload
-        modules = [ ./home.nix ];
+        modules = [ ./home-main.nix ];
       };
 
     };

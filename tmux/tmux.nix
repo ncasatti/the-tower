@@ -7,7 +7,7 @@
 
     # --- Core settings ---
     terminal = "tmux-256color";
-    shell = "/usr/bin/fish";
+    shell = "${pkgs.fish}/bin/fish";
     prefix = "C-a";
     baseIndex = 1;
     escapeTime = 0;
@@ -75,7 +75,7 @@
           set -g @sessionx-bind 'o'
           set -g @sessionx-bind-zo-new-window 'ctrl-y'
           set -g @sessionx-auto-accept 'off'
-          set -g @sessionx-custom-paths '/home/ncasatti/projects'
+          set -g @sessionx-custom-paths '/home'
           set -g @sessionx-x-path '~/.config/konfig'
           set -g @sessionx-window-height '85%'
           set -g @sessionx-window-width '75%'
