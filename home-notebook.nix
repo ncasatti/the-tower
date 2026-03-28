@@ -13,5 +13,6 @@
     cool-retro-term
     kitty
     brave
+    obsidian
   ];
 }

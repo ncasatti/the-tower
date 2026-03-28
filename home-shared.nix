@@ -15,7 +15,6 @@
     inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
 
     # --- RECENTLY ASSIMILATED MODULES ---
-    obsidian
     swaynotificationcenter
     wallust
     rclone
