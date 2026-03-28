@@ -23,7 +23,6 @@
 
     # --- Fonts ---
     nerd-fonts.jetbrains-mono
-    nerd-fonts._3270
     roboto
     inter
 
@@ -53,6 +52,7 @@
     ".config/keyd" = { source = ./keyd; recursive = true; };
 
     ".config/hyprshade" = { source = ./hyprshade; recursive = true; };
+    ".local/share/fonts" = { source = ./fonts; recursive = true; };
   };
 
   # 2.5. GTK THEMING: Declarative GTK configuration
