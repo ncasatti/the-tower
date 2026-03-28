@@ -19,7 +19,7 @@
 
     # --- Fonts ---
     nerd-fonts.jetbrains-mono
-    # nerd-fonts._3270
+    nerd-fonts._3270
     roboto
     inter
 
@@ -98,7 +98,15 @@
     signing.format = null;
   };
 
-  # 3. WRITABLE CONFIGS
+  # 3. CACHE & SYMLINKS: Runtime mutable state
+  home.activation.createCacheAndSymlinks = config.lib.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "$HOME/.cache/hypr/wallust"
+    ln -sfn "$HOME/.cache/hypr/wallust" "$HOME/.config/waybar/wallust"
+    ln -sfn "$HOME/.cache/hypr/wallust" "$HOME/.config/rofi/wallust"
+    ln -sfn "$HOME/.cache/hypr/current-wallpaper" "$HOME/.config/rofi/.current_wallpaper"
+  '';
+
+  # 4. POST-ACTIVATION: Refresh Hyprland after linking
   home.activation.refreshSystem = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     $DRY_RUN_CMD $HOME/.config/hypr/scripts/system/refresh.sh
   '';

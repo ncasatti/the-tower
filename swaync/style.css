@@ -1,5 +1,5 @@
 /* Import wallust dynamic colors */
-@import url("file:///home/ncasatti/.cache/wallust/colors-swaync.css");
+@import url("file:///home/ncasatti/.cache/hypr/wallust/colors-swaync.css");
 
 /* Map wallust colors to swaync variables */
 @define-color foreground @text;

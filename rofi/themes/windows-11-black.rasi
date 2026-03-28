@@ -2,7 +2,7 @@
 /* KooL Hyprland Rofi Style 11 - Windows 11 List Dark */
 /* source: https://github.com/newmanls */
 
-@import "~/.cache/wallust/colors-rofi.rasi"
+@import "~/.cache/hypr/wallust/colors-rofi.rasi"
 
 /* Integrating Wallust and More tweaks */
 

@@ -38,22 +38,22 @@ cava.template = 'colors-cava'
 cava.target = '~/.config/cava/config'
 
 hypr.template = 'colors-hyprland.conf'
-hypr.target = '~/.cache/wallust/wallust-hyprland.conf'
+hypr.target = '~/.cache/hypr/wallust/wallust-hyprland.conf'
 
 rofi.template = 'colors-rofi.rasi'
-rofi.target = '~/.cache/wallust/colors-rofi.rasi'
+rofi.target = '~/.cache/hypr/wallust/colors-rofi.rasi'
 
 waybar.template = 'colors-waybar.css'
-waybar.target = '~/.cache/wallust/colors-waybar.css'
+waybar.target = '~/.cache/hypr/wallust/colors-waybar.css'
 
 kitty.template = 'colors-kitty.conf'
-kitty.target = '~/.cache/wallust/colors-kitty.conf'
+kitty.target = '~/.cache/hypr/wallust/colors-kitty.conf'
 
 bash.template = 'colors-bash'
-bash.target = '~/.cache/wallust/colors-bash.sh'
+bash.target = '~/.cache/hypr/wallust/colors-bash.sh'
 
 swaync.template = 'colors-swaync.css'
-swaync.target = '~/.cache/wallust/colors-swaync.css'
+swaync.target = '~/.cache/hypr/wallust/colors-swaync.css'
 
 #macchina.template = 'colors-macchina.toml'
 #macchina.target = '~/.cache/wallust/colors-macchina.toml'

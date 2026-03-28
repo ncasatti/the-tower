@@ -3,6 +3,9 @@
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # Wallust Colors for current wallpaper
 
+# Ensure cache directory exists
+mkdir -p "$HOME/.cache/hypr/wallust"
+
 # Define the path to the swww cache directory
 cache_dir="$HOME/.cache/swww/"
 
@@ -25,11 +28,11 @@ if [ -f "$cache_file" ]; then
     wallpaper_path=$(swww query | sed -n 's/.*image: //p' | tail -n 1)
     echo "Wallpaper path: $wallpaper_path"
     # symlink the wallpaper to the location Rofi can access
-    if ln -sf "$wallpaper_path" "$HOME/.config/rofi/.current_wallpaper"; then
+    if ln -sf "$wallpaper_path" "$HOME/.cache/hypr/current-wallpaper"; then
         ln_success=true  # Set the flag to true upon successful execution
     fi
     # copy the wallpaper for wallpaper effects
-	cp -r "$wallpaper_path" "$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
+	cp -r "$wallpaper_path" "$HOME/.cache/hypr/current-wallpaper-copy"
 fi
 
 # Check the flag before executing further commands

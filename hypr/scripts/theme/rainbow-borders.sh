@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #!/bin/bash
-source "$HOME/.cache/wallust/colors-bash.sh"
+source "$HOME/.cache/hypr/wallust/colors-bash.sh"
 
 function random_hex() {
     random_hex=("0xff$(openssl rand -hex 3)")

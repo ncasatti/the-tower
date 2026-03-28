@@ -4,8 +4,8 @@
 # Inspiration from ML4W - Stephan Raabe https://gitlab.com/stephan-raabe/dotfiles
 
 # Variables
-current_wallpaper="$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
-wallpaper_output="$HOME/.config/hypr/wallpaper_effects/.wallpaper_modified"
+current_wallpaper="$HOME/.cache/hypr/current-wallpaper-copy"
+wallpaper_output="$HOME/.cache/hypr/modified-wallpaper"
 SCRIPTSDIR="$HOME/.config/hypr/scripts"
 focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
 
@@ -48,7 +48,7 @@ no-effects() {
     # Wait to complete
     wait $!
     # Refresh rofi, waybar, wallust palettes
-    "${SCRIPTSDIR}/Refresh.sh"
+    "${SCRIPTSDIR}/system/refresh.sh"
     notify-send -u low -i "$iDIR/bell.png" "No wallpaper effects"
     # copying wallpaper for rofi menu
     cp "$current_wallpaper" "$wallpaper_output"
@@ -84,7 +84,7 @@ main() {
             # Wait for other commands to finish
             wait $!
             # Refresh rofi, waybar, wallust palettes
-            "${SCRIPTSDIR}/Refresh.sh"
+            "${SCRIPTSDIR}/system/refresh.sh"
             notify-send -u low -i "$iDIR/bell.png" "$choice effects applied"
         else
             echo "Effect '$choice' not recognized."
