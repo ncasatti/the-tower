@@ -11,6 +11,7 @@
 
   # --- NIX SETTINGS ---
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
 
   # --- BOOTLOADER ---
   boot.loader.systemd-boot.enable = true;

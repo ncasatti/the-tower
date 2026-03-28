@@ -1,8 +1,5 @@
 { config, pkgs, inputs, ... }:
 {
-  # Allow unfree packages (Obsidian, etc.)
-  nixpkgs.config.allowUnfree = true;
-
   # 1. THE SOFTWARE: Assignment of new computing cycles
   home.packages = with pkgs; [
     # --- CLI & Core ---
