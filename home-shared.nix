@@ -7,7 +7,7 @@
     nettools zoxide brightnessctl tree-sitter
 
     # --- Language Toolchains (for Neovim LSPs via Mason) ---
-    nodejs_22 python3 go lua-language-server
+    nodejs_22 python3 go lua-language-server luarocks lua5_1
     jq bat
 
     # --- Wayland UI ---
