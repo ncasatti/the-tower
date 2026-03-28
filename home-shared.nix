@@ -1,5 +1,8 @@
 { config, pkgs, inputs, ... }:
 {
+  # Allow unfree packages (Obsidian, etc.)
+  nixpkgs.config.allowUnfree = true;
+
   # 1. THE SOFTWARE: Assignment of new computing cycles
   home.packages = with pkgs; [
     # --- CLI & Core ---
@@ -15,6 +18,7 @@
     inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
 
     # --- RECENTLY ASSIMILATED MODULES ---
+    obsidian
     swaynotificationcenter
     wallust
     rclone
