@@ -4,14 +4,12 @@
 # Enhanced file management commands
 
 # Better ls - use eza
-if command -q eza
-    alias l='eza -T -L 1 --icons --color=always --group-directories-first'
-    alias la='eza -T -L 1 --icons --color=always --group-directories-first --absolute --hyperlink'
-    alias ll='eza -l --icons --color=always --group-directories-first'
-    alias ls='eza -lah --icons --color=always --group-directories-first'
-    alias l1='eza -T -L 2 --icons --color=always --group-directories-first'
-    alias l2='eza -T -L 3 --icons --color=always --group-directories-first'
-end
+alias l='eza -T -L 1 --icons --color=always --group-directories-first'
+alias la='eza -T -L 1 --icons --color=always --group-directories-first --absolute --hyperlink'
+alias ll='eza -l --icons --color=always --group-directories-first'
+alias ls='eza -lah --icons --color=always --group-directories-first'
+alias l1='eza -T -L 2 --icons --color=always --group-directories-first'
+alias l2='eza -T -L 3 --icons --color=always --group-directories-first'
 
 # File management
 alias rmd='rm -r'

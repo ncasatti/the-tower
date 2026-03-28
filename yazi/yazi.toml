@@ -1,8 +1,12 @@
-[open]
-vlc = { run = "vlc '$1'", desc = "Abrir con VLC" }
-mpv = { run = "mpv '$1'", desc = "Abrir con MPV" }
-xdg = { run = "xdg-open '$1'", desc = "Abrir con la app predeterminada" }
+[opener]
+edit = { run = '${EDITOR:-nvim} "$@"', block = true, desc = "Edit" }
+vlc = { run = 'vlc "$@"', desc = "Abrir con VLC" }
+mpv = { run = 'mpv "$@"', desc = "Abrir con MPV" }
+xdg = { run = 'xdg-open "$@"', desc = "Abrir con la app predeterminada" }
 
-[[open.rules]]
-mime = "video/*"
-use = ["vlc", "mpv", "xdg", "play", "reveal"]
+[open]
+rules = [
+    { name = "*.{txt,md,json,yaml,yml,toml,fish,nix,lua,py,sh,js,ts,go,rs,cpp,c,h,hpp}", use = "edit" },
+    { mime = "text/*", use = "edit" },
+    { mime = "video/*", use = ["vlc", "mpv", "xdg"] },
+]
