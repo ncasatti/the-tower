@@ -70,6 +70,9 @@
       xwayland.enable = true;
   };
 
+  # --- NIX-LD (FHS binary compatibility for Mason/npm/etc.) ---
+  programs.nix-ld.enable = true;
+
   # --- USER IDENTITY ---
   users.users.flyn = {
     isNormalUser = true;

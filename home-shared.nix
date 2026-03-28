@@ -4,7 +4,11 @@
   home.packages = with pkgs; [
     # --- CLI & Core ---
     neovim yazi starship ripgrep fd git fzf gcc unzip glow
-    nettools zoxide brightnessctl
+    nettools zoxide brightnessctl tree-sitter
+
+    # --- Language Toolchains (for Neovim LSPs via Mason) ---
+    nodejs_22 python3 go lua-language-server
+    jq bat
 
     # --- Wayland UI ---
     hyprpaper hyprlock hypridle pyprland waybar rofi wl-clipboard hyprshade swww
