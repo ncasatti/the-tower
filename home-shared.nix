@@ -44,7 +44,6 @@
     ".config/kitty" = { source = ./kitty; recursive = true; };
     ".config/fish" = { source = ./fish; recursive = true; };
     ".config/lazygit" = { source = ./lazygit; recursive = true; };
-    ".config/Kvantum" = { source = ./hypr/.configs/Kvantum; recursive = true; };
 
     # --- System Reference (keyd needs /etc/keyd on NixOS) ---
     ".config/keyd" = { source = ./keyd; recursive = true; };
