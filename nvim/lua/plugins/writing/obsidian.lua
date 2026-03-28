@@ -27,7 +27,13 @@ return {
 
     -- Additional commands
     { "<leader>o#", "<cmd>Obsidian tags<cr>", desc = "Obsidian: Search Tags" },
-    { "<leader>or", "<cmd>Obsidian rename<cr>", desc = "Obsidian: Rename Note" },
+    {
+      "<leader>or",
+      function()
+        return require("obsidian").util.rename_with_visual_selection()
+      end,
+      desc = "Obsidian: Rename Note",
+    },
     { "<leader>oi", "<cmd>Obsidian paste_img<cr>", desc = "Obsidian: Paste Image" },
     { "<leader>ov", "<cmd>Obsidian open<cr>", desc = "Obsidian: Open in Obsidian App" },
   },

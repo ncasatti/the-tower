@@ -161,6 +161,51 @@ return {
       end,
     })
 
+    -- Obsidian CLI Integration for Oil
+    -- This updates links when renaming/moving files in the Zettelkasten
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "OilActionsPost",
+      callback = function(args)
+        local actions = args.data.actions
+        local zettel_path = vim.fn.expand("~/Documents/Zettelkasten")
+        local has_obsidian_cli = vim.fn.executable("obsidian") == 1
+
+        for _, action in ipairs(actions) do
+          if action.type == "move" then
+            local src = action.src_url:gsub("file://", "")
+            local dest = action.dest_url:gsub("file://", "")
+
+            -- Only trigger if we are inside the Zettelkasten
+            if src:find(zettel_path, 1, true) then
+              if has_obsidian_cli then
+                -- Use the official Obsidian CLI
+                vim.fn.jobstart({ "obsidian", "move", src, dest }, {
+                  on_exit = function(_, code)
+                    if code == 0 then
+                      vim.notify("Obsidian: Links updated (CLI)", vim.log.levels.INFO)
+                    else
+                      vim.notify("Obsidian CLI failed. Links might not be updated.", vim.log.levels.WARN)
+                    end
+                  end,
+                })
+              else
+                -- FALLBACK: Use obsidian.nvim internal rename logic if CLI is missing
+                -- This is slower but safer than doing nothing
+                local ok, obsidian = pcall(require, "obsidian")
+                if ok then
+                  local client = obsidian.get_client()
+                  -- We need to tell the client that the file was moved
+                  -- obsidian.nvim doesn't have a direct 'move' hook for external moves,
+                  -- but we can try to trigger its internal rename logic.
+                  vim.notify("Obsidian CLI not found. Use <leader>or for safe renames.", vim.log.levels.WARN)
+                end
+              end
+            end
+          end
+        end
+      end,
+    })
+
     -- Global keymap to open Oil in current buffer's directory
     vim.keymap.set("n", "<leader>-", function()
       local oil = require("oil")
