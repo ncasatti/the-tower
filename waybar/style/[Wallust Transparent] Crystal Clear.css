@@ -2,7 +2,7 @@
 /* ....Wallust Transparent - Crystal Clear........ */
 /* --- 👍 original designed by https://github.com/Krautt  👍 --- */
 
-@import '../wallust/colors-waybar.css';
+@import '../../../.cache/hypr/wallust/colors-waybar.css';
 
 @define-color critical #ff0000; /* critical color */
 @define-color warning #f3f809;  /* warning color */

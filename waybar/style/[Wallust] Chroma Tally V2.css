@@ -3,7 +3,7 @@
 
 /* edited by: https://github.com/prateekshukla1108 */ 
 
-@import '../wallust/colors-waybar.css';
+@import '../../../.cache/hypr/wallust/colors-waybar.css';
 
 * {
     font-family: "JetBrainsMono Nerd Font";
