@@ -128,7 +128,21 @@ return {
        ["@markup.strong"] = { fg = "#FFFFFF", bold = true },
        markdownBold = { fg = "#FFFFFF", bold = true },
 
-      -- Callout custom colors for render-markdown
+       -- Markdown heading colors for render-markdown
+       RenderMarkdownH1 = { fg = "#F07178" },           -- Red (keep default feel)
+       RenderMarkdownH1Bg = { bg = "None" },
+       RenderMarkdownH2 = { fg = "#39BAE6" },           -- Blue (differentiated from H1)
+       RenderMarkdownH2Bg = { bg = "None" },
+       RenderMarkdownH3 = { fg = "#AAD94C" },           -- Green
+       RenderMarkdownH3Bg = { bg = "None" },
+       RenderMarkdownH4 = { fg = "#E6B450" },           -- Yellow
+       RenderMarkdownH4Bg = { bg = "None" },
+       RenderMarkdownH5 = { fg = "#D2A6FF" },           -- Purple
+       RenderMarkdownH5Bg = { bg = "None" },
+       RenderMarkdownH6 = { fg = "#95E6CB" },           -- Mint
+       RenderMarkdownH6Bg = { bg = "None" },
+
+       -- Callout custom colors for render-markdown
       RenderMarkdownInfo = { fg = "#39BAE6" },        -- Note (blue)
       RenderMarkdownHint = { fg = "#7FD962" },         -- Tip (green mint)
       RenderMarkdownWarn = { fg = "#FFB454" },         -- Warning (amber)
@@ -185,7 +199,21 @@ return {
      vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#FFFFFF", bold = true })
      vim.api.nvim_set_hl(0, "markdownBold", { fg = "#FFFFFF", bold = true })
 
-    -- Callout colors
+     -- Markdown heading colors
+     vim.api.nvim_set_hl(0, "RenderMarkdownH1", { fg = "#F07178" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH1Bg", { bg = "None" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH2", { fg = "#39BAE6" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH2Bg", { bg = "None" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH3", { fg = "#AAD94C" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH3Bg", { bg = "None" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH4", { fg = "#E6B450" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH4Bg", { bg = "None" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH5", { fg = "#D2A6FF" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH5Bg", { bg = "None" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH6", { fg = "#95E6CB" })
+     vim.api.nvim_set_hl(0, "RenderMarkdownH6Bg", { bg = "None" })
+
+     -- Callout colors
     vim.api.nvim_set_hl(0, "RenderMarkdownInfo", { fg = "#39BAE6" })
     vim.api.nvim_set_hl(0, "RenderMarkdownHint", { fg = "#7FD962" })
     vim.api.nvim_set_hl(0, "RenderMarkdownWarn", { fg = "#FFB454" })
