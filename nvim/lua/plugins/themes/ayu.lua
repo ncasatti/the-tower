@@ -112,19 +112,10 @@ return {
       ["@storageclass"] = { fg = "#FF8F40" },
 
       -- Additional semantic highlighting
-      ["@namespace"] = { fg = "#AAD94C" },  -- Green for imports/packages
-      ["@property"] = { fg = "#39BAE6" },  -- Cyan for properties
+       ["@namespace"] = { fg = "#AAD94C" },  -- Green for imports/packages
+       ["@property"] = { fg = "#39BAE6" },  -- Cyan for properties
 
-      -- Markdown code blocks - ensure transparent backgrounds
-      ["@markup.raw"] = { bg = "None" },
-      ["@markup.raw.block"] = { bg = "None" },
-      ["@markup.raw.markdown_inline"] = { bg = "None" },
-      ["@text.literal"] = { bg = "None" },
-      ["@text.literal.block"] = { bg = "None" },
-      markdownCode = { bg = "None" },
-      markdownCodeBlock = { bg = "None" },
-       markdownCodeDelimiter = { bg = "None" },
-       -- Markdown bold - bright white for emphasis
+        -- Markdown bold - bright white for emphasis
        ["@markup.strong"] = { fg = "#FFFFFF", bold = true },
        markdownBold = { fg = "#FFFFFF", bold = true },
 
@@ -186,15 +177,8 @@ return {
     vim.api.nvim_set_hl(0, "Pmenu", { bg = "None" })
     vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#BFBDB6" })
     vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#39BAE6" })
-    vim.api.nvim_set_hl(0, "Directory", { fg = "#BFBDB6" })
+     vim.api.nvim_set_hl(0, "Directory", { fg = "#BFBDB6" })
 
-    -- Markdown code blocks transparency
-    vim.api.nvim_set_hl(0, "@markup.raw", { bg = "None" })
-    vim.api.nvim_set_hl(0, "@markup.raw.block", { bg = "None" })
-    vim.api.nvim_set_hl(0, "markdownCode", { bg = "None" })
-    vim.api.nvim_set_hl(0, "markdownCodeBlock", { bg = "None" })
-    vim.api.nvim_set_hl(0, "RenderMarkdownCode", { bg = "None" })
-     vim.api.nvim_set_hl(0, "RenderMarkdownCodeInline", { bg = "None" })
      -- Markdown bold - bright white
      vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#FFFFFF", bold = true })
      vim.api.nvim_set_hl(0, "markdownBold", { fg = "#FFFFFF", bold = true })

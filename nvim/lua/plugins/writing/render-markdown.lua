@@ -41,16 +41,16 @@ return {
 		-- Code block styling
 		code = {
 			enabled = true,
-			sign = false, -- Disable sign column (removes white line)
-			style = "normal", -- Changed from "full" to "normal" (less visual elements)
+			sign = false,
+			style = "normal",
 			position = "left",
 			language_pad = 0,
-			border = "none", -- No border
+			border = "none",
 			left_pad = 0,
 			right_pad = 0,
 			width = "full",
 			min_width = 0,
-			language_name = false, -- Disable language name display
+			language_name = false,
 		},
 
 		-- Checkbox rendering for task lists
