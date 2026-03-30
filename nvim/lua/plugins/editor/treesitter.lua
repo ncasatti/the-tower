@@ -22,6 +22,7 @@ return {
 			"toml",
 			"markdown",
 			"markdown_inline",
+			"latex",
 			"sql",
 		},
 		sync_install = false,
