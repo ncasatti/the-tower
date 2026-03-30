@@ -84,6 +84,13 @@ return {
 			border = "single", -- Single line borders
 		},
 
+		-- LaTeX support (integrated with nabla.nvim)
+		latex = {
+			enabled = true,
+			converter = "latex2text",
+			highlight = "RenderMarkdownMath",
+		},
+
 		-- Horizontal rules
 		dash = {
 			enabled = true,
