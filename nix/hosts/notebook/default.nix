@@ -6,8 +6,8 @@
 
 {
   imports = [
-    # Auto-generated hardware scan (stays at repo root)
-    ../../../hardware-configuration.nix
+    # Auto-generated hardware scan
+    ./hardware-configuration.nix
 
     # Host sub-modules
     ./audio.nix
