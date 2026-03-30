@@ -30,6 +30,7 @@ return {
       'yamlls',
       'marksman',
       'bashls',
+      'nil_ls',
     }
 
     -- Ensure the servers are installed
@@ -59,6 +60,7 @@ return {
       'yaml',
       'markdown',
       'bash',
+      'nix',
     }
 
     -- Configure each server
@@ -87,5 +89,6 @@ return {
     vim.lsp.enable('yamlls')
     vim.lsp.enable('marksman')
     vim.lsp.enable('bashls')
+    vim.lsp.enable('nil_ls')
   end,
 }

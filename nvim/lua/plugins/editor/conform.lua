@@ -25,6 +25,7 @@ return {
         go = { "gofmt" },
         c = { "clang-format" },
         cpp = { "clang-format" },
+        nix = { "alejandra" },
       },
       
       -- Format options
@@ -65,7 +66,7 @@ return {
     
     -- Format on save for specific filetypes (optional)
     vim.api.nvim_create_autocmd("BufWritePre", {
-      pattern = { "*.py", "*.lua", "*.rs", "*.go" },
+      pattern = { "*.py", "*.lua", "*.rs", "*.go", "*.nix" },
       callback = function(args)
         -- Only format if user wants it (toggle with <leader>lf)
         if vim.g.format_on_save then
