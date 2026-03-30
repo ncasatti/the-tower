@@ -19,6 +19,7 @@
 
     # --- Terminal & Shell ---
     ".config/kitty"          = { source = ../../kitty;            recursive = true; };
+    ".config/wezterm"        = { source = ../../wezterm;          recursive = true; };
     ".config/fish"           = { source = ../../fish;             recursive = true; };
     ".config/lazygit"        = { source = ../../lazygit;          recursive = true; };
 
