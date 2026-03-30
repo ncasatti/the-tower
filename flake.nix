@@ -24,17 +24,17 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs: 
+  outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs   = nixpkgs.legacyPackages.${system};
     in {
 
       # =======================================================================
       # 1. THE MAINFRAME (NixOS System-Level Configuration for the Notebook)
-      # Deployment command: sudo nixos-rebuild switch --flake .#the-grid-mainframe
+      # Deployment command: sudo nixos-rebuild switch --flake .#notebook
       # =======================================================================
-      nixosConfigurations."the-grid" = nixpkgs.lib.nixosSystem {
+      nixosConfigurations."notebook" = nixpkgs.lib.nixosSystem {
         inherit system;
 
         # Pass flake inputs directly to all internal modules
@@ -44,17 +44,17 @@
           # Agenix NixOS module (secret decryption at activation time)
           agenix.nixosModules.default
 
-          # The core OS configuration (Bootloader, Kernel, Hardware, Services)
-          ./configuration.nix
+          # The core OS configuration
+          ./nix/hosts/notebook
 
           # Inject Home Manager natively as a NixOS module
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
+            home-manager.useGlobalPkgs    = true;
+            home-manager.useUserPackages  = true;
 
             # Map the 'flyn' user to its declarative environment payload
-            home-manager.users.flyn = import ./home-notebook.nix;
+            home-manager.users.flyn = import ./nix/home/notebook.nix;
 
             # Pass inputs specifically to Home Manager
             home-manager.extraSpecialArgs = { inherit inputs; };
@@ -64,16 +64,16 @@
 
       # =======================================================================
       # 2. THE TOWER (User-Level Standalone Configuration for Arch Linux)
-      # Deployment command: nix run home-manager/master -- switch --flake .#ncasatti
+      # Deployment command: nix run home-manager/master -- switch --flake .#main
       # =======================================================================
-      homeConfigurations."ncasatti" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."main" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
         # Pass inputs specifically to Home Manager
         extraSpecialArgs = { inherit inputs; };
 
         # The declarative user payload
-        modules = [ ./home-main.nix ];
+        modules = [ ./nix/home/main.nix ];
       };
 
     };

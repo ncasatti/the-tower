@@ -1,26 +1,29 @@
+# nix/home/tmux.nix
+# Declarative tmux configuration via Home Manager
+# oasis_lagoon.conf lives at repo root: tmux/oasis_lagoon.conf
+
 { pkgs, ... }:
 
 {
-  # 4. TMUX: Declarative tmux configuration via Home Manager
   programs.tmux = {
     enable = true;
 
     # --- Core settings ---
-    terminal = "tmux-256color";
-    shell = "${pkgs.fish}/bin/fish";
-    prefix = "C-a";
-    baseIndex = 1;
-    escapeTime = 0;
+    terminal     = "tmux-256color";
+    shell        = "${pkgs.fish}/bin/fish";
+    prefix       = "C-a";
+    baseIndex    = 1;
+    escapeTime   = 0;
     historyLimit = 1000000;
-    mouse = true;
-    keyMode = "vi";
+    mouse        = true;
+    keyMode      = "vi";
 
     # --- Plugins ---
     plugins = with pkgs.tmuxPlugins; [
       sensible
 
       {
-        plugin = yank;
+        plugin      = yank;
         extraConfig = ''
           set -g @yank_selection_mouse 'clipboard'
           set -g @yank_action 'copy-pipe'
@@ -29,21 +32,21 @@
       }
 
       {
-        plugin = resurrect;
+        plugin      = resurrect;
         extraConfig = ''
           set -g @resurrect-strategy-nvim 'session'
         '';
       }
 
       {
-        plugin = continuum;
+        plugin      = continuum;
         extraConfig = ''
           set -g @continuum-restore 'off'
         '';
       }
 
       {
-        plugin = tmux-thumbs;
+        plugin      = tmux-thumbs;
         extraConfig = ''
           set -g @thumbs-command 'echo -n {} | wl-copy'
           set -g @thumbs-upcase-command 'echo -n {} | wl-copy'
@@ -60,7 +63,7 @@
       }
 
       {
-        plugin = tmux-fzf;
+        plugin      = tmux-fzf;
         extraConfig = ''
           set-environment -g TMUX_FZF_OPTIONS "-p -w 80% -h 80%"
           unbind t
@@ -70,7 +73,7 @@
       }
 
       {
-        plugin = tmux-sessionx;
+        plugin      = tmux-sessionx;
         extraConfig = ''
           set -g @sessionx-bind 'o'
           set -g @sessionx-bind-zo-new-window 'ctrl-y'
@@ -86,7 +89,7 @@
       }
 
       {
-        plugin = tmux-floax;
+        plugin      = tmux-floax;
         extraConfig = ''
           set -g @floax-width '80%'
           set -g @floax-height '80%'
@@ -100,38 +103,31 @@
       {
         plugin = pkgs.tmuxPlugins.mkTmuxPlugin {
           pluginName = "oasis";
-          version = "unstable-2024-01-01";
-          src = pkgs.fetchFromGitHub {
-            owner = "uhs-robert";
-            repo = "tmux-oasis";
-            rev = "4caf1674660ee8b9e7373cf183562679b70406c7";
+          version    = "unstable-2024-01-01";
+          src        = pkgs.fetchFromGitHub {
+            owner  = "uhs-robert";
+            repo   = "tmux-oasis";
+            rev    = "4caf1674660ee8b9e7373cf183562679b70406c7";
             # Run: nix-prefetch-url --unpack https://github.com/uhs-robert/tmux-oasis/archive/4caf1674660ee8b9e7373cf183562679b70406c7.tar.gz
             sha256 = "sha256-Yz5zD3msNpzd6LMvjpL2J6zeTU2Kr4MYxOfQB2EuYSU=";
           };
           postInstall = ''
-          chmod +x $target/*.tmux
-          chmod +x $target/scripts/*.sh 2>/dev/null || true
+            chmod +x $target/*.tmux
+            chmod +x $target/scripts/*.sh 2>/dev/null || true
           '';
           postPatch = ''
-            # cp ${./oasis_lagoon.conf} themes/dark/oasis_lagoon_dark.conf
-            # cp ${./oasis_starlight.conf} themes/dark/oasis_starlight_dark.conf
-            cat ${./oasis_lagoon.conf} > themes/dark/oasis_lagoon_dark.conf
-            # cat ${./oasis_starlight.conf} > themes/dark/oasis_starlight_dark.conf
+            cat ${../../tmux/oasis_lagoon.conf} > themes/dark/oasis_lagoon_dark.conf
           '';
         };
         extraConfig = ''
-          # set -g @oasis_flavor "starlight_dark"
           set -g @oasis_flavor "lagoon_dark"
-          # set -g pane-border-style "fg=#333333"
-          # set -g pane-active-border-style "fg=#00ffff,bold"
-          # set -g @oasis_session_color "#{E:@thm_fg}"
 
           set -g pane-border-style "fg=#333333"
           set -g pane-active-border-style "fg=#00ffff,bold"
           set -g @oasis_session_color "#{E:@thm_fg}"
- 
-          set -g @oasis_window_left_separator ""
-          set -g @oasis_window_right_separator ""
+
+          set -g @oasis_window_left_separator ""
+          set -g @oasis_window_right_separator ""
           set -g @oasis_window_middle_separator " █"
           set -g @oasis_window_number_position "left"
 
@@ -214,10 +210,6 @@
       bind b list-buffers
       bind p paste-buffer
       bind P choose-buffer
-
-      # Theme override (must be after plugin initialization)
-      # Oasis theme uses pure black (#000000) which makes selection invisible
-      # set -g mode-style 'fg=#101825,bg=#6EB5FF,bold'
     '';
   };
 }
