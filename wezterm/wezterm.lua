@@ -41,9 +41,9 @@ config.text_background_opacity = 1.0
 
 -- Bloom and Glow simulation
 -- WezTerm doesn't have a direct "bloom" slider, but we can use 
--- front_end = "WebGpu" and custom shaders for advanced effects.
--- For now, we use high-quality text rendering.
+-- front_end = "WebGpu" for maximum performance on native Arch.
 config.front_end = "WebGpu"
+
 
 -- 4. WINDOW DECORATIONS
 config.window_padding = {
