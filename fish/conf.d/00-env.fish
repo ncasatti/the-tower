@@ -5,7 +5,7 @@
 
 # Editor and browser
 set -gx EDITOR nvim
-set -gx BROWSER zen-browser
+set -gx BROWSER brave
 
 # Development tools
 set -gx DOTNET_ROOT $HOME/.dotnet
