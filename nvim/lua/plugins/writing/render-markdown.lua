@@ -177,57 +177,59 @@ return {
 		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Cycle heading level" }))
 
 		-- Toggle checkbox
-		vim.keymap.set("n", "<leader>mt", function()
-			local line = vim.api.nvim_get_current_line()
-			if line:match("%- %[x%]") then
-				vim.api.nvim_set_current_line((line:gsub("%- %[x%]", "- [ ]")))
-			elseif line:match("%- %[ %]") then
-				vim.api.nvim_set_current_line((line:gsub("%- %[ %]", "- [x]")))
-			else
-				-- Add unchecked checkbox at start of list item or line
-				if line:match("^%s*%-") then
-					vim.api.nvim_set_current_line((line:gsub("^(%s*%-)%s*", "%1 [ ] ")))
-				else
-					local indent = line:match("^(%s*)")
-					vim.api.nvim_set_current_line(indent .. "- [ ] " .. line:gsub("^%s*", ""))
-				end
-			end
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Toggle checkbox" }))
+		vim.keymap.set("n", "<leader>mx", ":RenderMarkdown toggle_checkbox<CR>",
+			vim.tbl_extend("force", md_opts, { desc = "Markdown: Toggle checkbox" }))
 
-		-- Bold wrap (visual mode)
-		vim.keymap.set("v", "<leader>mb", function()
-			-- Get visual selection, wrap with **
-			vim.cmd('normal! "zc**' .. vim.fn.getreg("z") .. "**")
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Bold selection" }))
-
-		-- Italic wrap (visual mode)
-		vim.keymap.set("v", "<leader>mi", function()
-			vim.cmd('normal! "zc*' .. vim.fn.getreg("z") .. "*")
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Italic selection" }))
-
-		-- Insert link (visual = wrap selection as link text, normal = template)
-		vim.keymap.set("n", "<leader>ml", function()
-			vim.api.nvim_put({ "[](url)" }, "c", true, true)
-			-- Place cursor inside []
-			vim.cmd("normal! F[la")
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Insert link" }))
-		vim.keymap.set("v", "<leader>ml", function()
-			vim.cmd('normal! "zc[' .. vim.fn.getreg("z") .. "](url)")
-			vim.cmd("normal! F)i")
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Link selection" }))
-
-		-- Insert code block
-		vim.keymap.set("n", "<leader>mk", function()
-			local row = vim.api.nvim_win_get_cursor(0)[1]
-			vim.api.nvim_buf_set_lines(0, row, row, false, { "```", "", "```" })
-			vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
-			vim.cmd("startinsert")
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Insert code block" }))
-
-		-- Preview in browser (uses glow or markdown-preview if available)
+		-- Mermaid preview (External)
 		vim.keymap.set("n", "<leader>mp", function()
-			local file = vim.fn.expand("%:p")
-			vim.fn.jobstart({ "xdg-open", file }, { detach = true })
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview in browser" }))
+			local node = vim.treesitter.get_node()
+			if not node then return end
+
+			-- Find the code block node
+			while node and node:type() ~= "fenced_code_block" do
+				node = node:parent()
+			end
+
+			if not node then
+				vim.notify("No code block found under cursor", vim.log.levels.WARN)
+				return
+			end
+
+			-- Get content and language
+			local content = vim.treesitter.get_node_text(node, 0)
+			local lang = content:match("^```(%w+)")
+
+			if lang ~= "mermaid" then
+				vim.notify("Not a mermaid block", vim.log.levels.WARN)
+				return
+			end
+
+			-- Extract mermaid code (remove backticks and lang)
+			local code = content:gsub("^```mermaid\n", ""):gsub("\n```$", "")
+			local tmp_mmd = os.tmpname() .. ".mmd"
+			local tmp_png = os.tmpname() .. ".png"
+
+			-- Write to temp file
+			local f = io.open(tmp_mmd, "w")
+			if f then
+				f:write(code)
+				f:close()
+
+				-- Run mmdc and open with xdg-open (default image viewer)
+				vim.notify("Generating mermaid diagram...", vim.log.levels.INFO)
+				vim.fn.jobstart({ "mmdc", "-i", tmp_mmd, "-o", tmp_png }, {
+					on_exit = function(_, code_exit)
+						if code_exit == 0 then
+							vim.fn.jobstart({ "xdg-open", tmp_png })
+							-- Clean up mmd file, png will be open
+							os.remove(tmp_mmd)
+						else
+							vim.notify("mmdc failed. Is mermaid-cli installed?", vim.log.levels.ERROR)
+						end
+					end,
+				})
+			end
+		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview Mermaid (External)" }))
 	end,
 }
+
