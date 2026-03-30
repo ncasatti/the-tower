@@ -21,7 +21,7 @@ return {
 			-- icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
 			-- icons = { "󰎤 ", "󰎧 ", "󰎪 ", "󰎭 ", "󰎱 ", "󰎳 " },
 			-- icons = { "󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 " },
-			-- icons = { "󰲠 ", "󰲢 ", "󰲤 ", "󰲦 ", "󰲨 ", "󰲪 " },
+			-- icons = { "󰲠 ", "󰲢 ", "󰲤 ", "󰲦 ", "󰲪 " },
 			-- icons = { "󰎥 ", "󰎨 ", "󰎫 ", "󰎲 ", "󰎯 ", "󰎴 " },
 			icons = { "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 " },
 			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
@@ -85,11 +85,11 @@ return {
 		},
 
 		-- LaTeX support (integrated with nabla.nvim)
-		latex = {
-			enabled = true,
-			converter = "latex2text",
-			highlight = "RenderMarkdownMath",
-		},
+		-- latex = {
+		-- 	enabled = true,
+		-- 	converter = "latex2text",
+		-- 	highlight = "RenderMarkdownMath",
+		-- },
 
 		-- Horizontal rules
 		dash = {
@@ -150,11 +150,11 @@ return {
 
 		-- Render control
 		vim.keymap.set("n", "<leader>mr", ":RenderMarkdown toggle<CR>",
-			vim.tbl_extend("force", md_opts, { desc = "Markdown: Toggle rendering" }))
+			vim.tbl_extend("force", md_opts, { desc = "󰍔 Toggle rendering" }))
 
 		-- Heading fold/unfold
 		vim.keymap.set("n", "<leader>me", ":RenderMarkdown expand<CR>",
-			vim.tbl_extend("force", md_opts, { desc = "Markdown: Expand all headings" }))
+			vim.tbl_extend("force", md_opts, { desc = "󰍔 Expand all headings" }))
 		vim.keymap.set("n", "<leader>mc", function()
 			-- Collapse all headings by setting foldlevel to 0
 			vim.opt_local.foldmethod = "expr"
@@ -162,7 +162,7 @@ return {
 			vim.opt_local.foldenable = true
 			vim.opt_local.foldlevel = 0
 			vim.notify("Headings collapsed", vim.log.levels.INFO)
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Collapse all headings" }))
+		end, vim.tbl_extend("force", md_opts, { desc = "󰍔 Collapse all headings" }))
 
 		-- Heading level cycle
 		vim.keymap.set("n", "<leader>mh", function()
@@ -174,62 +174,114 @@ return {
 			else
 				vim.api.nvim_set_current_line("# " .. line)
 			end
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Cycle heading level" }))
+		end, vim.tbl_extend("force", md_opts, { desc = "󰍔 Cycle heading level" }))
 
 		-- Toggle checkbox
 		vim.keymap.set("n", "<leader>mx", ":RenderMarkdown toggle_checkbox<CR>",
-			vim.tbl_extend("force", md_opts, { desc = "Markdown: Toggle checkbox" }))
+			vim.tbl_extend("force", md_opts, { desc = "󰄵 Toggle checkbox" }))
+
+		-- Open link (External/General)
+		vim.keymap.set("n", "<leader>ml", function()
+			vim.cmd("normal! gx")
+		end, vim.tbl_extend("force", md_opts, { desc = "󰌹 Open link (External)" }))
 
 		-- Mermaid preview (External)
-		vim.keymap.set("n", "<leader>mp", function()
-			local node = vim.treesitter.get_node()
-			if not node then return end
+		-- vim.keymap.set("n", "<leader>mp", function()
+		-- 	local node = vim.treesitter.get_node()
+		-- 	if not node then return end
+		--
+		-- 	-- Find the code block node
+		-- 	while node and node:type() ~= "fenced_code_block" do
+		-- 		node = node:parent()
+		-- 	end
+		--
+		-- 	if not node then
+		-- 		vim.notify("No code block found under cursor", vim.log.levels.WARN)
+		-- 		return
+		-- 	end
+		--
+		-- 	-- Get content and language
+		-- 	local content = vim.treesitter.get_node_text(node, 0)
+		-- 	local lang = content:match("^```(%w+)")
+		--
+		-- 	if lang ~= "mermaid" then
+		-- 		vim.notify("Not a mermaid block", vim.log.levels.WARN)
+		-- 		return
+		-- 	end
+		--
+		-- 	-- Extract mermaid code (remove backticks and lang)
+		-- 	local code = content:gsub("^```mermaid\n", ""):gsub("\n```$", "")
+		-- 	local tmp_mmd = os.tmpname() .. ".mmd"
+		-- 	local tmp_png = os.tmpname() .. ".png"
+		--
+		-- 	-- Write to temp file
+		-- 	local f = io.open(tmp_mmd, "w")
+		-- 	if f then
+		-- 		f:write(code)
+		-- 		f:close()
+		--
+		-- 		-- Run mmdc and open with xdg-open (default image viewer)
+		-- 		vim.notify("Generating mermaid diagram...", vim.log.levels.INFO)
+		-- 		vim.fn.jobstart({ "mmdc", "-i", tmp_mmd, "-o", tmp_png }, {
+		-- 			on_exit = function(_, code_exit)
+		-- 				if code_exit == 0 then
+		-- 					vim.fn.jobstart({ "xdg-open", tmp_png })
+		-- 					-- Clean up mmd file, png will be open
+		-- 					os.remove(tmp_mmd)
+		-- 				else
+		-- 					vim.notify("mmdc failed. Is mermaid-cli installed?", vim.log.levels.ERROR)
+		-- 				end
+		-- 			end,
+		-- 		})
+		-- 	end
+		-- end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview Mermaid (External)" }))
 
-			-- Find the code block node
-			while node and node:type() ~= "fenced_code_block" do
-				node = node:parent()
-			end
-
-			if not node then
-				vim.notify("No code block found under cursor", vim.log.levels.WARN)
-				return
-			end
-
-			-- Get content and language
-			local content = vim.treesitter.get_node_text(node, 0)
-			local lang = content:match("^```(%w+)")
-
-			if lang ~= "mermaid" then
-				vim.notify("Not a mermaid block", vim.log.levels.WARN)
-				return
-			end
-
-			-- Extract mermaid code (remove backticks and lang)
-			local code = content:gsub("^```mermaid\n", ""):gsub("\n```$", "")
-			local tmp_mmd = os.tmpname() .. ".mmd"
-			local tmp_png = os.tmpname() .. ".png"
-
-			-- Write to temp file
-			local f = io.open(tmp_mmd, "w")
-			if f then
-				f:write(code)
-				f:close()
-
-				-- Run mmdc and open with xdg-open (default image viewer)
-				vim.notify("Generating mermaid diagram...", vim.log.levels.INFO)
-				vim.fn.jobstart({ "mmdc", "-i", tmp_mmd, "-o", tmp_png }, {
-					on_exit = function(_, code_exit)
-						if code_exit == 0 then
-							vim.fn.jobstart({ "xdg-open", tmp_png })
-							-- Clean up mmd file, png will be open
-							os.remove(tmp_mmd)
-						else
-							vim.notify("mmdc failed. Is mermaid-cli installed?", vim.log.levels.ERROR)
-						end
-					end,
-				})
-			end
-		end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview Mermaid (External)" }))
+		-- LaTeX preview (External Hibrid PoC)
+		-- vim.keymap.set("n", "<leader>lp", function()
+		-- 	local line = vim.api.nvim_get_current_line()
+		-- 	-- Basic detection of math blocks or inline math
+		-- 	local math = line:match("%$%$(.*)%$%$") or line:match("%$(.*)%$")
+		-- 	
+		-- 	if not math then
+		-- 		vim.notify("No LaTeX math found on current line", vim.log.levels.WARN)
+		-- 		return
+		-- 	end
+		--
+		-- 	local tmp_png = os.tmpname() .. ".png"
+		-- 	-- Use an online API (codecogs) to get a PNG of the formula
+		-- 	-- This is a PoC to avoid local dependencies for now
+		-- 	local url = "https://latex.codecogs.com/png.latex?\\bg_white&space;\\large&space;" .. vim.uri_encode(math)
+		-- 	
+		-- 	vim.notify("Fetching LaTeX preview...", vim.log.levels.INFO)
+		-- 	vim.fn.jobstart({ "curl", "-s", "-o", tmp_png, url }, {
+		-- 		on_exit = function(_, code_exit)
+		-- 			if code_exit == 0 then
+		-- 				-- Get terminal position and size via hyprctl
+		-- 				local handle = io.popen("hyprctl activewindow -j")
+		-- 				local result = handle:read("*a")
+		-- 				handle:close()
+		-- 				local ok, window_info = pcall(vim.fn.json_decode, result)
+		--
+		-- 				if ok and window_info and window_info.at and window_info.size then
+		-- 					-- Calculate centered floating window
+		-- 					local w = 600 -- Fixed width for formula
+		-- 					local h = 200 -- Fixed height for formula
+		-- 					local x = math.floor(window_info.at[1] + (window_info.size[1] - w) / 2)
+		-- 					local y = math.floor(window_info.at[2] + (window_info.size[2] - h) / 2)
+		-- 					
+		-- 					local cmd = string.format(
+		-- 						"hyprctl dispatch exec \"[float;size %d %d;at %d %d;pin] imv %s\"",
+		-- 						w, h, x, y, tmp_png
+		-- 					)
+		-- 					os.execute(cmd)
+		-- 				else
+		-- 					vim.fn.jobstart({ "xdg-open", tmp_png })
+		-- 				end
+		-- 			else
+		-- 				vim.notify("Failed to fetch LaTeX preview", vim.log.levels.ERROR)
+		-- 			end
+		-- 		end,
+		-- 	})
+		-- end, vim.tbl_extend("force", md_opts, { desc = "LaTeX: Preview (External Hibrid)" }))
 	end,
 }
-

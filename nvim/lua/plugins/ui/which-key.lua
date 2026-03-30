@@ -9,13 +9,28 @@ return {
   event = "VeryLazy", -- Load this plugin on the 'VeryLazy' event
 
   config = function()
-    require("which-key").setup({
+    local wk = require("which-key")
+    wk.setup({
       preset = "modern", -- helix|modern|classic
       -- Hydra mode: keep which-key open for window commands
       show = {
         keys = '<c-w>',
         loop = true,
       },
+    })
+
+    -- Define groups with icons
+    wk.add({
+      { "<leader>a", group = "Android", icon = " " },
+      { "<leader>b", group = "Buffers", icon = "󰓩 " },
+      { "<leader>c", group = "Code/Config", icon = "󰅱 " },
+      { "<leader>d", group = "Debug", icon = "󰃤 " },
+      { "<leader>g", group = "Git/Go/Gradle", icon = "󰊢 " },
+      { "<leader>l", group = "LSP", icon = "󰒋 " },
+      { "<leader>m", group = "Markdown", icon = "󰍔 " },
+      { "<leader>o", group = "Obsidian", icon = "󱓧 " },
+      { "<leader>s", group = "Search", icon = "󰍉 " },
+      { "<leader>t", group = "Telescope/Test", icon = "󰭎 " },
     })
   end,
 
@@ -32,11 +47,7 @@ return {
       function()
         require("which-key").show({ global = false }) -- Show the which-key popup for local keybindings
       end,
-    },
-    {
-      -- Define a group for Obsidian-related commands
-      "<leader>o",
-      group = "Obsidian",
+      desc = "Show Which-Key",
     },
   },
 }

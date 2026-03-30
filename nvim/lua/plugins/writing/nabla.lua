@@ -1,5 +1,6 @@
 return {
   "jbyuki/nabla.nvim",
+  enabled = false, -- Disabled: using Obsidian for LaTeX visualization
   keys = {
     {
       "<leader>lp",

@@ -4,7 +4,7 @@ Complete reference for all keybindings in this Neovim configuration.
 
 **Leader Key:** `Space`
 
-**Last Updated:** 2025-11-26
+**Last Updated:** 2026-03-30
 
 ---
 
@@ -18,11 +18,12 @@ Complete reference for all keybindings in this Neovim configuration.
 - [Android Development](#android-development)
 - [Gradle Build System](#gradle-build-system)
 - [Go Development](#go-development)
+- [Nix Development](#nix-development)
 - [Git Integration](#git-integration)
 - [File Navigation & Exploration](#file-navigation--exploration)
 - [Search & Grep](#search--grep)
 - [Obsidian & Writing](#obsidian--writing)
-- [Markdown Rendering](#markdown-rendering)
+- [Markdown Rendering & Tools](#markdown-rendering--tools)
 - [UI & Utilities](#ui--utilities)
 - [Goto Preview](#goto-preview)
 - [Completion (nvim-cmp)](#completion-nvim-cmp)
@@ -131,7 +132,7 @@ The operator-pending mode has essential remaps that enable motions to work with 
 
 | Key | Mode | Description |
 |-----|------|-------------|
-| `<leader>j` | n | Switch to previous buffer |
+| `<leader>to` | n | Switch to previous buffer |
 
 ---
 
@@ -178,15 +179,16 @@ The operator-pending mode has essential remaps that enable motions to work with 
 |-----|------|-------------|
 | `<leader>rn` | n | Rename symbol |
 | `<leader>ca` | n | Code actions |
-| `<leader>ll` | n | Format buffer |
+| `<leader>ll` | n | Format buffer (via Conform) |
+| `<leader>lf` | n | Toggle format-on-save |
 | `:Format` | n | Format buffer (command) |
 
 ### Symbols
 
 | Key | Mode | Description |
 |-----|------|-------------|
-| `<leader>ds` | n | Document symbols (via Snacks.picker) |
-| `<leader>ws` | n | Workspace symbols (via Snacks.picker) |
+| `<leader>ss` | n | Document symbols (via Snacks.picker) |
+| `<leader>sS` | n | Workspace symbols (via Snacks.picker) |
 
 ### Workspace Management
 
@@ -384,6 +386,19 @@ You can also use Ex commands:
 
 ---
 
+## Nix Development
+
+**File:** `lua/plugins/lsp/servers/nix.lua`
+
+Nix support with `nil_ls` LSP and `alejandra` formatter.
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `<leader>ll` | n | Format Nix file (via Alejandra) |
+| `<leader>lf` | n | Toggle format-on-save |
+
+---
+
 ## Git Integration
 
 **File:** `lua/plugins/snacks/keys.lua`
@@ -518,14 +533,29 @@ You can also use Ex commands:
 
 ---
 
-## Markdown Rendering
+## Markdown Rendering & Tools
 
-**File:** `lua/plugins/writing/render-markdown.lua`
+**Files:** `lua/plugins/writing/render-markdown.lua`, `lua/plugins/writing/nabla.lua`
+
+### Rendering Control
 
 | Key | Mode | Description |
 |-----|------|-------------|
 | `<leader>mr` | n | Toggle markdown rendering |
-| `<leader>me` | n | Expand markdown heading |
+| `<leader>me` | n | Expand all headings |
+| `<leader>mc` | n | Collapse all headings |
+| `<leader>mh` | n | Cycle heading level |
+| `<leader>mx` | n | Toggle checkbox |
+
+### Links & Previews
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `<leader>ml` | n | Open link (External/Web) |
+| `<leader>mp` | n | Mermaid preview (External - commented out) |
+| `<leader>lp` | n | LaTeX preview (Popup - disabled) |
+| `<leader>lv` | n | LaTeX enable virtual text (disabled) |
+| `<leader>ld` | n | LaTeX disable virtual text (disabled) |
 
 ---
 
@@ -638,9 +668,9 @@ Default mappings enabled.
 
 These keys have no current mappings and are safe to use:
 
-- `<leader>a` / `<leader>A`
+- `<leader>A`
 - `<leader>f` / `<leader>F`
-- `<leader>j` (only `<leader>j` is used for previous buffer, `<leader>J` is unused)
+- `<leader>j` (only `<leader>to` is used for previous buffer, `<leader>j` and `<leader>J` are unused)
 - `<leader>p` / `<leader>P` / `<leader>q` / `<leader>Q`
 - `<leader>x` / `<leader>X`
 - `<leader>y`
@@ -650,7 +680,7 @@ These keys have no current mappings and are safe to use:
 These prefixes have some mappings but room for additional related commands:
 - `<leader>d*` - Diagnostics/Debug (many d-prefixed keys are available)
 - `<leader>t*` - Find/Test (many t-prefixed keys are available)
-- `<leader>l*` - LSP/Location (le, lq, ll are used; others available)
+- `<leader>l*` - LSP/Location (le, lq, ll, lf are used; others available)
 - `<leader>g*` - Git/Go/Gradle (heavily used; conflicts exist - see notes below)
 - `<leader>c*` - Code/Config (ca, cR used; others available)
 
@@ -708,7 +738,7 @@ To add new keybindings:
 
 ## Last Updated
 
-This documentation was generated on 2025-11-26 by auditing all Lua configuration files.
+This documentation was generated on 2026-03-30 by auditing all Lua configuration files.
 
 For the most current and detailed keybinding information, refer to the source files:
 - `/home/ncasatti/.config/konfig/nvim/lua/config/keys.lua`

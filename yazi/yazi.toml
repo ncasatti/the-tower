@@ -6,7 +6,7 @@ xdg = { run = 'xdg-open "$@"', desc = "Abrir con la app predeterminada" }
 
 [open]
 rules = [
-    { name = "*.{txt,md,json,yaml,yml,toml,fish,nix,lua,py,sh,js,ts,go,rs,cpp,c,h,hpp}", use = "edit" },
-    { mime = "text/*", use = "edit" },
+    { name = "*.{txt,md,json,yaml,yml,toml,fish,nix,lua,py,sh,js,ts,go,rs,cpp,c,h,hpp}", use = ["edit"] },
+    { mime = "text/*", use = ["edit"] },
     { mime = "video/*", use = ["vlc", "mpv", "xdg"] },
 ]
