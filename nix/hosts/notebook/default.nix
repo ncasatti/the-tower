@@ -11,7 +11,6 @@
 
     # Host sub-modules
     ./audio.nix
-    ./secrets.nix
     ./services.nix
   ];
 
@@ -63,8 +62,6 @@
     curl
     wget
     eza
-    # agenix CLI
-    inputs.agenix.packages.x86_64-linux.default
   ];
 
   # Do NOT change this value.

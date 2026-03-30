@@ -41,9 +41,6 @@
         specialArgs = { inherit inputs; };
 
         modules = [
-          # Agenix NixOS module (secret decryption at activation time)
-          agenix.nixosModules.default
-
           # The core OS configuration
           ./nix/hosts/notebook
 
