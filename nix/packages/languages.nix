@@ -11,5 +11,6 @@
     lua-language-server
     luarocks
     lua5_1
+    mermaid-cli
   ];
 }
