@@ -9,7 +9,6 @@
     mkdir -p "$HOME/.cache/hypr/wallust"
     ln -sfn "$HOME/.cache/hypr/wallust"           "$HOME/.config/waybar/wallust"
     ln -sfn "$HOME/.cache/hypr/wallust"           "$HOME/.config/rofi/wallust"
-    ln -sfn "$HOME/.cache/hypr/current-wallpaper" "$HOME/.config/rofi/.current_wallpaper"
   '';
 
   # --- POST-ACTIVATION: Refresh Hyprland after linking ---

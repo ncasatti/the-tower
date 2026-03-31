@@ -87,7 +87,7 @@ inputbar {
     border-radius:               20px;
     orientation:                 horizontal;
     children:                    ["entry", "dummy", "mode-switcher" ];
-    background-image:            url("~/.config/rofi/.current_wallpaper", width);
+    background-image:            url("~/.cache/hypr/current-wallpaper", width);
 }
 
 /* ---- Entry input ---- */

@@ -52,7 +52,6 @@ vim.keymap.set("n", "<leader>,", "<S-i>", { noremap = true, desc = "Insert at li
 vim.keymap.set("n", "<leader>k", "ggVGy", { noremap = true, desc = "Yank entire buffer" })
 vim.keymap.set("n", "<leader>h", ":vsplit<CR><C-w>w", { noremap = true, desc = "Vertical split" })
 vim.keymap.set("n", "<leader>v", ":split<CR><C-w>w", { noremap = true, desc = "Horizontal split" })
-vim.keymap.set("n", "<leader>o", "o<Esc>", { noremap = true, desc = "Insert blank line below" })
 vim.keymap.set("n", "R", "zz", { noremap = true, desc = "Center screen" })
 vim.keymap.set("n", "<leader>W", ":set wrap!<CR>", { noremap = true, desc = "Toggle line wrap" })
 vim.keymap.set("n", "<leader>to", "<cmd>b#<CR>", { noremap = true, desc = "Previous buffer" })
