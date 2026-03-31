@@ -9,34 +9,33 @@ return {
   },
   keys = {
     -- Search commands
-    { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search Notes", icon = " " },
-    { "<leader>og", "<cmd>Obsidian grep<cr>", desc = "Grep Notes", icon = "󰱽 " },
+    { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search Notes" },
+    { "<leader>og", "<cmd>Obsidian grep<cr>", desc = "Grep Notes" },
 
     -- Main commands
-    { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New Note", icon = "󱓧 " },
-    { "<leader>ot", "<cmd>Obsidian template<cr>", desc = "Insert Template", icon = "󰏫 " },
-    { "<leader>oo", "<cmd>Obsidian quick_switch<cr>", desc = "Quick Switch", icon = "󱓞 " },
+    { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New Note" },
+    { "<leader>ot", "<cmd>Obsidian template<cr>", desc = "Insert Template" },
+    { "<leader>oo", "<cmd>Obsidian quick_switch<cr>", desc = "Quick Switch" },
 
     -- Link commands
-    { "<leader>oa", "<cmd>Obsidian links<cr>", desc = "Show All Links", icon = "󰌹 " },
-    { "<leader>ob", "<cmd>Obsidian backlinks<cr>", desc = "Show Backlinks", icon = "󰌹 " },
+    { "<leader>oa", "<cmd>Obsidian links<cr>", desc = "Show All Links" },
+    { "<leader>ob", "<cmd>Obsidian backlinks<cr>", desc = "Show Backlinks" },
 
     -- Link and checkbox commands
-    { "<leader>of", "<cmd>Obsidian follow_link<cr>", desc = "Follow Link", icon = "󰌹 " },
-    { "<leader>ox", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle Checkbox", icon = "󰄵 " },
+    { "<leader>of", "<cmd>Obsidian follow_link<cr>", desc = "Follow Link" },
+    { "<leader>ox", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle Checkbox" },
 
     -- Additional commands
-    { "<leader>o#", "<cmd>Obsidian tags<cr>", desc = "Search Tags", icon = "󰓹 " },
+    { "<leader>o#", "<cmd>Obsidian tags<cr>", desc = "Search Tags" },
     {
       "<leader>or",
       function()
         return require("obsidian").util.rename_with_visual_selection()
       end,
       desc = "Rename Note",
-      icon = "󰏫 ",
     },
-    { "<leader>oi", "<cmd>Obsidian paste_img<cr>", desc = "Paste Image", icon = "󰏫 " },
-    { "<leader>ov", "<cmd>Obsidian open<cr>", desc = "Open in Obsidian App", icon = "󱓧 " },
+    { "<leader>oi", "<cmd>Obsidian paste_img<cr>", desc = "Paste Image" },
+    { "<leader>ov", "<cmd>Obsidian open<cr>", desc = "Open in Obsidian App" },
   },
   config = function(_, opts)
     require("obsidian").setup({
