@@ -326,12 +326,22 @@ To add a new secret:
 
 ---
 
-## License
+## Credits & Attributions
 
-This repository is personal configuration. Use at your own discretion.
+This configuration incorporates code, scripts, and inspiration from the following open-source projects:
+
+- **[Arch-Hyprland](https://github.com/JaKooLit/Arch-Hyprland)** by **JaKooLit**: Several Hyprland scripts, configuration patterns, and theming logic.
+- **[LazyVim](https://github.com/LazyVim/LazyVim)**: Inspiration for modular Neovim structure.
+- **[NixOS Wiki](https://nixos.wiki/)**: Community-driven documentation and patterns.
 
 ---
 
-**Maintained by:** Kasatto  
+## License
+
+This project is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for the full text.
+
+---
+
+**Maintained by:** Nico (Kasatto)  
 **Targets:** NixOS (notebook) + Arch Linux (main) + Hyprland + Nix Flakes + agenix  
 **Last Updated:** 2026-03-30
