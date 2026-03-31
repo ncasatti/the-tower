@@ -62,6 +62,7 @@
     curl
     wget
     eza
+    wiremix
   ];
 
   # Do NOT change this value.
