@@ -22,6 +22,12 @@
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # OpenCode AI CLI (community flake with hourly updates)
+    opencode-nix = {
+      url = "github:dominicnunez/opencode-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:

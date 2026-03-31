@@ -1,7 +1,7 @@
 # nix/packages/cli.nix
 # CLI tools and core utilities
 
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -25,5 +25,6 @@
     fish
     rclone
     tree-sitter
+    inputs.opencode-nix.packages.${pkgs.system}.default
   ];
 }
