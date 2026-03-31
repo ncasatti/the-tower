@@ -28,6 +28,12 @@
       url = "github:dominicnunez/opencode-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Clingy: Context-aware CLI framework
+    clingy = {
+      url = "github:ncasatti/clingy";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:

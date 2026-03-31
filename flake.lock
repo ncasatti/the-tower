@@ -23,6 +23,26 @@
         "type": "github"
       }
     },
+    "clingy": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774996054,
+        "narHash": "sha256-vo+b8GAZGKXiwRASunGYpSNoQvpQk9tWpmMdJjDmxTA=",
+        "owner": "ncasatti",
+        "repo": "clingy",
+        "rev": "c118c2685086ced06a6e20548175f306b432d7b1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "ncasatti",
+        "repo": "clingy",
+        "type": "github"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -42,6 +62,24 @@
         "owner": "lnl7",
         "ref": "master",
         "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems_2"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
         "type": "github"
       }
     },
@@ -123,15 +161,53 @@
         "type": "github"
       }
     },
+    "opencode-nix": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1774996861,
+        "narHash": "sha256-ylAPw6xifRiGMyla3gxL0TQ02dS2/4bLOFQ5+V1fiJY=",
+        "owner": "dominicnunez",
+        "repo": "opencode-nix",
+        "rev": "4bafb28d46830d73aa52485a615e09e03ea5004a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dominicnunez",
+        "repo": "opencode-nix",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "agenix": "agenix",
+        "clingy": "clingy",
         "home-manager": "home-manager_2",
         "nixpkgs": "nixpkgs",
+        "opencode-nix": "opencode-nix",
         "zen-browser": "zen-browser"
       }
     },
     "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_2": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
