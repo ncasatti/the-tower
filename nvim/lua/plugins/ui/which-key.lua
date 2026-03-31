@@ -28,7 +28,9 @@ return {
       { "<leader>g", group = "Git/Go/Gradle", icon = "󰊢 " },
       { "<leader>l", group = "LSP", icon = "󰒋 " },
       { "<leader>m", group = "Markdown", icon = "󰍔 " },
-      { "<leader>o", group = "Obsidian", icon = "󱓧 " },
+      { "<leader>o", group = "Obsidian/TaskNotes", icon = "󱓧 " },
+      { "<leader>oz", group = "Zettel Search", icon = "󰍉 " },
+      { "<leader>ow", group = "Task Management", icon = "󰄬 " },
       { "<leader>s", group = "Search", icon = "󰍉 " },
       { "<leader>t", group = "Telescope/Test", icon = "󰭎 " },
     })
