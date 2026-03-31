@@ -13,6 +13,7 @@
     git
     fzf
     gcc
+    gnumake
     unzip
     glow
     nettools

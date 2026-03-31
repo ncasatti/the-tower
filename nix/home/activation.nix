@@ -11,11 +11,6 @@
     ln -sfn "$HOME/.cache/hypr/wallust"           "$HOME/.config/rofi/wallust"
   '';
 
-  # --- POST-ACTIVATION: Refresh Hyprland after linking ---
-  home.activation.refreshSystem = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    $DRY_RUN_CMD $HOME/.config/hypr/scripts/system/refresh.sh
-  '';
-
   # --- HYPRLAND PLUGINS (Declarative) ---
   home.file.".config/hypr-nix-plugins.conf".text = ''
     plugin = ${pkgs.hyprlandPlugins.hy3}/lib/libhy3.so

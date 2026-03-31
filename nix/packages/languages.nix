@@ -6,8 +6,10 @@
 {
   home.packages = with pkgs; [
     nodejs_22
-    python3
+    (python3.withPackages (ps: with ps; [ pip ]))
     go
+    cargo
+    rustc
     lua-language-server
     luarocks
     lua5_1
