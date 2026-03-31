@@ -16,7 +16,7 @@
 return {
     -- This is a standalone plugin spec.
     -- It depends on telescope and plenary which are already installed.
-    dir = "/home/ncasatti/.the-grid/the-tower/nvim/lua/plugins/writing",
+    dir = vim.fn.stdpath("config") .. "/lua/plugins/writing",
     name = "tasknotes",
     event = "VeryLazy",
     dependencies = {
