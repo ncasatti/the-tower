@@ -1,8 +1,16 @@
 [opener]
-edit = { run = '${EDITOR:-nvim} "$@"', block = true, desc = "Edit" }
-vlc = { run = 'vlc "$@"', desc = "Abrir con VLC" }
-mpv = { run = 'mpv "$@"', desc = "Abrir con MPV" }
-xdg = { run = 'xdg-open "$@"', desc = "Abrir con la app predeterminada" }
+edit = [
+    { run = '${EDITOR:-nvim} %s', block = true, desc = "Edit" },
+]
+vlc = [
+    { run = 'vlc %s', desc = "Abrir con VLC" },
+]
+mpv = [
+    { run = 'mpv %s', desc = "Abrir con MPV" },
+]
+xdg = [
+    { run = 'xdg-open %s', desc = "Abrir con la app predeterminada" },
+]
 
 [open]
 rules = [
