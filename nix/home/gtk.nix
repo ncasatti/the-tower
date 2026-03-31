@@ -3,7 +3,18 @@
 
 { config, pkgs, ... }:
 
+let
+  cursor-theme = pkgs.callPackage ../packages/cursor-theme.nix {};
+in
 {
+  home.pointerCursor = {
+    name = "DeppinDark-cursors";
+    package = cursor-theme;
+    size = 24;
+    gtk.enable = true;
+    x11.enable = true;
+  };
+
   gtk = {
     enable = true;
     theme = {
@@ -20,7 +31,7 @@
     };
     gtk3.extraConfig = {
       gtk-application-prefer-dark-theme = true;
-      gtk-cursor-theme-name             = "default";
+      gtk-cursor-theme-name             = "DeppinDark-cursors";
       gtk-cursor-theme-size             = 24;
       gtk-decoration-layout             = "icon:minimize,maximize,close";
       gtk-enable-animations             = true;
@@ -32,7 +43,7 @@
     gtk4.theme       = config.gtk.theme;
     gtk4.extraConfig = {
       gtk-application-prefer-dark-theme = true;
-      gtk-cursor-theme-name             = "default";
+      gtk-cursor-theme-name             = "DeppinDark-cursors";
       gtk-cursor-theme-size             = 24;
     };
   };
