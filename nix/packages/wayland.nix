@@ -16,6 +16,6 @@
     swww
     swaynotificationcenter
     wallust
-    inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
+    # inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
   ];
 }
