@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
 # for changing Hyprland Layouts (hy3, Dwindle, or Master) on the fly
 

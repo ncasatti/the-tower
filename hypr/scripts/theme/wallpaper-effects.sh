@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  #
 # Wallpaper Effects using ImageMagick
 # Inspiration from ML4W - Stephan Raabe https://gitlab.com/stephan-raabe/dotfiles
