@@ -19,5 +19,15 @@
     kitty
     brave
     obsidian
+
+    # Screenshot & Multimedia dependencies
+    grim
+    slurp
+    wl-clipboard
+    jq
+    libnotify
+    swappy
+    xdg-user-dirs
+    sound-theme-freedesktop
   ];
 }
