@@ -63,8 +63,8 @@ return {
 		-- Bullet points
 		bullet = {
 			enabled = true,
-			-- icons = { "●", "○", "◆", "◇" },
-			icons = { "󰌕", "󰌖", "◆", "◇" },
+			-- icons: ● ○ 󰸶 󱤙 ◇ 󰌕 󰌖 󰫥 󱤙 󰤲
+			icons = { "󰸶 ", "󰫥 ", "󱤙 ", "󰌕 " },
 		},
 
 		-- Links
@@ -109,7 +109,11 @@ return {
 			note = { raw = "[!note]", rendered = "󰏫 Note", highlight = "RenderMarkdownInfo" },
 			info = { raw = "[!info]", rendered = "󰋽 Info", highlight = "RenderMarkdownCalloutInfo" },
 			tip = { raw = "[!tip]", rendered = "󰌶 Tip", highlight = "RenderMarkdownHint" },
-			important = { raw = "[!important]", rendered = "󰀪 Important", highlight = "RenderMarkdownCalloutImportant" },
+			important = {
+				raw = "[!important]",
+				rendered = "󰀪 Important",
+				highlight = "RenderMarkdownCalloutImportant",
+			},
 			abstract = { raw = "[!abstract]", rendered = "󰨝 Abstract", highlight = "RenderMarkdownCalloutAbstract" },
 			summary = { raw = "[!summary]", rendered = "󰨝 Summary", highlight = "RenderMarkdownCalloutAbstract" },
 			tldr = { raw = "[!tldr]", rendered = "󰨝 TL;DR", highlight = "RenderMarkdownCalloutAbstract" },
@@ -149,12 +153,20 @@ return {
 		local md_opts = { silent = true }
 
 		-- Render control
-		vim.keymap.set("n", "<leader>mr", ":RenderMarkdown toggle<CR>",
-			vim.tbl_extend("force", md_opts, { desc = "󰍔 Toggle rendering" }))
+		vim.keymap.set(
+			"n",
+			"<leader>mr",
+			":RenderMarkdown toggle<CR>",
+			vim.tbl_extend("force", md_opts, { desc = "󰍔 Toggle rendering" })
+		)
 
 		-- Heading fold/unfold
-		vim.keymap.set("n", "<leader>me", ":RenderMarkdown expand<CR>",
-			vim.tbl_extend("force", md_opts, { desc = "󰍔 Expand all headings" }))
+		vim.keymap.set(
+			"n",
+			"<leader>me",
+			":RenderMarkdown expand<CR>",
+			vim.tbl_extend("force", md_opts, { desc = "󰍔 Expand all headings" })
+		)
 		vim.keymap.set("n", "<leader>mc", function()
 			-- Collapse all headings by setting foldlevel to 0
 			vim.opt_local.foldmethod = "expr"
@@ -177,8 +189,12 @@ return {
 		end, vim.tbl_extend("force", md_opts, { desc = "󰍔 Cycle heading level" }))
 
 		-- Toggle checkbox
-		vim.keymap.set("n", "<leader>mx", ":RenderMarkdown toggle_checkbox<CR>",
-			vim.tbl_extend("force", md_opts, { desc = "󰄵 Toggle checkbox" }))
+		vim.keymap.set(
+			"n",
+			"<leader>mx",
+			":RenderMarkdown toggle_checkbox<CR>",
+			vim.tbl_extend("force", md_opts, { desc = "󰄵 Toggle checkbox" })
+		)
 
 		-- Open link (External/General)
 		vim.keymap.set("n", "<leader>ml", function()
@@ -241,7 +257,7 @@ return {
 		-- 	local line = vim.api.nvim_get_current_line()
 		-- 	-- Basic detection of math blocks or inline math
 		-- 	local math = line:match("%$%$(.*)%$%$") or line:match("%$(.*)%$")
-		-- 	
+		--
 		-- 	if not math then
 		-- 		vim.notify("No LaTeX math found on current line", vim.log.levels.WARN)
 		-- 		return
@@ -251,7 +267,7 @@ return {
 		-- 	-- Use an online API (codecogs) to get a PNG of the formula
 		-- 	-- This is a PoC to avoid local dependencies for now
 		-- 	local url = "https://latex.codecogs.com/png.latex?\\bg_white&space;\\large&space;" .. vim.uri_encode(math)
-		-- 	
+		--
 		-- 	vim.notify("Fetching LaTeX preview...", vim.log.levels.INFO)
 		-- 	vim.fn.jobstart({ "curl", "-s", "-o", tmp_png, url }, {
 		-- 		on_exit = function(_, code_exit)
@@ -268,7 +284,7 @@ return {
 		-- 					local h = 200 -- Fixed height for formula
 		-- 					local x = math.floor(window_info.at[1] + (window_info.size[1] - w) / 2)
 		-- 					local y = math.floor(window_info.at[2] + (window_info.size[2] - h) / 2)
-		-- 					
+		--
 		-- 					local cmd = string.format(
 		-- 						"hyprctl dispatch exec \"[float;size %d %d;at %d %d;pin] imv %s\"",
 		-- 						w, h, x, y, tmp_png
