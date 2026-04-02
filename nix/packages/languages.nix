@@ -14,5 +14,7 @@
     luarocks
     lua5_1
     mermaid-cli
+    icu
+    marksman
   ];
 }

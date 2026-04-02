@@ -28,7 +28,6 @@ return {
       'kotlin_language_server',
       'jsonls',
       'yamlls',
-      'marksman',
       'bashls',
       'nil_ls',
     }
