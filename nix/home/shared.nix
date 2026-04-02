@@ -14,6 +14,7 @@
 
     # Package sets
     ../packages/cli.nix
+    ../packages/nvim.nix
     ../packages/languages.nix
     ../packages/wayland.nix
     ../packages/appearance.nix
