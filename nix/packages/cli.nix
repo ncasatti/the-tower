@@ -21,6 +21,7 @@
     brightnessctl
     bat
     jq
+    tldr
     lazygit
     fish
     rclone
