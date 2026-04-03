@@ -34,7 +34,14 @@
   console.keyMap       = "colemak";
 
   # --- GLOBAL SHELL ---
-  programs.fish.enable  = true;
+  programs.fish = {
+    enable = true;
+    shellAliases = {
+      l = null;
+      ll = null;
+      ls = null;
+    };
+  };
   programs.dconf.enable = true;
 
   # --- WINDOW MANAGER ---
