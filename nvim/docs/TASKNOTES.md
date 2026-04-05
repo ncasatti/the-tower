@@ -17,10 +17,10 @@ TaskNotes v2 escanea tu vault (~716 archivos) y construye un **índice invertido
 ### Búsqueda Zettelkasten (`<leader>oz`)
 | Key | Acción | Descripción |
 |-----|--------|-------------|
-| `s` | **Search** | Búsqueda Maestra (Key → Value → File) |
-| `f` | **Status** | Filtrado rápido por estado |
-| `t` | **Tags** | Filtrado rápido por etiquetas |
-| `p` | **Projects** | Filtrado rápido por proyectos |
+| `t` | **Search** | Búsqueda Maestra (Key → Value → File) |
+| `#` | **Tags** | Filtrado rápido por etiquetas |
+| `s` | **Status** | Filtrado rápido por estado |
+| `o` | **Projects** | Filtrado rápido por proyectos |
 | `r` | **Refresh** | Forzar reconstrucción de la caché |
 
 ### Gestión de Tareas (`<leader>ow`)
