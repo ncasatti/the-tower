@@ -24,6 +24,7 @@
     lazygit
     fish
     rclone
+    speedtest-cli
     inputs.opencode-nix.packages.${pkgs.system}.default
     inputs.clingy.packages.${pkgs.system}.default
   ];

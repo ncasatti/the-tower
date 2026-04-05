@@ -25,6 +25,8 @@
   # --- NETWORKING ---
   networking.hostName            = "the-grid";
   networking.networkmanager.enable = true;
+  networking.networkmanager.wifi.backend = "iwd";
+  networking.wireless.iwd.enable = true;
 
   # --- LOCALIZATION & CLOCK ---
   time.timeZone        = "America/Argentina/Cordoba";
@@ -70,6 +72,7 @@
     wget
     eza
     wiremix
+    iw
   ];
 
   # Do NOT change this value.
