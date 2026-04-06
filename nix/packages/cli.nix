@@ -3,6 +3,9 @@
 
 { pkgs, inputs, ... }:
 
+let
+  gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix { };
+in
 {
   home.packages = with pkgs; [
     yazi
@@ -27,5 +30,6 @@
     speedtest-cli
     inputs.opencode-nix.packages.${pkgs.system}.default
     inputs.clingy.packages.${pkgs.system}.default
+    gemini-cli
   ];
 }
