@@ -6,6 +6,15 @@ Part of **The Grid** — a cohesive system architecture managed through Nix flak
 
 ---
 
+## Showcase
+![matrix](docs/assets/matrix.mp4)
+![nvim](docs/assets/nvim.png)
+![wallpaper-select](docs/assets/wallpaper-select.png)
+![tron](docs/assets/tron.png)
+![obsidian](docs/assets/obsidian.png)
+
+---
+
 ## Overview
 
 The Tower is a complete, reproducible desktop environment configuration deployed across two targets:
