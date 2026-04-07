@@ -8,7 +8,7 @@ Part of **The Grid** — a cohesive system architecture managed through Nix flak
 
 ## Showcase
 
-<video src="docs/assets/matrix.mp4" controls autoplay loop muted width="600"></video>
+![matrix](docs/assets/matrix.gif)
 ![nvim](docs/assets/nvim.png)
 ![wallpaper-select](docs/assets/wallpaper-select.png)
 ![tron](docs/assets/tron.png)
