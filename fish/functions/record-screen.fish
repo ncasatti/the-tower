@@ -4,7 +4,8 @@ function record-screen --description 'Record a screen selection to a file'
         return 1
     end
 
-    wf-recorder -g "$(slurp)" -f "$argv[1].mp4"
+    # wf-recorder -g "$(slurp)" -f "$argv[1].mp4"
+    wf-recorder -g "$(slurp)" -c libx264 -x yuv420p -p crf=28 -p preset=fast -f "$argv[1].mp4"
 end
 
 function record-gif --description 'Record a screen selection and convert to gif'
