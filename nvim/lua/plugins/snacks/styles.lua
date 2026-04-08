@@ -12,10 +12,10 @@ return {
 	zen = {
 		enter = true,
 		fixbuf = false,
-		minimal = true,
+		minimal = false,
 		width = 100,
 		height = 0,
-		backdrop = { transparent = true, blend = 40 },
+		backdrop = { transparent = true, blend = 80 },
 		keys = { q = false },
 		zindex = 40,
 		wo = {
