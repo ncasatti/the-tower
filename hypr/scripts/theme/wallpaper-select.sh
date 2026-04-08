@@ -3,9 +3,7 @@
 # This script for selecting wallpapers (SUPER W) with folder navigation support
 
 # WALLPAPERS PATH
-# wallDIR="$HOME/Pictures/wallpapers"
-# wallDIR="$HOME/.config/konfig/themes/wallpapers"
-wallDIR="$HOME/Pictures/X"
+wallDIR="$HOME/Pictures/wallpapers"
 SCRIPTSDIR="$HOME/.config/hypr/scripts"
 
 # Current directory for navigation
