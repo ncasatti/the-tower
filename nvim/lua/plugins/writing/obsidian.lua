@@ -46,6 +46,19 @@ return {
         },
       },
 
+      -- Picker configuration (force Telescope with preview)
+      picker = {
+        name = "telescope.nvim",
+        note_mappings = {
+          new = "<C-x>",
+          insert_link = "<C-l>",
+        },
+        tag_mappings = {
+          tag_note = "<C-x>",
+          insert_tag = "<C-l>",
+        },
+      },
+
       -- SETOPTS: Disable legacy commands
       legacy_commands = false,
 

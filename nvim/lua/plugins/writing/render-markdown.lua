@@ -149,6 +149,17 @@ return {
 			vim.api.nvim_set_hl(0, "@markup.quote", { fg = normal_fg })
 		end
 
+		-- Enable treesitter folds for markdown (foldenable=false so it starts expanded)
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = { "markdown" },
+			callback = function()
+				vim.opt_local.foldmethod = "expr"
+				vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+				vim.opt_local.foldenable = false
+				vim.opt_local.foldlevel = 99
+			end,
+		})
+
 		-- Keybindings (leader+m = Markdown)
 		local md_opts = { silent = true }
 
@@ -160,6 +171,14 @@ return {
 			vim.tbl_extend("force", md_opts, { desc = "󰍔 Toggle rendering" })
 		)
 
+		-- Toggle fold on current heading
+		vim.keymap.set("n", "<leader>mf", function()
+			local ok, _ = pcall(vim.cmd, "normal! za")
+			if not ok then
+				vim.notify("No fold found under cursor", vim.log.levels.WARN)
+			end
+		end, vim.tbl_extend("force", md_opts, { desc = "󰍔 Toggle fold (current heading)" }))
+
 		-- Heading fold/unfold
 		vim.keymap.set(
 			"n",
@@ -168,9 +187,6 @@ return {
 			vim.tbl_extend("force", md_opts, { desc = "󰍔 Expand all headings" })
 		)
 		vim.keymap.set("n", "<leader>mc", function()
-			-- Collapse all headings by setting foldlevel to 0
-			vim.opt_local.foldmethod = "expr"
-			vim.opt_local.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 			vim.opt_local.foldenable = true
 			vim.opt_local.foldlevel = 0
 			vim.notify("Headings collapsed", vim.log.levels.INFO)

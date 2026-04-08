@@ -635,15 +635,15 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 
 **File:** `lua/plugins/navigation/goto-preview.lua`
 
-Default mappings enabled.
+Custom mappings with `gz*` prefix.
 
 | Key | Mode | Description |
 |-----|------|-------------|
-| `gpd` | n | Preview definition |
-| `gpt` | n | Preview type definition |
-| `gpi` | n | Preview implementation |
-| `gpr` | n | Preview references |
-| `gP` | n | Close all preview windows |
+| `gzd` | n | Preview definition |
+| `gzt` | n | Preview type definition |
+| `gzi` | n | Preview implementation |
+| `gzr` | n | Preview references |
+| `gzz` | n | Close all preview windows |
 
 ---
 

@@ -13,7 +13,7 @@ return {
     enter = true,
     fixbuf = false,
     minimal = false,
-    width = 120,
+    width = 140,
     height = 0,
     backdrop = { transparent = true, blend = 40 },
     keys = { q = false },
