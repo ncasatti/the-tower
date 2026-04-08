@@ -1,10 +1,10 @@
 return {
-  width = 90,
-  toggles = {
-    dim = false
-  },
-  show = {
-    statusline = true,
-    tabline = true
-  },
+	width = 70,
+	toggles = {
+		dim = false,
+	},
+	show = {
+		statusline = true,
+		tabline = true,
+	},
 }

@@ -1,12 +1,19 @@
-return{
-  enabled = true,
-  animate = {
-    duration = { step = 4, total = 40 },
-    easing = "linear",
-  },
-  animate_repeat = {
-    delay = 100,
-    duration = { step = 1, total = 15 },
-    easing = "linear",
-  },
+return {
+	enabled = true,
+	animate = {
+		duration = {
+			step = 5, -- ms per step
+			total = 50, -- maximum duration
+		},
+		easing = "outCirc",
+	},
+	animate_repeat = {
+		delay = 50,
+		duration = {
+			step = 1,
+			total = 50,
+		},
+		easing = "outCirc",
+	},
 }
+

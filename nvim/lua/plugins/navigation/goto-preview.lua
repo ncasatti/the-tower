@@ -20,10 +20,10 @@ return {
      }
 
      -- Custom keymaps (gz* prefix instead of gp*)
-     vim.keymap.set("n", "gzd", "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", { desc = "Preview definition" })
-     vim.keymap.set("n", "gzt", "<cmd>lua require('goto-preview').goto_preview_type_definition()<CR>", { desc = "Preview type definition" })
-     vim.keymap.set("n", "gzi", "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", { desc = "Preview implementation" })
-     vim.keymap.set("n", "gzr", "<cmd>lua require('goto-preview').goto_preview_references()<CR>", { desc = "Preview references" })
-     vim.keymap.set("n", "gzz", "<cmd>lua require('goto-preview').close_all_win()<CR>", { desc = "Close all preview windows" })
+     vim.keymap.set("n", "gpp", "<cmd>lua require('goto-preview').goto_preview_definition()<CR>", { desc = "Preview definition" })
+     vim.keymap.set("n", "gpt", "<cmd>lua require('goto-preview').goto_preview_type_definition()<CR>", { desc = "Preview type definition" })
+     vim.keymap.set("n", "gpi", "<cmd>lua require('goto-preview').goto_preview_implementation()<CR>", { desc = "Preview implementation" })
+     vim.keymap.set("n", "gpr", "<cmd>lua require('goto-preview').goto_preview_references()<CR>", { desc = "Preview references" })
+     vim.keymap.set("n", "gpz", "<cmd>lua require('goto-preview').close_all_win()<CR>", { desc = "Close all preview windows" })
    end
 }

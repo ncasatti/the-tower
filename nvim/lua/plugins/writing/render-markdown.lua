@@ -64,7 +64,7 @@ return {
 		bullet = {
 			enabled = true,
 			-- icons: ● ○ 󰸶 󱤙 ◇ 󰌕 󰌖 󰫥 󱤙 󰤲
-			icons = { "󰫥", "󱤙", "󰸶", "󰌕" },
+			icons = { "󰤲", "󱤙", "󰸶", "󰫥" },
 		},
 
 		-- Links
