@@ -21,7 +21,7 @@ return {
 		},
 		input = { enabled = true },
 		notifier = { enabled = true },
-		image = { enabled = true },
+		image = { enabled = os.getenv("TERM") == "xterm-kitty" },
 		quickfile = { enabled = true },
 		scope = { enabled = true },
 		statuscolumn = { enabled = false },

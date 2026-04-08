@@ -35,5 +35,7 @@
 
   home.packages = with pkgs; [
     tree-sitter
+    python3Packages.pylatexenc
+    pandoc
   ];
 }

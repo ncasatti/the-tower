@@ -42,15 +42,19 @@ return {
 		code = {
 			enabled = true,
 			sign = false,
-			style = "normal",
+			style = "language",
 			position = "left",
 			language_pad = 0,
 			border = "none",
-			left_pad = 0,
-			right_pad = 0,
+			-- left_pad = 0.2,
+			-- left_margin = 1.5,
+			-- right_pad = 0.2,
 			width = "full",
 			min_width = 0,
 			language_name = false,
+			language_icon = true,
+			above = "",
+			below = "",
 		},
 
 		-- Checkbox rendering for task lists
@@ -85,11 +89,15 @@ return {
 		},
 
 		-- LaTeX support (integrated with nabla.nvim)
-		-- latex = {
-		-- 	enabled = true,
-		-- 	converter = "latex2text",
-		-- 	highlight = "RenderMarkdownMath",
-		-- },
+		latex = {
+			enabled = true,
+			render_modes = false,
+			converter = { "pandoc" }, -- Usando pandoc para mayor robustez
+			highlight = "RenderMarkdownMath",
+			position = "center",
+			top_pad = 0,
+			bottom_pad = 0,
+		},
 
 		-- Horizontal rules
 		dash = {
@@ -268,52 +276,6 @@ return {
 		-- 	end
 		-- end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview Mermaid (External)" }))
 
-		-- LaTeX preview (External Hibrid PoC)
-		-- vim.keymap.set("n", "<leader>lp", function()
-		-- 	local line = vim.api.nvim_get_current_line()
-		-- 	-- Basic detection of math blocks or inline math
-		-- 	local math = line:match("%$%$(.*)%$%$") or line:match("%$(.*)%$")
-		--
-		-- 	if not math then
-		-- 		vim.notify("No LaTeX math found on current line", vim.log.levels.WARN)
-		-- 		return
-		-- 	end
-		--
-		-- 	local tmp_png = os.tmpname() .. ".png"
-		-- 	-- Use an online API (codecogs) to get a PNG of the formula
-		-- 	-- This is a PoC to avoid local dependencies for now
-		-- 	local url = "https://latex.codecogs.com/png.latex?\\bg_white&space;\\large&space;" .. vim.uri_encode(math)
-		--
-		-- 	vim.notify("Fetching LaTeX preview...", vim.log.levels.INFO)
-		-- 	vim.fn.jobstart({ "curl", "-s", "-o", tmp_png, url }, {
-		-- 		on_exit = function(_, code_exit)
-		-- 			if code_exit == 0 then
-		-- 				-- Get terminal position and size via hyprctl
-		-- 				local handle = io.popen("hyprctl activewindow -j")
-		-- 				local result = handle:read("*a")
-		-- 				handle:close()
-		-- 				local ok, window_info = pcall(vim.fn.json_decode, result)
-		--
-		-- 				if ok and window_info and window_info.at and window_info.size then
-		-- 					-- Calculate centered floating window
-		-- 					local w = 600 -- Fixed width for formula
-		-- 					local h = 200 -- Fixed height for formula
-		-- 					local x = math.floor(window_info.at[1] + (window_info.size[1] - w) / 2)
-		-- 					local y = math.floor(window_info.at[2] + (window_info.size[2] - h) / 2)
-		--
-		-- 					local cmd = string.format(
-		-- 						"hyprctl dispatch exec \"[float;size %d %d;at %d %d;pin] imv %s\"",
-		-- 						w, h, x, y, tmp_png
-		-- 					)
-		-- 					os.execute(cmd)
-		-- 				else
-		-- 					vim.fn.jobstart({ "xdg-open", tmp_png })
-		-- 				end
-		-- 			else
-		-- 				vim.notify("Failed to fetch LaTeX preview", vim.log.levels.ERROR)
-		-- 			end
-		-- 		end,
-		-- 	})
-		-- end, vim.tbl_extend("force", md_opts, { desc = "LaTeX: Preview (External Hibrid)" }))
+		-- LaTeX preview (External Hibrid PoC) removed
 	end,
 }
