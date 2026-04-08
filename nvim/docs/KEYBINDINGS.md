@@ -4,7 +4,7 @@ Complete reference for all keybindings in this Neovim configuration.
 
 **Leader Key:** `Space`
 
-**Last Updated:** 2026-03-30
+**Last Updated:** 2026-04-08
 
 ---
 
@@ -22,7 +22,7 @@ Complete reference for all keybindings in this Neovim configuration.
 - [Git Integration](#git-integration)
 - [File Navigation & Exploration](#file-navigation--exploration)
 - [Search & Grep](#search--grep)
-- [Obsidian & Writing](#obsidian--writing)
+- [Zettelkasten & Tasks (TaskNotes)](#zettelkasten--tasks-tasknotes)
 - [Markdown Rendering & Tools](#markdown-rendering--tools)
 - [UI & Utilities](#ui--utilities)
 - [Goto Preview](#goto-preview)
@@ -513,23 +513,62 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 
 ---
 
-## Obsidian & Writing
+## Zettelkasten & Tasks (TaskNotes)
 
-**File:** `lua/plugins/writing/obsidian.lua`
+**File:** `lua/plugins/writing/tasknotes.lua`
 
-### Obsidian Commands
+### Zettelkasten Search (`<leader>ow*`)
 
 | Key | Mode | Description |
 |-----|------|-------------|
-| `<leader>os` | n | Search notes |
-| `<leader>og` | n | Grep notes |
-| `<leader>on` | n | New note |
-| `<leader>od` | n | Today's note |
-| `<leader>ot` | n | Insert template |
-| `<leader>ob` | n | Show backlinks |
-| `<leader>oo` | n | Quick switch notes |
-| `<leader>of` | n | Follow link under cursor |
-| `<leader>ox` | n | Toggle checkbox |
+| `<leader>owt` | n | Search Frontmatter (Key→Value→File) |
+| `<leader>owr` | n | Force cache rebuild |
+| `<leader>ows` | n | Filter by status |
+| `<leader>ow#` | n | Filter by tag |
+| `<leader>owo` | n | Filter by project |
+
+### Task Management (`<leader>oz*`)
+
+#### Task Creation & Status
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `<leader>ozn` | n | New Task |
+| `<leader>ozs` | n | Cycle Status |
+| `<leader>ozp` | n | Cycle Priority |
+
+#### Context Management
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `<leader>ozcw` | n | Add 'work' context |
+| `<leader>ozcf` | n | Add 'freelance' context |
+| `<leader>ozcs` | n | Add 'study' context |
+| `<leader>ozcc` | n | Add custom context |
+
+#### Date Scheduling
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `<leader>ozdt` | n | Schedule for today |
+| `<leader>ozdm` | n | Schedule for tomorrow |
+| `<leader>ozdw` | n | Schedule for next week |
+| `<leader>ozdd` | n | Schedule custom date |
+
+#### Queries & Views
+
+| Key | Mode | Description |
+|-----|------|-------------|
+| `<leader>ozq` | n | Query (custom filter) |
+| `<leader>ozvf` | n | Find All |
+| `<leader>ozqh` | n | Query High priority active |
+| `<leader>ozqt` | n | Query Scheduled today |
+| `<leader>ozqo` | n | Query Overdue |
+| `<leader>ozvi` | n | View Inbox (none) |
+| `<leader>ozvt` | n | View Todo |
+| `<leader>ozvw` | n | View Work |
+| `<leader>ozvl` | n | View Freelance |
+| `<leader>ozvd` | n | View Done |
 
 ---
 

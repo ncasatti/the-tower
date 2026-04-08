@@ -298,10 +298,10 @@ return {
 			})
 		end
 
-		-- Stage 3: Pick a file from the list matching key=value
-		-- Displays relative path from vault root with optional status/priority badge.
-		-- On <CR>: opens the file in a buffer.
-		M.telescope.pick_file = function(key, value)
+	-- Stage 3: Pick a file from the list matching key=value
+	-- Displays relative path from vault root with optional status/priority badge.
+	-- On <CR>: opens the file in a buffer.
+	M.telescope.pick_file = function(key, value, from_shortcut)
 			local pickers = require("telescope.pickers")
 			local finders = require("telescope.finders")
 			local conf = require("telescope.config").values
@@ -355,25 +355,33 @@ return {
 							return e
 						end,
 					}),
-					sorter = conf.generic_sorter({}),
-					previewer = make_previewer(),
-					attach_mappings = function(prompt_bufnr, map)
-						actions.select_default:replace(function()
-							local selection = action_state.get_selected_entry()
-							actions.close(prompt_bufnr)
-							if selection then
-								vim.cmd("edit " .. vim.fn.fnameescape(selection.path))
-							end
-						end)
-						return true
-					end,
-				})
-				:find()
-		end
+				sorter = conf.generic_sorter({}),
+				previewer = make_previewer(),
+				attach_mappings = function(prompt_bufnr, map)
+					actions.select_default:replace(function()
+						local selection = action_state.get_selected_entry()
+						actions.close(prompt_bufnr)
+						if selection then
+							vim.cmd("edit " .. vim.fn.fnameescape(selection.path))
+						end
+					end)
 
-		-- Stage 2: Pick a value for the given key.
-		-- Displays value + file count. On <CR>: transitions to Stage 3.
-		M.telescope.pick_value = function(key)
+					local handle_esc = function()
+						actions.close(prompt_bufnr)
+						M.telescope.pick_value(key, from_shortcut)
+					end
+					map("i", "<Esc>", handle_esc)
+					map("n", "<Esc>", handle_esc)
+
+					return true
+				end,
+			})
+			:find()
+	end
+
+	-- Stage 2: Pick a value for the given key.
+	-- Displays value + file count. On <CR>: transitions to Stage 3.
+	M.telescope.pick_value = function(key, from_shortcut)
 			local pickers = require("telescope.pickers")
 			local finders = require("telescope.finders")
 			local conf = require("telescope.config").values
@@ -411,29 +419,30 @@ return {
 							return e
 						end,
 					}),
-					sorter = conf.generic_sorter({}),
-					attach_mappings = function(prompt_bufnr, map)
-						actions.select_default:replace(function()
-							local selection = action_state.get_selected_entry()
-							actions.close(prompt_bufnr)
-							if selection then
-								M.telescope.pick_file(key, selection.value)
-							end
-						end)
-						-- <Esc> returns to Stage 1
-						map("i", "<Esc>", function()
-							actions.close(prompt_bufnr)
-							M.telescope.pick_key()
-						end)
-						map("n", "<Esc>", function()
-							actions.close(prompt_bufnr)
-							M.telescope.pick_key()
-						end)
-						return true
-					end,
-				})
-				:find()
-		end
+			sorter = conf.generic_sorter({}),
+			attach_mappings = function(prompt_bufnr, map)
+				actions.select_default:replace(function()
+					local selection = action_state.get_selected_entry()
+					actions.close(prompt_bufnr)
+					if selection then
+						M.telescope.pick_file(key, selection.value, from_shortcut)
+					end
+				end)
+				
+				local handle_esc = function()
+					actions.close(prompt_bufnr)
+					if not from_shortcut then
+						M.telescope.pick_key()
+					end
+				end
+				map("i", "<Esc>", handle_esc)
+				map("n", "<Esc>", handle_esc)
+				
+				return true
+			end,
+		})
+		:find()
+	end
 
 		-- Stage 1: Pick a frontmatter key from the vault index.
 		-- Displays key + file count. On <CR>: transitions to Stage 2.
@@ -486,42 +495,42 @@ return {
 							return e
 						end,
 					}),
-					sorter = conf.generic_sorter({}),
-					attach_mappings = function(prompt_bufnr, _)
-						actions.select_default:replace(function()
-							local selection = action_state.get_selected_entry()
-							actions.close(prompt_bufnr)
-							if selection then
-								M.telescope.pick_value(selection.value)
-							end
-						end)
-						return true
-					end,
-				})
-				:find()
-		end
+		sorter = conf.generic_sorter({}),
+		attach_mappings = function(prompt_bufnr, _)
+			actions.select_default:replace(function()
+				local selection = action_state.get_selected_entry()
+				actions.close(prompt_bufnr)
+				if selection then
+					M.telescope.pick_value(selection.value, false)
+				end
+			end)
+			return true
+		end,
+	})
+	:find()
+end
 
 		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 8: Shortcut pickers (skip Stage 1)
 		-- ─────────────────────────────────────────────────────────────────
 
-		-- Jumps directly to Stage 2 for the 'status' key
-		M.telescope.pick_file_by_status = function()
-			ensure_cache()
-			M.telescope.pick_value("status")
-		end
+	-- Jumps directly to Stage 2 for the 'status' key
+	M.telescope.pick_file_by_status = function()
+		ensure_cache()
+		M.telescope.pick_value("status", true)
+	end
 
-		-- Jumps directly to Stage 2 for the 'tags' key
-		M.telescope.pick_file_by_tag = function()
-			ensure_cache()
-			M.telescope.pick_value("tags")
-		end
+	-- Jumps directly to Stage 2 for the 'tags' key
+	M.telescope.pick_file_by_tag = function()
+		ensure_cache()
+		M.telescope.pick_value("tags", true)
+	end
 
-		-- Jumps directly to Stage 2 for the 'projects' key
-		M.telescope.pick_file_by_project = function()
-			ensure_cache()
-			M.telescope.pick_value("projects")
-		end
+	-- Jumps directly to Stage 2 for the 'projects' key
+	M.telescope.pick_file_by_project = function()
+		ensure_cache()
+		M.telescope.pick_value("projects", true)
+	end
 
 		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 9: Task management operations (ported from legacy)
@@ -1038,42 +1047,42 @@ return {
 		-- STEP 10: Keybindings
 		--
 		-- Prefix allocation:
-		--   <leader>z* — Zettelkasten search (new)
+		--   <leader>w* — Zettelkasten search (new)
 		--     Note: <leader>z (single key) = Snacks Zen Mode — multi-key
 		--     sequences like <leader>zs are distinct and do not conflict.
-		--   <leader>w* — Task/Note management (W = Writing/Work tasks)
+		--   <leader>z* — Task/Note management (Z = Zettel/Task management)
 		--     Note: <leader>t is occupied by Snacks (Telescope/Test group)
 		--     and Harpoon. <leader>n is occupied by Colemak window navigation.
 		-- ─────────────────────────────────────────────────────────────────
 
-		-- <leader>oz* — Zettelkasten search
+		-- <leader>ow* — Zettelkasten search
 		vim.keymap.set(
 			"n",
-			"<leader>ozt",
+			"<leader>owt",
 			M.telescope.pick_key,
-			{ desc = "Zettel: Search Frontmatter (Key→Value→File)" }
+			{ desc = "Search By Key" }
 		)
-		vim.keymap.set("n", "<leader>ozr", M.cache_ops.force_refresh, { desc = "Zettel: Force cache rebuild" })
-		vim.keymap.set("n", "<leader>ozs", M.telescope.pick_file_by_status, { desc = "Zettel: Filter by status" })
-		vim.keymap.set("n", "<leader>oz#", M.telescope.pick_file_by_tag, { desc = "Zettel: Filter by tag" })
-		vim.keymap.set("n", "<leader>ozo", M.telescope.pick_file_by_project, { desc = "Zettel: Filter by project" })
+		vim.keymap.set("n", "<leader>owr", M.cache_ops.force_refresh, { desc = "Force cache rebuild" })
+		vim.keymap.set("n", "<leader>ows", M.telescope.pick_file_by_status, { desc = "Filter by status" })
+		vim.keymap.set("n", "<leader>ow#", M.telescope.pick_file_by_tag, { desc = "Filter by tag" })
+		vim.keymap.set("n", "<leader>owo", M.telescope.pick_file_by_project, { desc = "Filter by project" })
 
-		-- <leader>ow* — Task management
-		vim.keymap.set("n", "<leader>own", M.task_ops.create_task, { desc = "Task: New" })
-		vim.keymap.set("n", "<leader>ows", M.task_ops.cycle_status, { desc = "Task: Cycle Status" })
-		vim.keymap.set("n", "<leader>owp", M.task_ops.cycle_priority, { desc = "Task: Cycle Priority" })
+		-- <leader>oz* — Task management
+		vim.keymap.set("n", "<leader>ozn", M.task_ops.create_task, { desc = "Task: New" })
+		vim.keymap.set("n", "<leader>ozs", M.task_ops.cycle_status, { desc = "Task: Cycle Status" })
+		vim.keymap.set("n", "<leader>ozp", M.task_ops.cycle_priority, { desc = "Task: Cycle Priority" })
 
 		-- Context management
-		vim.keymap.set("n", "<leader>owcw", function()
+		vim.keymap.set("n", "<leader>ozcw", function()
 			M.task_ops.add_context("work")
 		end, { desc = "Task: Add 'work' context" })
-		vim.keymap.set("n", "<leader>owcf", function()
+		vim.keymap.set("n", "<leader>ozcf", function()
 			M.task_ops.add_context("freelance")
 		end, { desc = "Task: Add 'freelance' context" })
-		vim.keymap.set("n", "<leader>owcs", function()
+		vim.keymap.set("n", "<leader>ozcs", function()
 			M.task_ops.add_context("study")
 		end, { desc = "Task: Add 'study' context" })
-		vim.keymap.set("n", "<leader>owcc", function()
+		vim.keymap.set("n", "<leader>ozcc", function()
 			vim.ui.input({ prompt = "Context: " }, function(context)
 				if context and context ~= "" then
 					M.task_ops.add_context(context)
@@ -1082,16 +1091,16 @@ return {
 		end, { desc = "Task: Add custom context" })
 
 		-- Date scheduling
-		vim.keymap.set("n", "<leader>owdt", function()
+		vim.keymap.set("n", "<leader>ozdt", function()
 			M.task_ops.set_scheduled(0)
 		end, { desc = "Task: Schedule for today" })
-		vim.keymap.set("n", "<leader>owdm", function()
+		vim.keymap.set("n", "<leader>ozdm", function()
 			M.task_ops.set_scheduled(1)
 		end, { desc = "Task: Schedule for tomorrow" })
-		vim.keymap.set("n", "<leader>owdw", function()
+		vim.keymap.set("n", "<leader>ozdw", function()
 			M.task_ops.set_scheduled(7)
 		end, { desc = "Task: Schedule for next week" })
-		vim.keymap.set("n", "<leader>owdd", function()
+		vim.keymap.set("n", "<leader>ozdd", function()
 			vim.ui.input({ prompt = "Days from now: " }, function(days)
 				if days and days ~= "" then
 					M.task_ops.set_scheduled(tonumber(days) or 0)
@@ -1100,24 +1109,24 @@ return {
 		end, { desc = "Task: Schedule custom date" })
 
 		-- Task finder and views (Telescope-based)
-		vim.keymap.set("n", "<leader>owq", M.query_tasks, { desc = "Task: Query (custom filter)" })
-		vim.keymap.set("n", "<leader>owvf", function()
+		vim.keymap.set("n", "<leader>ozq", M.query_tasks, { desc = "Task: Query (custom filter)" })
+		vim.keymap.set("n", "<leader>ozvf", function()
 			M.find_tasks()
 		end, { desc = "Task: Find All" })
 
 		-- Predefined query shortcuts
-		vim.keymap.set("n", "<leader>owqh", function()
+		vim.keymap.set("n", "<leader>ozqh", function()
 			local filter = M.build_query_filter({ status = { "open", "in-progress" }, priority = { "high" } })
 			M.find_tasks(filter)
 		end, { desc = "Task: Query High priority active" })
 
-		vim.keymap.set("n", "<leader>owqt", function()
+		vim.keymap.set("n", "<leader>ozqt", function()
 			local today = get_date(0)
 			local filter = M.build_query_filter({ scheduled_before = today, scheduled_after = today })
 			M.find_tasks(filter)
 		end, { desc = "Task: Query Scheduled today" })
 
-		vim.keymap.set("n", "<leader>owqo", function()
+		vim.keymap.set("n", "<leader>ozqo", function()
 			local today = get_date(0)
 			local filter = function(m)
 				local s = m.status
@@ -1136,7 +1145,7 @@ return {
 		end, { desc = "Task: Query Overdue" })
 
 		-- View shortcuts
-		vim.keymap.set("n", "<leader>owvi", function()
+		vim.keymap.set("n", "<leader>ozvi", function()
 			M.find_tasks(function(m)
 				local s = m.status
 				if type(s) == "table" then
@@ -1146,7 +1155,7 @@ return {
 			end)
 		end, { desc = "Task: View Inbox (none)" })
 
-		vim.keymap.set("n", "<leader>owvt", function()
+		vim.keymap.set("n", "<leader>ozvt", function()
 			M.find_tasks(function(m)
 				local s = m.status
 				if type(s) == "table" then
@@ -1156,7 +1165,7 @@ return {
 			end)
 		end, { desc = "Task: View Todo" })
 
-		vim.keymap.set("n", "<leader>owvw", function()
+		vim.keymap.set("n", "<leader>ozvw", function()
 			M.find_tasks(function(m)
 				if not m.contexts then
 					return false
@@ -1174,7 +1183,7 @@ return {
 			end)
 		end, { desc = "Task: View Work" })
 
-		vim.keymap.set("n", "<leader>owvl", function()
+		vim.keymap.set("n", "<leader>ozvl", function()
 			M.find_tasks(function(m)
 				if not m.contexts then
 					return false
@@ -1192,7 +1201,7 @@ return {
 			end)
 		end, { desc = "Task: View Freelance" })
 
-		vim.keymap.set("n", "<leader>owvd", function()
+		vim.keymap.set("n", "<leader>ozvd", function()
 			M.find_tasks(function(m)
 				local s = m.status
 				if type(s) == "table" then
