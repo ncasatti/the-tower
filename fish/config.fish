@@ -24,4 +24,7 @@ if status is-interactive
     function mark_prompt_start --on-event fish_prompt
         echo -en "\e]133;A\e\\"
     end
+
+    # Force pager on first tab
+    bind \t fzf-completion
 end
