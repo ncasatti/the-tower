@@ -1,15 +1,16 @@
 # nix/packages/cli.nix
 # CLI tools and core utilities
-
-{ pkgs, inputs, ... }:
-
-let
-  gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix { };
-in
 {
+  pkgs,
+  inputs,
+  ...
+}: let
+  gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix {};
+in {
   home.packages = with pkgs; [
     yazi
     starship
+    qimgv
     ripgrep
     fd
     git
