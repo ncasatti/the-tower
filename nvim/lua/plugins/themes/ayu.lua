@@ -6,9 +6,11 @@ Colors = {
   pink1 = "#FB2372",
   pink2 = "#CD044E",
   pink3 = "#A0033D",
-  yellow1 = "#edd522",
+  yellow1 = "#FFB454", -- Naranja suave (Ayu-like)
   yellow2 = "#C1AD10",
   white1 = "#FFFFFF",
+  cyan_gray = "#7D9CA8",
+  blue_note = "#39BAE6",
 }
 -- Ayu theme configuration for Neovim
 return {
@@ -99,11 +101,11 @@ return {
       ["@operator"] = { fg = "#ff8f40" },
 
        -- Special elements brackets (OK)
-       ["@punctuation.separator"] = { fg = Colors.white1 }, -- Neutral brackets
-       ["@punctuation.bracket"] = { fg = Colors.white1 },
+       ["@punctuation.separator"] = { fg = Colors.yellow2 }, -- Yellow brackets
+       ["@punctuation.bracket"] = { fg = Colors.yellow2 },
 
        ["@tag"] = { fg = "#39BAE6" },  -- Cyan for HTML/JSX tags
-       ["@tag.attribute"] = { fg = Colors.white1 },  -- Neutral for attributes
+       ["@tag.attribute"] = { fg = Colors.yellow2 },  -- Yellow for attributes
 
 
       ["@constructor"] = { fg = "#59C2FF" },  -- Blue for constructors
@@ -128,7 +130,7 @@ return {
        RenderMarkdownH2Bg = { bg = "None" },
        RenderMarkdownH3 = { fg = "#AAD94C" },           -- Green
        RenderMarkdownH3Bg = { bg = "None" },
-       RenderMarkdownH4 = { fg = Colors.white1 },           -- Changed from yellow to neutral
+       RenderMarkdownH4 = { fg = Colors.yellow1 },           -- Yellow
        RenderMarkdownH4Bg = { bg = "None" },
        RenderMarkdownH5 = { fg = "#D2A6FF" },           -- Purple
        RenderMarkdownH5Bg = { bg = "None" },
@@ -136,21 +138,21 @@ return {
        RenderMarkdownH6Bg = { bg = "None" },
 
        -- Markdown Math and Code blocks
-       RenderMarkdownMath = { fg = Colors.white1 },
-       RenderMarkdownCode = { fg = Colors.white1 },
-       ["@markup.math"] = { fg = Colors.white1 },
-       ["@markup.raw"] = { fg = Colors.white1 },
-       ["@markup.raw.block"] = { fg = Colors.white1 },
-       ["@markup.raw.inline"] = { fg = Colors.white1 },
-       ["@function.macro.latex"] = { fg = Colors.white1 },
-       ["@function.latex"] = { fg = Colors.white1 },
-       ["@punctuation.special.latex"] = { fg = Colors.white1 },
-       ["@variable.parameter.latex"] = { fg = Colors.white1 },
+       RenderMarkdownMath = { fg = Colors.cyan_gray },
+       RenderMarkdownCode = { fg = Colors.cyan_gray },
+       ["@markup.math"] = { fg = Colors.cyan_gray },
+       ["@markup.raw"] = { fg = Colors.cyan_gray },
+       ["@markup.raw.block"] = { fg = Colors.cyan_gray },
+       ["@markup.raw.inline"] = { fg = Colors.cyan_gray },
+       ["@function.macro.latex"] = { fg = Colors.cyan_gray },
+       ["@function.latex"] = { fg = Colors.cyan_gray },
+       ["@punctuation.special.latex"] = { fg = Colors.cyan_gray },
+       ["@variable.parameter.latex"] = { fg = Colors.cyan_gray },
 
        -- Callout custom colors for render-markdown
-       RenderMarkdownInfo = { fg = "#39BAE6" },        -- Note (blue)
+       RenderMarkdownInfo = { fg = Colors.blue_note },        -- Note (blue)
        RenderMarkdownHint = { fg = "#7FD962" },         -- Tip (green mint)
-       RenderMarkdownWarn = { fg = Colors.white1 },         -- Changed from amber to neutral
+       RenderMarkdownWarn = { fg = "#F07178" },         -- Warning (dark red)
        RenderMarkdownError = { fg = "#F07178" },        -- Error (red)
        RenderMarkdownSuccess = { fg = "#4CAF50" },      -- Success (emerald)
        RenderMarkdownQuote = { fg = "#ACB6BF" },        -- Quote (gray)
@@ -159,7 +161,7 @@ return {
        RenderMarkdownCalloutInfo = { fg = "#59C2FF" },       -- Info (cyan)
        RenderMarkdownCalloutAbstract = { fg = "#00BCD4" },   -- Abstract (teal)
        RenderMarkdownCalloutTodo = { fg = "#AAD94C" },       -- Todo (lime green)
-       RenderMarkdownCalloutFaq = { fg = Colors.white1 },        -- Changed from yellow to neutral
+       RenderMarkdownCalloutFaq = { fg = Colors.yellow1 },        -- FAQ (orange-yellow)
        RenderMarkdownCalloutBug = { fg = "#FF5370" },        -- Bug (hot pink)
        RenderMarkdownCalloutFail = { fg = "#D95757" },       -- Fail (dark red)
        RenderMarkdownCalloutExample = { fg = "#D2A6FF" },    -- Example (purple)
@@ -205,7 +207,7 @@ return {
      vim.api.nvim_set_hl(0, "RenderMarkdownH2Bg", { bg = "None" })
      vim.api.nvim_set_hl(0, "RenderMarkdownH3", { fg = "#AAD94C" })
      vim.api.nvim_set_hl(0, "RenderMarkdownH3Bg", { bg = "None" })
-     vim.api.nvim_set_hl(0, "RenderMarkdownH4", { fg = Colors.white1 }) -- Changed
+     vim.api.nvim_set_hl(0, "RenderMarkdownH4", { fg = Colors.yellow1 }) -- Restored
      vim.api.nvim_set_hl(0, "RenderMarkdownH4Bg", { bg = "None" })
      vim.api.nvim_set_hl(0, "RenderMarkdownH5", { fg = "#D2A6FF" })
      vim.api.nvim_set_hl(0, "RenderMarkdownH5Bg", { bg = "None" })
@@ -213,21 +215,21 @@ return {
      vim.api.nvim_set_hl(0, "RenderMarkdownH6Bg", { bg = "None" })
 
      -- Markdown Math and Code blocks
-     vim.api.nvim_set_hl(0, "RenderMarkdownMath", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "RenderMarkdownCode", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@markup.math", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@markup.raw", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@markup.raw.block", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@markup.raw.inline", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@function.macro.latex", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@function.latex", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@punctuation.special.latex", { fg = Colors.white1 })
-     vim.api.nvim_set_hl(0, "@variable.parameter.latex", { fg = Colors.white1 })
+     vim.api.nvim_set_hl(0, "RenderMarkdownMath", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "RenderMarkdownCode", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@markup.math", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@markup.raw", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@markup.raw.block", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@markup.raw.inline", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@function.macro.latex", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@function.latex", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@punctuation.special.latex", { fg = Colors.cyan_gray })
+     vim.api.nvim_set_hl(0, "@variable.parameter.latex", { fg = Colors.cyan_gray })
 
      -- Callout colors
-    vim.api.nvim_set_hl(0, "RenderMarkdownInfo", { fg = "#39BAE6" })
+    vim.api.nvim_set_hl(0, "RenderMarkdownInfo", { fg = Colors.blue_note })
     vim.api.nvim_set_hl(0, "RenderMarkdownHint", { fg = "#7FD962" })
-    vim.api.nvim_set_hl(0, "RenderMarkdownWarn", { fg = Colors.white1 }) -- Changed
+    vim.api.nvim_set_hl(0, "RenderMarkdownWarn", { fg = "#F07178" }) -- Dark red
     vim.api.nvim_set_hl(0, "RenderMarkdownError", { fg = "#F07178" })
     vim.api.nvim_set_hl(0, "RenderMarkdownSuccess", { fg = "#4CAF50" })
     vim.api.nvim_set_hl(0, "RenderMarkdownQuote", { fg = "#ACB6BF" })
@@ -236,7 +238,7 @@ return {
     vim.api.nvim_set_hl(0, "RenderMarkdownCalloutInfo", { fg = "#59C2FF" })
     vim.api.nvim_set_hl(0, "RenderMarkdownCalloutAbstract", { fg = "#00BCD4" })
     vim.api.nvim_set_hl(0, "RenderMarkdownCalloutTodo", { fg = "#AAD94C" })
-    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutFaq", { fg = Colors.white1 }) -- Changed
+    vim.api.nvim_set_hl(0, "RenderMarkdownCalloutFaq", { fg = Colors.yellow1 }) -- Orange-yellow
     vim.api.nvim_set_hl(0, "RenderMarkdownCalloutBug", { fg = "#FF5370" })
     vim.api.nvim_set_hl(0, "RenderMarkdownCalloutFail", { fg = "#D95757" })
     vim.api.nvim_set_hl(0, "RenderMarkdownCalloutExample", { fg = "#D2A6FF" })
