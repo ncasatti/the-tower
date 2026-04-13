@@ -3,7 +3,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Insert Mode
-vim.keymap.set("i", "nn", "<Esc>", { noremap = true, desc = "Exit insert mode" })
+vim.keymap.set("i", "nn", "<Esc>zz", { noremap = true, desc = "Exit insert mode and center" })
 
 -- Terminal Mode
 vim.keymap.set("t", "nn", "<C-\\><C-n>", { noremap = true, desc = "Exit terminal mode" })
@@ -18,8 +18,8 @@ vim.keymap.set("v", "I", "e", { noremap = true, desc = "Colemak: Word forward" }
 vim.keymap.set("v", "o", "i", { noremap = true, desc = "Colemak: Inner" })
 -- vim.keymap.set('v', 'E', '}', { noremap = true, desc = "Colemak: Page down" })
 -- vim.keymap.set('v', 'U', '{', { noremap = true, desc = "Colemak: Page up" })
-vim.keymap.set("v", "E", "<C-d>", { noremap = true, desc = "Colemak: Page down" })
-vim.keymap.set("v", "U", "<C-u>", { noremap = true, desc = "Colemak: Page up" })
+vim.keymap.set("v", "E", "}zz", { noremap = true, desc = "Colemak: Page down" })
+vim.keymap.set("v", "U", "{zz", { noremap = true, desc = "Colemak: Page up" })
 vim.keymap.set("v", "<leader>-", "%", { noremap = true, desc = "Jump to matching bracket" })
 vim.keymap.set("v", "z", "u", { noremap = true, desc = "Undo" })
 -- vim.keymap.set('v', ';', 'y', { noremap = true, desc = "Yank" })
@@ -46,6 +46,8 @@ vim.keymap.set("n", "Y", "yy", { noremap = true, desc = "Yank line" })
 vim.keymap.set("n", "P", '"0p', { noremap = true, desc = "Paste from register 0" })
 vim.keymap.set("n", "k", "n", { noremap = true, desc = "Next search result" })
 vim.keymap.set("n", "K", "N", { noremap = true, desc = "Previous search result" })
+vim.keymap.set("n", "]]", "]]zz", { noremap = true, desc = "Next header and center" })
+vim.keymap.set("n", "[[", "[[zz", { noremap = true, desc = "Previous header and center" })
 vim.keymap.set("n", "l", "i", { noremap = true, desc = "Enter insert mode" })
 vim.keymap.set("n", "L", "I", { noremap = true, desc = "Insert at line start" })
 vim.keymap.set("n", "<leader>,", "<S-i>", { noremap = true, desc = "Insert at line start" })

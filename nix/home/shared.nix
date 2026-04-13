@@ -11,6 +11,7 @@
     ./gtk.nix
     ./tmux.nix
     ./activation.nix
+    ./xdg.nix
 
     # Package sets
     ../packages/cli.nix
@@ -18,5 +19,6 @@
     ../packages/languages.nix
     ../packages/wayland.nix
     ../packages/appearance.nix
+    ../packages/utilities.nix
   ];
 }

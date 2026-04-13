@@ -14,10 +14,12 @@ vim.api.nvim_create_autocmd("FileType", {
 
         vim.keymap.set({ "n", "v", "o" }, "]]", function()
             vim.fn.search(pattern, "W")
+            vim.cmd("normal! zz")
         end, vim.tbl_extend("force", opts, { desc = "Next heading/callout" }))
 
         vim.keymap.set({ "n", "v", "o" }, "[[", function()
             vim.fn.search(pattern, "bW")
+            vim.cmd("normal! zz")
         end, vim.tbl_extend("force", opts, { desc = "Prev heading/callout" }))
     end,
 })
