@@ -12,6 +12,7 @@
     ./tmux.nix
     ./activation.nix
     ./xdg.nix
+    ./sioyek.nix
 
     # Package sets
     ../packages/cli.nix

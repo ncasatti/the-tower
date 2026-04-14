@@ -2,9 +2,10 @@
 # Utility programs managed via home-manager modules.
 {pkgs, ...}: {
   home.packages = with pkgs; [
-    # brave
+    brave
     mpv
     thunderbird
+    sioyek
   ];
 
   programs.zathura = {
