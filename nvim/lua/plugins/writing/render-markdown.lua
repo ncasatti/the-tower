@@ -23,8 +23,8 @@ return {
 			-- icons = { "󰉫 ", "󰉬 ", "󰉭 ", "󰉮 ", "󰉯 ", "󰉰 " },
 			-- icons = { "󰲠 ", "󰲢 ", "󰲤 ", "󰲦 ", "󰲪 " },
 			-- icons = { "󰎥 ", "󰎨 ", "󰎫 ", "󰎲 ", "󰎯 ", "󰎴 " },
-			icons = { "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 " },
-			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
+			-- icons = { "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 " },
+			icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
 			-- icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
 			-- icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
 			-- Use single line borders to match your theme
@@ -67,8 +67,8 @@ return {
 		-- Bullet points
 		bullet = {
 			enabled = true,
-			-- icons: ● ○ 󰸶 󱤙 ◇ 󰌕 󰌖 󰫥 󱤙 󰤲
-			icons = { "󰤲", "󱤙", "󰸶", "󰫥" },
+			-- icons: ● ○ 󰸶 󱤙  󰌕 󰌖 󰫥 󱤙 󰤲   󱦰 󱞩
+			icons = { "", "", "", "" },
 		},
 
 		-- Links
@@ -180,12 +180,25 @@ return {
 		)
 
 		-- Toggle fold on current heading
-		vim.keymap.set("n", "<leader>mf", function()
+		vim.keymap.set("n", "<leader>mq", function()
 			local ok, _ = pcall(vim.cmd, "normal! za")
 			if not ok then
 				vim.notify("No fold found under cursor", vim.log.levels.WARN)
 			end
 		end, vim.tbl_extend("force", md_opts, { desc = "󰍔 Toggle fold (current heading)" }))
+
+		-- Navigate to markdown link under cursor
+		vim.keymap.set("n", "<leader>mf", function()
+			local line = vim.api.nvim_get_current_line()
+			-- Matches [text](path) or [[path]]
+			local path = line:match("%((.-)%)") or line:match("%[%[(.-)%]%]")
+			if path then
+				-- Handle relative paths if necessary
+				vim.cmd("edit " .. path)
+			else
+				vim.notify("No markdown link found on current line", vim.log.levels.WARN)
+			end
+		end, vim.tbl_extend("force", md_opts, { desc = "󰌹 Navigate to markdown link" }))
 
 		-- Heading fold/unfold
 		vim.keymap.set(
