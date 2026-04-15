@@ -21,5 +21,6 @@
     ../packages/wayland.nix
     ../packages/appearance.nix
     ../packages/utilities.nix
+    ../packages/audio.nix
   ];
 }
