@@ -62,6 +62,10 @@ return {
       -- SETOPTS: Disable legacy commands
       legacy_commands = false,
 
+      -- Disable obsidian.nvim UI rendering to avoid conflict with render-markdown.nvim
+      -- (both plugins conceal list markers and apply icons, causing visual overlap)
+      ui = { enable = false },
+
       notes_subdir = "Fleeting",
 
       -- Other useful settings from our previous attempts
