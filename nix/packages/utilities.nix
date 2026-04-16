@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     brave
     mpv
+    yt-dlp
     thunderbird
     sioyek
   ];
