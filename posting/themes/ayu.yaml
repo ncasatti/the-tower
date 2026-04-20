@@ -1,0 +1,11 @@
+name: ayu
+author: Kasatto
+description: Ayu-inspired theme for Posting
+primary: '#39BAE6'
+secondary: '#FF8F40'
+accent: '#FB2372'
+background: '#000000'
+surface: '#000000'
+error: '#D26464'
+success: '#AAD94C'
+warning: '#FFB454'

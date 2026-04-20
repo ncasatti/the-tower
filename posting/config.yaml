@@ -1,0 +1,23 @@
+# Posting Configuration
+# Theme: Ayu-like (using hex codes from nvim/lua/plugins/themes/ayu.lua)
+theme: ayu
+layout: horizontal
+
+# UI Settings
+heading:
+  visible: true
+  show_host: false
+
+# Response Settings
+response:
+  prettify_json: true
+  show_size_and_time: true
+
+# Focus behavior (Colemak-friendly navigation)
+# Note: Posting uses its own internal navigation, but we set focus to start in a logical place
+focus:
+  on_startup: url
+
+# External tools
+editor: nvim
+pager: bat

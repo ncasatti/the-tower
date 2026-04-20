@@ -29,6 +29,7 @@ in {
     fish
     rclone
     speedtest-cli
+    posting
     inputs.opencode-nix.packages.${pkgs.system}.default
     inputs.clingy.packages.${pkgs.system}.default
     gemini-cli

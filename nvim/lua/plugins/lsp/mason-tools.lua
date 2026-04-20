@@ -20,7 +20,7 @@ return {
 				"prettier", -- JS/TS/JSON/YAML/Markdown formatter
 				"stylua", -- Lua formatter
 				"shfmt", -- Shell formatter
-				"alejandra", -- Nix formatter
+				"nixfmt", -- Nix formatter
 			},
 
 			-- Auto-update tools
