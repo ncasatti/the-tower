@@ -24,7 +24,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # --- NETWORKING ---
-  networking.hostName            = "the-grid";
+  networking.hostName            = "the-grid-notebook";
   networking.networkmanager.enable = true;
   networking.networkmanager.wifi.backend = "iwd";
   networking.wireless.iwd.enable = true;

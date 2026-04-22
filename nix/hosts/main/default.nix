@@ -27,7 +27,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # --- NETWORKING ---
-  networking.hostName            = "the-grid-main";
+  networking.hostName            = "the-grid";
   networking.networkmanager.enable = true;
 
   # --- LOCALIZATION & CLOCK ---
