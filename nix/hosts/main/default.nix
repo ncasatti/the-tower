@@ -9,6 +9,9 @@
     # Auto-generated hardware scan (uncomment after installation)
     ./hardware-configuration.nix
 
+    # Host-specific
+    ./nvidia.nix
+
     # Shared system modules
     ../../modules/nix.nix
     ../../modules/audio.nix
