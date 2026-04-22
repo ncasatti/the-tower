@@ -14,6 +14,9 @@
     ../../modules/services.nix
   ];
 
+  # --- PLATFORM ---
+  nixpkgs.hostPlatform = "x86_64-linux";
+
   # --- NIX SETTINGS ---
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree          = true;

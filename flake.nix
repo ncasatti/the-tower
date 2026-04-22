@@ -37,16 +37,13 @@
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
-    let
-      system = "x86_64-linux";
-    in {
+    {
 
       # =======================================================================
       # 1. NOTEBOOK (NixOS — portable workstation)
       # Deployment: sudo nixos-rebuild switch --flake .#notebook
       # =======================================================================
       nixosConfigurations."notebook" = nixpkgs.lib.nixosSystem {
-        inherit system;
         specialArgs = { inherit inputs; };
 
         modules = [
@@ -67,7 +64,6 @@
       # Deployment: sudo nixos-rebuild switch --flake .#main
       # =======================================================================
       nixosConfigurations."main" = nixpkgs.lib.nixosSystem {
-        inherit system;
         specialArgs = { inherit inputs; };
 
         modules = [
