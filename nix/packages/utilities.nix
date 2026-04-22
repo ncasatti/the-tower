@@ -4,6 +4,7 @@
   home.packages = with pkgs; [
     # brave
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
+    tidal-hifi
     mpv
     yt-dlp
     thunderbird
