@@ -183,44 +183,58 @@
 	"format-window-separator": " ",
 	"window-rewrite-default": "󰘔 ",
 	"window-rewrite": {
+        // Terminals
 		"class<windsurf>": " ",
 		"class<[Aa]ntigravity>": " ",
-
 		"class<VSCode|code-url-handler|[Vv]S[Cc]ode|code>": " ",
-		"class<obsidian>": " ",
 		"class<cursor|cursor-url-handler>": " ",
 		"class<kitty|konsole>": " ",
 		"class<kitty-dropterm>": " ",
 		"class<cool-retro-term.>": " ",
+
+        // Programming Utilities
+		"class<DBeaver>": " ",
+        "class<[Pp]ostman>": " ",
+		"class<jetbrains-studio": " ",
+
+        // Browsers
 		"class<Brave-browser(-beta|-dev|-nightly)>": "󰖟 ",
 		"class<zen>": " ",
 		"class<org.mozilla.Thunderbird>": " ",
-        "class<[Pp]ostman>": " ",
-		"class<Anytype|anytype>": " ",
-		"class<TeamViewer>": "󰔀 ",
 		"class<[Ww]hats[Dd]esk>": " ",
-		"class<org.remmina.Remmina>": " ",
-		"class<tidal-hifi>": " ",
-		"class<DBeaver>": " ",
-		"class<jetbrains-studio": " ",
+		"class<Chromium|Thorium>": " ",
+		"class<[Tt]hunderbird|[Tt]hunderbird-esr>": " ",
+
+        // Dinamic Titles
+		"title<.*[Ww]hats[Aa]pp.*>": " ",
 		"title<.*obsidian.*>": " ",
 		"title<.*youtube.*>": " ",
 		"title<.*amazon.*>": " ",
 		"title<.*reddit.*>": " ",
 		"title<.*notion.*>": " ",
 		"title<.*Picture-in-Picture.*>": " ",
+
+        // Others
+		"class<obsidian>": " ",
+		"class<tidal-hifi>": " ",
+
+		"class<com.obsproject.Studio>": " ",
+		"class<mpv>": " ",
 		"class<GeoGebra>": " ",
-		"class<firefox|org.mozilla.firefox|librewolf|floorp|mercury-browser|[Cc]achy-browser>": " ",
-		"class<Chromium|Thorium>": " ",
+		"class<vlc>": "󰕼 ",
+		"class<steam>": " "
+		"class<celluloid|Zoom>": " ",
+		"class<Anytype|anytype>": " ",
+		"class<TeamViewer>": "󰔀 ",
+		"class<org.remmina.Remmina>": " ",
+
+		"class<nwg-look>": " ",
 		"class<org.telegram.desktop|io.github.tdesktop_x64.TDesktop>": " ",
 		"class<[Ss]potify>": " ",
 		"class<thunar>": "󰝰 ",
-		"class<[Tt]hunderbird|[Tt]hunderbird-esr>": " ",
 		"class<eu.betterbird.Betterbird>": " ",
 		"class<discord|[Ww]ebcord|Vesktop>": " ",
 		"class<subl>": "󰅳 ",
-		"class<mpv>": " ",
-		"class<celluloid|Zoom>": " ",
 		"class<Cider>": "󰎆 ",
 		"class<virt-manager>": " ",
 		"class<.virt-manager-wrapped>": " ",
@@ -228,13 +242,9 @@
 		"class<mousepad>": " ",
 		"class<libreoffice-writer>": " ",
 		"class<libreoffice-startcenter>": "󰏆 ",
-		"class<com.obsproject.Studio>": " ",
 		"class<polkit-gnome-authentication-agent-1>": "󰒃 ",
-		"class<nwg-look>": " ",
 		"class<waterfox|waterfox-bin>": " ",
 		"class<microsoft-edge>": " ",
-		"class<vlc>": "󰕼 ",
-		"class<steam>": " "
 		}
 	}
 }
