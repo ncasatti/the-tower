@@ -165,6 +165,7 @@
       set -g pane-border-status off
 
       setw -g automatic-rename on
+      setw -g automatic-rename-format '#{s/^\.(.+)-unwrapped$/\1/:pane_current_command}'
       setw -g pane-base-index 1
 
       # Unbind defaults
