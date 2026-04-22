@@ -1,5 +1,5 @@
 {
-  description = "The Grid - Mainframe System & Terminal Sub-system";
+  description = "The Grid - Dual NixOS Mainframe Configuration";
 
   inputs = {
     # Core NixOS packages (Unstable branch for rolling release updates)
@@ -17,11 +17,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Zen Browser (community flake, not in nixpkgs)
-    zen-browser = {
-      url = "github:0xc000022070/zen-browser-flake";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # Zen Browser (community flake, not in nixpkgs) — disabled until stable
+    # zen-browser = {
+    #   url = "github:0xc000022070/zen-browser-flake";
+    #   inputs.nixpkgs.follows = "nixpkgs";
+    # };
 
     # OpenCode AI CLI (community flake with hourly updates)
     opencode-nix = {
@@ -39,50 +39,48 @@
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
     let
       system = "x86_64-linux";
-      pkgs   = nixpkgs.legacyPackages.${system};
     in {
 
       # =======================================================================
-      # 1. THE MAINFRAME (NixOS System-Level Configuration for the Notebook)
-      # Deployment command: sudo nixos-rebuild switch --flake .#notebook
+      # 1. NOTEBOOK (NixOS — portable workstation)
+      # Deployment: sudo nixos-rebuild switch --flake .#notebook
       # =======================================================================
       nixosConfigurations."notebook" = nixpkgs.lib.nixosSystem {
         inherit system;
-
-        # Pass flake inputs directly to all internal modules
         specialArgs = { inherit inputs; };
 
         modules = [
-          # The core OS configuration
           ./nix/hosts/notebook
 
-          # Inject Home Manager natively as a NixOS module
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs    = true;
             home-manager.useUserPackages  = true;
-
-            # Map the 'flyn' user to its declarative environment payload
-            home-manager.users.flyn = import ./nix/home/notebook.nix;
-
-            # Pass inputs specifically to Home Manager
+            home-manager.users.flyn = import ./nix/hosts/notebook/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
         ];
       };
 
       # =======================================================================
-      # 2. THE TOWER (User-Level Standalone Configuration for Arch Linux)
-      # Deployment command: nix run home-manager/master -- switch --flake .#main
+      # 2. MAIN (NixOS — primary workstation)
+      # Deployment: sudo nixos-rebuild switch --flake .#main
       # =======================================================================
-      homeConfigurations."main" = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
+      nixosConfigurations."main" = nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = { inherit inputs; };
 
-        # Pass inputs specifically to Home Manager
-        extraSpecialArgs = { inherit inputs; };
+        modules = [
+          ./nix/hosts/main
 
-        # The declarative user payload
-        modules = [ ./nix/home/main.nix ];
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs    = true;
+            home-manager.useUserPackages  = true;
+            home-manager.users.flyn = import ./nix/hosts/main/home.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+          }
+        ];
       };
 
     };

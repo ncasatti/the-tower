@@ -1,5 +1,5 @@
-# nix/hosts/notebook/services.nix
-# System services: SSH, keyd, avahi, power management, bluetooth, graphics
+# nix/modules/services.nix
+# Shared system services: SSH, keyd, avahi, power management, bluetooth, graphics
 
 { ... }:
 
@@ -13,7 +13,7 @@
 
   # --- KEY RE-MAPPING (keyd) ---
   services.keyd.enable = true;
-  environment.etc."keyd/default.conf".source = ../../../keyd/default.conf;
+  environment.etc."keyd/default.conf".source = ../../keyd/default.conf;
 
   # --- LOCAL NETWORK DISCOVERY (Avahi) ---
   services.avahi.enable   = true;

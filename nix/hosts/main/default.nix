@@ -1,13 +1,13 @@
-# nix/hosts/notebook/default.nix
-# Main NixOS configuration for The Grid notebook host.
-# Imports sub-modules for audio, secrets, and services.
+# nix/hosts/main/default.nix
+# Main NixOS configuration for The Grid main host.
+# TODO: Add hardware-configuration.nix after NixOS installation.
 
 { config, pkgs, inputs, ... }:
 
 {
   imports = [
-    # Auto-generated hardware scan
-    ./hardware-configuration.nix
+    # Auto-generated hardware scan (uncomment after installation)
+    # ./hardware-configuration.nix
 
     # Shared system modules
     ../../modules/audio.nix
@@ -23,10 +23,8 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # --- NETWORKING ---
-  networking.hostName            = "the-grid";
+  networking.hostName            = "the-grid-main";
   networking.networkmanager.enable = true;
-  networking.networkmanager.wifi.backend = "iwd";
-  networking.wireless.iwd.enable = true;
 
   # --- LOCALIZATION & CLOCK ---
   time.timeZone        = "America/Argentina/Cordoba";
@@ -59,19 +57,16 @@
   users.users.flyn = {
     isNormalUser = true;
     description  = "System Administrator";
-    # 'wheel' for sudo, 'keyd' to allow user to reload keyd configs
     extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
     shell        = pkgs.fish;
   };
 
   # --- CORE SYSTEM PACKAGES ---
-  # Only absolute necessities. UI and dev tools go to home modules.
   environment.systemPackages = with pkgs; [
     git
     curl
     wget
     eza
-    wiremix
     iw
   ];
 
