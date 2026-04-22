@@ -128,18 +128,18 @@
 
           set -g @oasis_window_left_separator ""
           set -g @oasis_window_right_separator ""
-          set -g @oasis_window_middle_separator " █"
+          set -g @oasis_window_middle_separator " | "
           set -g @oasis_window_number_position "left"
 
           set -g @oasis_window_default_fill "number"
           set -g @oasis_window_default_text " #W"
-          set -g @oasis_window_default_color "#{E:@thm_surface}"
+          set -g @oasis_window_default_color "#{E:@thm_fg}"
           set -g @oasis_window_default_background "#{E:@thm_mantle}"
 
           set -g @oasis_window_current_fill "number"
           set -g @oasis_window_current_text " #W"
-          set -g @oasis_window_current_color "#{E:@thm_secondary}"
-          set -g @oasis_window_current_background "#{E:@thm_mantle}"
+          set -g @oasis_window_current_color "#000000"
+          set -g @oasis_window_current_background "#{E:@thm_secondary}"
         '';
       }
     ];

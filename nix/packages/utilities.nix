@@ -2,7 +2,7 @@
 # Utility programs managed via home-manager modules.
 {pkgs, inputs, ...}: {
   home.packages = with pkgs; [
-    brave
+    # brave
     inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     mpv
     yt-dlp
