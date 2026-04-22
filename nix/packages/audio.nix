@@ -5,6 +5,16 @@
 { pkgs, ... }:
 
 {
+  # --- PLUGIN DISCOVERY PATHS ---
+  # Required for Carla and other hosts to find Nix-managed plugins.
+  home.sessionVariables = {
+    LV2_PATH    = "$HOME/.nix-profile/lib/lv2";
+    LADSPA_PATH = "$HOME/.nix-profile/lib/ladspa";
+    DSSI_PATH   = "$HOME/.nix-profile/lib/dssi";
+    VST_PATH    = "$HOME/.nix-profile/lib/vst";
+    VST3_PATH   = "$HOME/.nix-profile/lib/vst3";
+  };
+
   home.packages = with pkgs; [
     # --- DAWs & Hosts ---
     ardour          # Professional DAW
