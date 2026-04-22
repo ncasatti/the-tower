@@ -10,6 +10,7 @@
     # ./hardware-configuration.nix
 
     # Shared system modules
+    ../../modules/nix.nix
     ../../modules/audio.nix
     ../../modules/services.nix
     ../../modules/tailscale.nix
@@ -17,10 +18,6 @@
 
   # --- PLATFORM ---
   nixpkgs.hostPlatform = "x86_64-linux";
-
-  # --- NIX SETTINGS ---
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
-  nixpkgs.config.allowUnfree          = true;
 
   # --- BOOTLOADER ---
   boot.loader.systemd-boot.enable      = true;
