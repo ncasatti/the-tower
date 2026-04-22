@@ -42,7 +42,7 @@ return {
       workspaces = {
         {
           name = "Zettelkasten",
-          path = vim.fn.expand("~/Documents/Zettelkasten"),
+          path = vim.fn.expand("~/.the-grid/zettelkasten/"),
         },
       },
 

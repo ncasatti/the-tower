@@ -1,7 +1,7 @@
 # ====================
 # Miscellaneous Development Aliases
 # ====================
-# Go, AWS, NixOS, and other development tools
+# Go, AWS and other development tools
 
 # Go
 abbr -a gor 'go run .'
@@ -19,16 +19,3 @@ abbr -a aws-cloudf-deploy 'aws cloudformation deploy --stack-name'
 # AWS ECR
 abbr -a aws-ecr 'aws ecr'
 abbr -a aws-ecr-describe 'aws ecr describe-images --repository-name'
-
-# NixOS
-abbr -a nrs 'sudo nixos-rebuild switch'
-abbr -a nrnotebook 'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#notebook'
-abbr -a nrmain 'nix run home-manager/master -- switch --flake /home/ncasatti/.the-grid/the-tower#main'
-abbr -a nda 'echo "use flake" > .envrc && direnv allow'
-abbr -a nd 'nix develop'
-abbr -a nduf 'echo "use flake" > .envrc'
-abbr -a nrt 'sudo nixos-rebuild test'
-abbr -a ne 'sudo -E nvim /etc/nixos/configuration.nix'
-abbr -a ng 'sudo nix-collect-garbage'
-abbr -a ngd 'sudo nix-collect-garbage -d'
-abbr -a nu 'sudo nixos-rebuild switch --upgrade-all'
