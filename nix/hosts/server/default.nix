@@ -1,8 +1,9 @@
-# nix/hosts/main/default.nix
-# Main NixOS configuration for The Grid main host.
+# nix/hosts/server/default.nix
+# Headless NixOS configuration for The Grid server (DNS + VPN node).
+# No GUI, no Hyprland, no Home Manager. Pure infrastructure.
 # TODO: Add hardware-configuration.nix after NixOS installation.
 
-{ config, pkgs, inputs, ... }:
+{ pkgs, ... }:
 
 {
   imports = [
@@ -10,9 +11,11 @@
     # ./hardware-configuration.nix
 
     # Shared system modules
-    ../../modules/audio.nix
     ../../modules/services.nix
     ../../modules/tailscale.nix
+
+    # Server-specific
+    ./adguard.nix
   ];
 
   # --- PLATFORM ---
@@ -27,41 +30,22 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # --- NETWORKING ---
-  networking.hostName            = "the-grid-main";
+  networking.hostName            = "the-grid-server";
   networking.networkmanager.enable = true;
 
   # --- LOCALIZATION & CLOCK ---
-  time.timeZone        = "America/Argentina/Cordoba";
-  i18n.defaultLocale   = "en_US.UTF-8";
-  services.xserver.xkb.layout  = "us";
-  services.xserver.xkb.variant = "colemak";
-  console.keyMap       = "colemak";
+  time.timeZone      = "America/Argentina/Cordoba";
+  i18n.defaultLocale = "en_US.UTF-8";
+  console.keyMap     = "colemak";
 
-  # --- GLOBAL SHELL ---
-  programs.fish = {
-    enable = true;
-    shellAliases = {
-      l = null;
-      ll = null;
-      ls = null;
-    };
-  };
-  programs.dconf.enable = true;
-
-  # --- WINDOW MANAGER ---
-  programs.hyprland = {
-    enable          = true;
-    xwayland.enable = true;
-  };
-
-  # --- NIX-LD (FHS binary compatibility for Mason/npm/etc.) ---
-  programs.nix-ld.enable = true;
+  # --- SHELL ---
+  programs.fish.enable = true;
 
   # --- USER IDENTITY ---
   users.users.flyn = {
     isNormalUser = true;
     description  = "System Administrator";
-    extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
+    extraGroups  = [ "networkmanager" "wheel" ];
     shell        = pkgs.fish;
   };
 
@@ -71,8 +55,15 @@
     curl
     wget
     eza
-    iw
+    htop
   ];
+
+  # --- HEADLESS: Prevent suspend on lid close ---
+  services.logind = {
+    lidSwitch              = "ignore";
+    lidSwitchExternalPower = "ignore";
+    lidSwitchDocked        = "ignore";
+  };
 
   # Do NOT change this value.
   system.stateVersion = "23.11";

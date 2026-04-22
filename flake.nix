@@ -77,6 +77,18 @@
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
         ];
+    };
+
+      # =======================================================================
+      # 3. SERVER (NixOS — headless infrastructure node: DNS + VPN)
+      # Deployment: sudo nixos-rebuild switch --flake .#server
+      # =======================================================================
+      nixosConfigurations."server" = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
+
+        modules = [
+          ./nix/hosts/server
+        ];
       };
 
     };

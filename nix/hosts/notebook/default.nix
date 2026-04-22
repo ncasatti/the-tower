@@ -12,6 +12,7 @@
     # Shared system modules
     ../../modules/audio.nix
     ../../modules/services.nix
+    ../../modules/tailscale.nix
   ];
 
   # --- PLATFORM ---
