@@ -30,6 +30,7 @@ in {
     rclone
     speedtest-cli
     posting
+    claude-code
     inputs.opencode-nix.packages.${pkgs.system}.default
     inputs.clingy.packages.${pkgs.system}.default
     gemini-cli
