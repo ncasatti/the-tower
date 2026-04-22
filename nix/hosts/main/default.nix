@@ -7,7 +7,7 @@
 {
   imports = [
     # Auto-generated hardware scan (uncomment after installation)
-    # ./hardware-configuration.nix
+    ./hardware-configuration.nix
 
     # Shared system modules
     ../../modules/nix.nix
