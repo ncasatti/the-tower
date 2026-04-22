@@ -17,11 +17,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Zen Browser (community flake, not in nixpkgs) — disabled until stable
-    # zen-browser = {
-    #   url = "github:0xc000022070/zen-browser-flake";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    # Zen Browser (community flake, recommended by NixOS wiki)
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # OpenCode AI CLI (community flake with hourly updates)
     opencode-nix = {

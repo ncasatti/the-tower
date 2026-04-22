@@ -1,8 +1,9 @@
 # nix/packages/utilities.nix
 # Utility programs managed via home-manager modules.
-{pkgs, ...}: {
+{pkgs, inputs, ...}: {
   home.packages = with pkgs; [
     brave
+    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
     mpv
     yt-dlp
     thunderbird
