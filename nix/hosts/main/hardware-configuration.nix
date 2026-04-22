@@ -9,7 +9,7 @@
     ];
 
   boot.initrd.availableKernelModules = [ "xhci_pci" "ahci" "usb_storage" "usbhid" "sd_mod" ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.kernelModules = [ "dm_crypt" "ccp" "cryptd" ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
@@ -19,6 +19,12 @@
     };
 
   boot.initrd.luks.devices."luks-94ba8d4d-69c2-4e02-bbcf-b3e026a2f520".device = "/dev/disk/by-uuid/94ba8d4d-69c2-4e02-bbcf-b3e026a2f520";
+
+  # Swap LUKS — auto-unlock via keyfile after root is decrypted
+  boot.initrd.luks.devices."luks-005a1c08-56f9-4c42-a517-d075adc11615" = {
+    device  = "/dev/disk/by-uuid/005a1c08-56f9-4c42-a517-d075adc11615";
+    keyFile = "/etc/luks-swap.key";
+  };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/F404-FC52";
