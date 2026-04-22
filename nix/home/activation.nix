@@ -7,6 +7,8 @@
   # --- CACHE & SYMLINKS: Runtime mutable state ---
   home.activation.createCacheAndSymlinks = config.lib.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p "$HOME/.cache/hypr/wallust"
+    mkdir -p "$HOME/.config/waybar"
+    mkdir -p "$HOME/.config/rofi"
     ln -sfn "$HOME/.cache/hypr/wallust"           "$HOME/.config/waybar/wallust"
     ln -sfn "$HOME/.cache/hypr/wallust"           "$HOME/.config/rofi/wallust"
   '';
