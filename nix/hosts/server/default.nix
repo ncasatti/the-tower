@@ -17,6 +17,10 @@
 
     # Server-specific
     ./adguard.nix
+    ../../packages/nvim.nix
+    ../../home/git.nix
+    ../../home/tmux.nix
+    ../../home/dotfiles.nix
   ];
 
   # --- PLATFORM ---
@@ -53,6 +57,14 @@
     wget
     eza
     htop
+    fzf
+    yazi
+    starship
+    zoxide
+    bat
+    lazygit
+    fish
+    rclone
   ];
 
   # --- HEADLESS: Prevent suspend on lid close ---
