@@ -18,6 +18,7 @@
 
     # --- Package sets ---
     ../../packages/cli.nix
+    ../../packages/dev.nix
     ../../packages/nvim.nix
     ../../packages/languages.nix
     ../../packages/wayland.nix
