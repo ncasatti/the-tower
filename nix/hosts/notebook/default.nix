@@ -76,6 +76,12 @@
     iw
   ];
 
+  services.logind = {
+    lidSwitch              = "ignore";
+    lidSwitchExternalPower = "ignore";
+    lidSwitchDocked        = "ignore";
+  };
+
   # Do NOT change this value.
   system.stateVersion = "23.11";
 }
