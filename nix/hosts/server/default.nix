@@ -48,7 +48,6 @@
 
   # --- CORE SYSTEM PACKAGES ---
   environment.systemPackages = with pkgs; [
-    git
     curl
     wget
     eza

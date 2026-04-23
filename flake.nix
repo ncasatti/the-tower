@@ -88,6 +88,14 @@
 
         modules = [
           ./nix/hosts/server
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs    = true;
+            home-manager.useUserPackages  = true;
+            home-manager.users.flyn = import ./nix/hosts/server/home.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+          }
         ];
       };
 
