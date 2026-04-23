@@ -1,9 +1,11 @@
 # nix/packages/utilities.nix
 # Utility programs managed via home-manager modules.
-{pkgs, inputs, ...}: {
+{pkgs, ...}:
+
+{
   home.packages = with pkgs; [
     # brave
-    inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.default
+    zen-browser
     tidal-hifi
     mpv
     yt-dlp

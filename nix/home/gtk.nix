@@ -6,6 +6,7 @@
 let
   cursor-theme = pkgs.callPackage ../packages/cursor-theme.nix {};
 in
+
 {
   home.pointerCursor = {
     name = "DeppinDark-cursors";

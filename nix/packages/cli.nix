@@ -1,12 +1,8 @@
 # nix/packages/cli.nix
 # CLI tools and core utilities
+{ pkgs, ... }:
+
 {
-  pkgs,
-  inputs,
-  ...
-}: let
-  system = pkgs.stdenv.hostPlatform.system;
-in {
   home.packages = with pkgs; [
     yazi
     starship

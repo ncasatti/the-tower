@@ -1,6 +1,5 @@
 # nix/packages/cursor-theme.nix
 # Custom cursor theme package
-
 { pkgs, ... }:
 
 pkgs.stdenv.mkDerivation {

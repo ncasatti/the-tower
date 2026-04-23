@@ -1,17 +1,16 @@
 # nix/packages/dev.nix
 # Development tools and utilities
-{
-  pkgs,
-  inputs,
-  ...
-}: let
-  system = pkgs.stdenv.hostPlatform.system;
+{ pkgs, ... }:
+
+let
   gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix {};
-in {
+in
+
+{
   home.packages = with pkgs; [
     claude-code
-    inputs.opencode-nix.packages.${system}.default
-    inputs.clingy.packages.${system}.default
+    opencode
+    clingy
     gemini-cli
     postman
   ];

@@ -1,7 +1,6 @@
 # nix/packages/audio.nix
 # Audio-related packages for Home Manager
 # Note: System-level services (PipeWire, PAM) must be managed by Arch Linux.
-
 { pkgs, ... }:
 
 {

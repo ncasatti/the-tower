@@ -1,11 +1,9 @@
 # Home Manager configuration for NixOS notebook host, user: flyn
 # Injected via home-manager.users.flyn in the flake.
 
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 
-let
-  system = pkgs.stdenv.hostPlatform.system;
-in {
+{
   imports = [
     # --- Home modules ---
     ../../home/dotfiles.nix
@@ -31,6 +29,6 @@ in {
     lazygit
     fish
     rclone
-    inputs.clingy.packages.${system}.default
+    clingy
   ];
 }

@@ -1,6 +1,5 @@
 # nix/packages/appearance.nix
 # Fonts and GTK/icon themes
-
 { pkgs, ... }:
 
 {

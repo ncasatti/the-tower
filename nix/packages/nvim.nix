@@ -1,6 +1,5 @@
 # nix/packages/nvim.nix
 # Neovim with pre-compiled Treesitter parsers via Home Manager
-
 { pkgs, ... }:
 
 {

@@ -1,7 +1,6 @@
 # nix/packages/wayland.nix
 # Wayland compositor tools, notification daemon, and browser
-
-{ pkgs, inputs, ... }:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -16,6 +15,5 @@
     swww
     swaynotificationcenter
     wallust
-    # inputs.zen-browser.packages.x86_64-linux.default  # Zen Browser (community flake)
   ];
 }

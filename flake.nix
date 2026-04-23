@@ -47,6 +47,7 @@
         specialArgs = { inherit inputs; };
 
         modules = [
+          { nixpkgs.overlays = [ (import ./nix/overlays/default.nix { inherit inputs; }).additions ]; }
           ./nix/hosts/notebook
 
           home-manager.nixosModules.home-manager
@@ -67,6 +68,7 @@
         specialArgs = { inherit inputs; };
 
         modules = [
+          { nixpkgs.overlays = [ (import ./nix/overlays/default.nix { inherit inputs; }).additions ]; }
           ./nix/hosts/main
 
           home-manager.nixosModules.home-manager
@@ -87,6 +89,7 @@
         specialArgs = { inherit inputs; };
 
         modules = [
+          { nixpkgs.overlays = [ (import ./nix/overlays/default.nix { inherit inputs; }).additions ]; }
           ./nix/hosts/server
 
           home-manager.nixosModules.home-manager

@@ -1,6 +1,5 @@
 # nix/packages/languages.nix
 # Language toolchains for Neovim LSPs via Mason and general development
-
 { pkgs, ... }:
 
 {
