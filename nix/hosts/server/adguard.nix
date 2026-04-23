@@ -50,10 +50,12 @@
       };
 
       filters = [
-        # AdGuard DNS filter (default, comprehensive)
+        # AdGuard DNS filter (default)
         { enabled = true; url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_1.txt"; name = "AdGuard DNS filter"; id = 1; }
-        # AdAway default blocklist
-        { enabled = true; url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_2.txt"; name = "AdAway Default Blocklist"; id = 2; }
+        # OISD Big (Agresivo y completo)
+        { enabled = true; url = "https://big.oisd.nl/"; name = "OISD Big"; id = 2; }
+        # AdGuard Adult Content Filter
+        { enabled = true; url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_11.txt"; name = "AdGuard Adult Content Filter"; id = 3; }
       ];
     };
   };

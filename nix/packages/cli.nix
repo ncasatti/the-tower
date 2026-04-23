@@ -29,6 +29,8 @@ in {
     fish
     rclone
     speedtest-cli
+    bind
+    tcpdump
     posting
     claude-code
     inputs.opencode-nix.packages.${pkgs.system}.default
