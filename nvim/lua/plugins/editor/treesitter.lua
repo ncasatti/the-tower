@@ -5,9 +5,10 @@ return {
 	lazy = false,
 	config = function()
 		-- Detect if running in Nix environment
-		local is_nix = string.find(vim.v.progpath, "/nix/store") ~= nil
+		-- local is_nix = string.find(vim.v.progpath, "/nix/store") ~= nil
 
 		-- Define ensure_installed based on environment
+		is_nix = false
 		local ensure_installed
 		if is_nix then
 			-- In Nix, treesitter parsers are provided via nvim-treesitter.withPlugins
