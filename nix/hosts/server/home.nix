@@ -3,7 +3,9 @@
 
 { pkgs, inputs, ... }:
 
-{
+let
+  system = pkgs.stdenv.hostPlatform.system;
+in {
   imports = [
     # --- Home modules ---
     ../../home/dotfiles.nix
@@ -29,6 +31,6 @@
     lazygit
     fish
     rclone
-    inputs.clingy.packages.${pkgs.system}.default
+    inputs.clingy.packages.${system}.default
   ];
 }
