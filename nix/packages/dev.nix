@@ -13,5 +13,6 @@ in
     clingy
     gemini-cli
     postman
+    postgresql
   ];
 }
