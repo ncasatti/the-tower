@@ -36,5 +36,6 @@
     # --- Audio Utilities ---
     pavucontrol     # PipeWire/PulseAudio volume control GUI
     pamixer         # CLI mixer
+    wiremix         # GUI mixer
   ];
 }
