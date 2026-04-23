@@ -30,11 +30,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1775503772,
-        "narHash": "sha256-+fzZ9ZXG1SRbu8MprEGb1c3LxgLOK+jOQiFg8zZekMY=",
+        "lastModified": 1775593901,
+        "narHash": "sha256-bgyU9lzkZqZIWjC/JHJ0yLjS/mk3PqjiNByeyeSz7Y8=",
         "owner": "ncasatti",
         "repo": "clingy",
-        "rev": "45ed53af88a144ef379545fd79a27af0226576d1",
+        "rev": "61e52633f5b0f8b6586cd9ddc0bfda1d080d5465",
         "type": "github"
       },
       "original": {
