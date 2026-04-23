@@ -10,8 +10,13 @@ Colors = {
 	yellow1 = "#FFB454", -- Naranja suave (Ayu-like)
 	yellow2 = "#C1AD10",
 	orange = "#FF8F40",
+	orange2 = "#FFB454",
+	orange3 = "#DBA55E", -- C79454
 	white1 = "#FFFFFF",
-	cyan_gray = "#7D9CA8",
+	green = "#91BA18", -- 86B300
+	green2 = "#AAD94C",
+	cyan_gray = "#33596B", -- 7D9CA8
+	gray = "#4F6166",
 	cyan = "#00FFFF",
 	blue_note = "#39BAE6",
 	red = "#D26464",
@@ -22,6 +27,11 @@ Colors = {
 	h4 = "#C385FE",
 	h5 = "#FF8F40",
 	h6 = "#84CEB5",
+}
+Elements = {
+	bold = Colors.orange3,
+	code = Colors.green,
+	italic = Colors.red,
 }
 -- Ayu theme configuration for Neovim
 return {
@@ -76,8 +86,8 @@ return {
 			["@string"] = { fg = "#AAD94C" },
 
 			-- Comments (OK)
-			Comment = { fg = "#575c61", italic = true }, -- Gray comments with italic
-			["@comment"] = { fg = "#575c61", italic = true },
+			Comment = { fg = Elements.italic, italic = true }, -- Gray comments with italic - 575c61
+			["@comment"] = { fg = Elements.italic, italic = true },
 
 			-- Keywords (OK)
 			Keyword = { fg = Colors.pink2 }, -- Pink keywords  #e30e75
@@ -96,10 +106,10 @@ return {
 			["@type.builtin"] = { fg = Colors.blue3 },
 
 			-- Variables (OK)
-			Identifier = { fg = "#BFBDB6" }, -- Light gray variables
-			["@variable"] = { fg = "#BFBDB6" },
-			["@variable.member"] = { fg = "#BFBDB6" },
-			["@variable.builtin"] = { fg = "#BFBDB6", italic = true },
+			Identifier = { fg = Elements.italic }, -- Light gray variables BFBDB6
+			["@variable"] = { fg = Elements.italic },
+			["@variable.member"] = { fg = Elements.italic },
+			["@variable.builtin"] = { fg = Elements.italic, italic = true },
 
 			-- Numbers (OK)
 			Number = { fg = "#D2A6FF" }, -- Purple numbers
@@ -130,8 +140,12 @@ return {
 			["@property"] = { fg = "#39BAE6" }, -- Cyan for properties
 
 			-- Markdown bold - bright white for emphasis
-			["@markup.strong"] = { fg = "#FFFFFF", bold = true },
-			markdownBold = { fg = "#FFFFFF", bold = true },
+			["@markup.strong"] = { fg = Elements.bold, bold = true },
+			markdownBold = { fg = Elements.bold, bold = true },
+
+			-- Markdown italic
+			["@markup.italic"] = { fg = Elements.italic, italic = true },
+			markdownItalic = { fg = Elements.italic, italic = true },
 
 			-- Markdown heading colors for render-markdown
 			RenderMarkdownH1 = { fg = Colors.h1 },
@@ -148,16 +162,16 @@ return {
 			RenderMarkdownH6Bg = { bg = "None" },
 
 			-- Markdown Math and Code blocks
-			RenderMarkdownMath = { fg = Colors.cyan_gray },
-			RenderMarkdownCode = { fg = Colors.cyan_gray },
-			["@markup.math"] = { fg = Colors.cyan_gray },
-			["@markup.raw"] = { fg = Colors.cyan_gray },
-			["@markup.raw.block"] = { fg = Colors.cyan_gray },
-			["@markup.raw.inline"] = { fg = Colors.cyan_gray },
-			["@function.macro.latex"] = { fg = Colors.cyan_gray },
-			["@function.latex"] = { fg = Colors.cyan_gray },
-			["@punctuation.special.latex"] = { fg = Colors.cyan_gray },
-			["@variable.parameter.latex"] = { fg = Colors.cyan_gray },
+			RenderMarkdownMath = { fg = Elements.code },
+			RenderMarkdownCode = { fg = Elements.code },
+			["@markup.math"] = { fg = Elements.code },
+			["@markup.raw"] = { fg = Elements.code },
+			["@markup.raw.block"] = { fg = Elements.code },
+			["@markup.raw.inline"] = { fg = Elements.code },
+			["@function.macro.latex"] = { fg = Elements.code },
+			["@function.latex"] = { fg = Elements.code },
+			["@punctuation.special.latex"] = { fg = Elements.code },
+			["@variable.parameter.latex"] = { fg = Elements.code },
 
 			-- Callout custom colors for render-markdown
 			RenderMarkdownInfo = { fg = Colors.blue_note }, -- Note (blue)
@@ -206,8 +220,12 @@ return {
 		vim.api.nvim_set_hl(0, "Directory", { fg = "#BFBDB6" })
 
 		-- Markdown bold - bright white
-		vim.api.nvim_set_hl(0, "@markup.strong", { fg = "#FFFFFF", bold = true })
-		vim.api.nvim_set_hl(0, "markdownBold", { fg = "#FFFFFF", bold = true })
+		vim.api.nvim_set_hl(0, "@markup.strong", { fg = Elements.bold, bold = true })
+		vim.api.nvim_set_hl(0, "markdownBold", { fg = Elements.bold, bold = true })
+
+		-- Markdown italic
+		vim.api.nvim_set_hl(0, "@markup.italic", { fg = Elements.italic, italic = true })
+		vim.api.nvim_set_hl(0, "markdownItalic", { fg = Elements.italic, italic = true })
 
 		-- Markdown heading colors
 		vim.api.nvim_set_hl(0, "RenderMarkdownH1", { fg = Colors.h1 })
@@ -224,16 +242,16 @@ return {
 		vim.api.nvim_set_hl(0, "RenderMarkdownH6Bg", { bg = "None" })
 
 		-- Markdown Math and Code blocks
-		vim.api.nvim_set_hl(0, "RenderMarkdownMath", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "RenderMarkdownCode", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@markup.math", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@markup.raw", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@markup.raw.block", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@markup.raw.inline", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@function.macro.latex", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@function.latex", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@punctuation.special.latex", { fg = Colors.cyan_gray })
-		vim.api.nvim_set_hl(0, "@variable.parameter.latex", { fg = Colors.cyan_gray })
+		vim.api.nvim_set_hl(0, "RenderMarkdownMath", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "RenderMarkdownCode", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@markup.math", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@markup.raw", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@markup.raw.block", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@markup.raw.inline", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@function.macro.latex", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@function.latex", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@punctuation.special.latex", { fg = Elements.code })
+		vim.api.nvim_set_hl(0, "@variable.parameter.latex", { fg = Elements.code })
 
 		-- Callout colors
 		vim.api.nvim_set_hl(0, "RenderMarkdownInfo", { fg = Colors.blue_note })
