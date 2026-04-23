@@ -14,6 +14,7 @@
     ../../modules/nix.nix
     ../../modules/services.nix
     ../../modules/tailscale.nix
+    ../../modules/security.nix
 
     # Server-specific
     ./adguard.nix

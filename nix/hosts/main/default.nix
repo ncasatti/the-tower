@@ -17,6 +17,7 @@
     ../../modules/audio.nix
     ../../modules/services.nix
     ../../modules/tailscale.nix
+    ../../modules/security.nix
   ];
 
   # --- PLATFORM ---
