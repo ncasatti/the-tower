@@ -65,6 +65,7 @@
     lazygit
     fish
     rclone
+    inputs.clingy.packages.${pkgs.system}.default
   ];
 
   # --- HEADLESS: Prevent suspend on lid close ---
