@@ -56,6 +56,8 @@
         { enabled = true; url = "https://big.oisd.nl/"; name = "OISD Big"; id = 2; }
         # AdGuard Adult Content Filter
         { enabled = true; url = "https://adguardteam.github.io/HostlistsRegistry/assets/filter_11.txt"; name = "AdGuard Adult Content Filter"; id = 3; }
+        # OISD Blocklist NSFW
+        { enabled = true; url = "https://nsfw.oisd.nl/"; name = "OISD Blocklist NSFW"; id = 4; }
       ];
     };
   };
