@@ -14,5 +14,6 @@ in
     gemini-cli
     postman
     postgresql
+    dbeaver-bin
   ];
 }
