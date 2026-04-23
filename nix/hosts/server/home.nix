@@ -1,7 +1,7 @@
 # Home Manager configuration for NixOS notebook host, user: flyn
 # Injected via home-manager.users.flyn in the flake.
 
-{ pkgs, ... }:
+{ pkgs, inputs, ... }:
 
 {
   imports = [
