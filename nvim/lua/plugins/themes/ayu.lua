@@ -13,6 +13,7 @@ Colors = {
 	orange2 = "#FFB454",
 	orange3 = "#DBA55E", -- C79454
 	white1 = "#FFFFFF",
+	black = "#000000",
 	green = "#91BA18", -- 86B300
 	green2 = "#AAD94C",
 	cyan_gray = "#33596B", -- 7D9CA8
@@ -20,6 +21,7 @@ Colors = {
 	cyan = "#00FFFF",
 	blue_note = "#39BAE6",
 	red = "#D26464",
+	blue_dark = "#334454", -- 253340
 	-- Markdown colors
 	h1 = "#e65064",
 	h2 = "#17ACF2",
@@ -29,9 +31,13 @@ Colors = {
 	h6 = "#84CEB5",
 }
 Elements = {
-	bold = Colors.orange3,
+	bold = Colors.orange2,
 	code = Colors.green,
-	italic = Colors.red,
+	italic = Colors.cyan_gray,
+	cursor = Colors.white1,
+	selection = Colors.blue_dark,
+	matched = Colors.red,
+	comments = Colors.gray,
 }
 -- Ayu theme configuration for Neovim
 return {
@@ -74,6 +80,15 @@ return {
 			SnacksNormal = { bg = "None" },
 			SnacksBorder = { bg = "None" },
 
+			--- Cursor and selection
+			-- Cursor
+			Cursor = { fg = Colors.black, bg = Elements.cursor },
+			-- Visual selection
+			Visual = { fg = Colors.black, bg = Elements.selection },
+			VisualNOS = { fg = Colors.black, bg = Elements.selection },
+			-- Matched parens
+			MatchParen = { fg = Elements.matched, bold = true, underline = true },
+
 			-- Snacks picker colors
 			SnacksPickerDir = { fg = "#BFBDB6" }, -- White/light gray for path
 			SnacksPickerFile = { fg = "#39BAE6" }, -- Subtle cyan for filename
@@ -86,8 +101,8 @@ return {
 			["@string"] = { fg = "#AAD94C" },
 
 			-- Comments (OK)
-			Comment = { fg = Elements.italic, italic = true }, -- Gray comments with italic - 575c61
-			["@comment"] = { fg = Elements.italic, italic = true },
+			Comment = { fg = Elements.comments, italic = true }, -- Gray comments with italic - 575c61
+			["@comment"] = { fg = Elements.comments, italic = true },
 
 			-- Keywords (OK)
 			Keyword = { fg = Colors.pink2 }, -- Pink keywords  #e30e75
@@ -106,10 +121,10 @@ return {
 			["@type.builtin"] = { fg = Colors.blue3 },
 
 			-- Variables (OK)
-			Identifier = { fg = Elements.italic }, -- Light gray variables BFBDB6
-			["@variable"] = { fg = Elements.italic },
-			["@variable.member"] = { fg = Elements.italic },
-			["@variable.builtin"] = { fg = Elements.italic, italic = true },
+			Identifier = { fg = "#BFBDB6" }, -- Light gray variables BFBDB6
+			["@variable"] = { fg = "#BFBDB6" },
+			["@variable.member"] = { fg = "#BFBDB6" },
+			["@variable.builtin"] = { fg = "#BFBDB6", italic = true },
 
 			-- Numbers (OK)
 			Number = { fg = "#D2A6FF" }, -- Purple numbers
@@ -201,6 +216,13 @@ return {
 		-- Set the colorscheme to ayu-dark
 		vim.cmd.colorscheme("ayu-dark")
 
+		-- Cursor shape and color (guicursor)
+		-- n-v-c: normal, visual, command (block cursor)
+		-- i-ci-ve: insert, command-line insert, visual-exclude (vertical bar)
+		-- r-cr-o: replace, command-line replace, operator-pending (horizontal bar)
+		-- All modes use the 'Cursor' highlight group
+		vim.opt.guicursor = "n-v-c:block-Cursor,i-ci-ve:ver25-Cursor,r-cr-o:hor20-Cursor"
+
 		-- Force transparent backgrounds for floating windows after colorscheme loads
 		vim.api.nvim_create_autocmd("ColorScheme", {
 			pattern = "*",
@@ -218,6 +240,12 @@ return {
 		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#BFBDB6" })
 		vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#39BAE6" })
 		vim.api.nvim_set_hl(0, "Directory", { fg = "#BFBDB6" })
+
+		-- Cursor and selection colors
+		vim.api.nvim_set_hl(0, "Cursor", { fg = Colors.black, bg = Elements.cursor })
+		vim.api.nvim_set_hl(0, "Visual", { fg = Colors.black, bg = Elements.selection })
+		vim.api.nvim_set_hl(0, "VisualNOS", { fg = Colors.black, bg = Elements.selection })
+		vim.api.nvim_set_hl(0, "MatchParen", { fg = Elements.matched, bold = true, underline = true })
 
 		-- Markdown bold - bright white
 		vim.api.nvim_set_hl(0, "@markup.strong", { fg = Elements.bold, bold = true })
