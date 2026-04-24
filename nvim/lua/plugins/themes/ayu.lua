@@ -16,6 +16,7 @@ Colors = {
 	black = "#000000",
 	green = "#91BA18", -- 86B300
 	green2 = "#AAD94C",
+	green3 = "#70BF56",
 	cyan_gray = "#33596B", -- 7D9CA8
 	gray = "#4F6166",
 	cyan = "#00FFFF",
@@ -31,11 +32,11 @@ Colors = {
 	h6 = "#84CEB5",
 }
 Elements = {
-	bold = Colors.orange2,
-	code = Colors.green,
-	italic = Colors.cyan_gray,
+	bold = Colors.yello1,
+	code = Colors.green3,
+	italic = Colors.red,
 	cursor = Colors.white1,
-	selection = Colors.blue_dark,
+	selection = "#344240",
 	matched = Colors.red,
 	comments = Colors.gray,
 }
