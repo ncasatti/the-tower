@@ -11,6 +11,7 @@
     yt-dlp
     thunderbird
     sioyek
+    zoom-us
   ];
 
   programs.zathura = {
