@@ -3,7 +3,8 @@
 { pkgs, ... }:
 
 let
-  gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix {};
+  gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix { };
+  # antigravity = pkgs.callPackage ./custom/antigravity.nix { };
 in
 
 {
@@ -15,5 +16,6 @@ in
     postman
     postgresql
     dbeaver-bin
+    antigravity-nix
   ];
 }

@@ -34,6 +34,11 @@
       url = "github:ncasatti/clingy";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    antigravity-nix = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
@@ -52,8 +57,8 @@
 
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs    = true;
-            home-manager.useUserPackages  = true;
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
             home-manager.users.flyn = import ./nix/hosts/notebook/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
@@ -73,13 +78,13 @@
 
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs    = true;
-            home-manager.useUserPackages  = true;
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
             home-manager.users.flyn = import ./nix/hosts/main/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
         ];
-    };
+      };
 
       # =======================================================================
       # 3. SERVER (NixOS — headless infrastructure node: DNS + VPN)
@@ -94,8 +99,8 @@
 
           home-manager.nixosModules.home-manager
           {
-            home-manager.useGlobalPkgs    = true;
-            home-manager.useUserPackages  = true;
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
             home-manager.users.flyn = import ./nix/hosts/server/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
           }

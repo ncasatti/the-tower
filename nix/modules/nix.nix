@@ -9,5 +9,11 @@
     download-buffer-size  = 268435456;  # 256MB (default 64MB)
   };
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 10d";
+  };
+
   nixpkgs.config.allowUnfree = true;
 }

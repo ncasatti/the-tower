@@ -15,6 +15,7 @@
     ../../modules/services.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
+    ../../modules/docker.nix
   ];
 
   # --- PLATFORM ---

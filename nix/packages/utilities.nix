@@ -1,6 +1,6 @@
 # nix/packages/utilities.nix
 # Utility programs managed via home-manager modules.
-{pkgs, ...}:
+{ pkgs, ... }:
 
 {
   home.packages = with pkgs; [
@@ -12,6 +12,8 @@
     thunderbird
     sioyek
     zoom-us
+    translate-shell
+    btop
   ];
 
   programs.zathura = {
