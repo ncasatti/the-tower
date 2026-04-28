@@ -29,6 +29,15 @@
     # --- System Reference (keyd config for reference) ---
     ".config/keyd"                = { source = ../../keyd;             recursive = true; };
 
+    # --- Package Managers ---
+    ".bunfig.toml".text = ''
+      [install]
+      ignoreScripts = true
+    '';
+    ".npmrc".text = ''
+      ignore-scripts=true
+    '';
+
     # --- Misc ---
     ".config/hyprshade"           = { source = ../../hyprshade;        recursive = true; };
     ".local/share/fonts"          = { source = ../../fonts;            recursive = true; };
