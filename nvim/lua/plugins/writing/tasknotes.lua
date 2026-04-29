@@ -34,7 +34,7 @@ return {
 		-- STEP 2: Configuration table
 		-- ─────────────────────────────────────────────────────────────────
 		M.config = {
-			vault_path = vim.fn.expand("~/Documents/Zettelkasten"),
+			vault_path = vim.fn.expand("~/.the-grid/zettelkasten"),
 			tasks_folder = "TaskNotes/Tasks",
 			cache_ttl = 30, -- seconds
 			default_status = "open",

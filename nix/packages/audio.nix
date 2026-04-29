@@ -7,11 +7,11 @@
   # --- PLUGIN DISCOVERY PATHS ---
   # Required for Carla and other hosts to find Nix-managed plugins.
   home.sessionVariables = {
-    LV2_PATH    = "$HOME/.nix-profile/lib/lv2";
-    LADSPA_PATH = "$HOME/.nix-profile/lib/ladspa";
-    DSSI_PATH   = "$HOME/.nix-profile/lib/dssi";
-    VST_PATH    = "$HOME/.nix-profile/lib/vst";
-    VST3_PATH   = "$HOME/.nix-profile/lib/vst3";
+    LV2_PATH    = "/etc/profiles/per-user/$USER/lib/lv2";
+    LADSPA_PATH = "/etc/profiles/per-user/$USER/lib/ladspa";
+    DSSI_PATH   = "/etc/profiles/per-user/$USER/lib/dssi";
+    VST_PATH    = "/etc/profiles/per-user/$USER/lib/vst";
+    VST3_PATH   = "/etc/profiles/per-user/$USER/lib/vst3";
   };
 
   home.packages = with pkgs; [
