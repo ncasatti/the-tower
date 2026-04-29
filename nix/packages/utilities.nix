@@ -5,6 +5,7 @@
 {
   home.packages = with pkgs; [
     # brave
+    google-chrome
     zen-browser
     tidal-hifi
     mpv
