@@ -125,7 +125,7 @@ return {
 			abstract = { raw = "[!abstract]", rendered = "󰨝 Abstract", highlight = "RenderMarkdownCalloutAbstract" },
 			summary = { raw = "[!summary]", rendered = "󰨝 Summary", highlight = "RenderMarkdownCalloutAbstract" },
 			tldr = { raw = "[!tldr]", rendered = "󰨝 TL;DR", highlight = "RenderMarkdownCalloutAbstract" },
-			todo = { raw = "[!todo]", rendered = " Todo", highlight = "RenderMarkdownCalloutTodo" },
+			todo = { raw = "[!todo]", rendered = " Next", highlight = "RenderMarkdownCalloutTodo" },
 			success = { raw = "[!success]", rendered = "󰄬 Success", highlight = "RenderMarkdownSuccess" },
 			check = { raw = "[!check]", rendered = "󰄬 Check", highlight = "RenderMarkdownSuccess" },
 			done = { raw = "[!done]", rendered = "󰄬 Done", highlight = "RenderMarkdownSuccess" },
