@@ -6,5 +6,6 @@
     opencode = inputs.opencode-nix.packages.${prev.system}.default;
     clingy = inputs.clingy.packages.${prev.system}.default;
     antigravity-nix = inputs.antigravity-nix.packages.${prev.system}.default;
+    engram = prev.callPackage ../packages/custom/engram.nix {};
   };
 }

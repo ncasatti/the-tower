@@ -28,6 +28,7 @@
     bind
     tcpdump
     posting
+    engram
   ];
 
   programs.direnv = {
