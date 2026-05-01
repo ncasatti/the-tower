@@ -26,5 +26,5 @@ if status is-interactive
     end
 
     # Force pager on first tab
-    bind \t fzf-completion
+    bind \t fzf_complete
 end

@@ -1,6 +1,6 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	branch = "master",
+	branch = "main",
 	build = ":TSUpdate",
 	lazy = false,
 	config = function()
@@ -39,12 +39,27 @@ return {
 			}
 		end
 
-		require("nvim-treesitter.configs").setup({
-			ensure_installed = ensure_installed,
-			sync_install = false,
-			auto_install = not is_nix,
-			highlight = { enable = true },
-			indent = { enable = true },
+		-- New API for nvim-treesitter (main branch)
+		if not is_nix and #ensure_installed > 0 then
+			pcall(function()
+				require("nvim-treesitter").install(ensure_installed)
+			end)
+		end
+
+		-- Enable highlighting natively
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "*",
+			callback = function()
+				pcall(vim.treesitter.start)
+			end,
+		})
+
+		-- Enable indentation natively
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "*",
+			callback = function()
+				vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+			end,
 		})
 	end,
 }
