@@ -13,8 +13,6 @@
     thunderbird
     sioyek
     zoom-us
-    translate-shell
-    btop
   ];
 
   programs.zathura = {

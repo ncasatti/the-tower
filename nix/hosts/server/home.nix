@@ -12,6 +12,9 @@
 
     # --- Package sets ---
     ../../packages/nvim.nix
+    ../../packages/cli.nix
+    ../../packages/languages.nix
+
   ];
 
   home.username      = "flyn";
@@ -21,14 +24,6 @@
   # Extra packages specific to the notebook
   home.packages = with pkgs; [
     xdg-user-dirs
-    fzf
-    yazi
-    starship
-    zoxide
-    bat
-    lazygit
-    fish
-    rclone
     clingy
   ];
 }

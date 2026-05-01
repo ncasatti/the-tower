@@ -28,7 +28,8 @@
     bind
     tcpdump
     posting
-    engram
+    translate-shell
+    btop
   ];
 
   programs.direnv = {

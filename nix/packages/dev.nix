@@ -2,16 +2,12 @@
 # Development tools and utilities
 { pkgs, ... }:
 
-let
-  gemini-cli = pkgs.callPackage ./custom/gemini-cli.nix { };
-  # antigravity = pkgs.callPackage ./custom/antigravity.nix { };
-in
-
 {
   home.packages = with pkgs; [
     claude-code
     opencode
     clingy
+    engram
     gemini-cli
     postman
     postgresql
