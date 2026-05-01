@@ -12,7 +12,7 @@
     rofi
     wl-clipboard
     hyprshade
-    swww
+    awww
     swaynotificationcenter
     wallust
   ];

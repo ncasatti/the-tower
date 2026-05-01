@@ -16,9 +16,19 @@
   fileSystems."/" =
     { device = "/dev/mapper/luks-94ba8d4d-69c2-4e02-bbcf-b3e026a2f520";
       fsType = "ext4";
+      # Performance optimizations for DRAM-less SSD:
+      # noatime/nodiratime: Disable access time updates to reduce write amplification
+      # discard: Enable continuous TRIM to inform the SSD about free blocks
+      options = [ "noatime" "nodiratime" "discard" ];
     };
 
-  boot.initrd.luks.devices."luks-94ba8d4d-69c2-4e02-bbcf-b3e026a2f520".device = "/dev/disk/by-uuid/94ba8d4d-69c2-4e02-bbcf-b3e026a2f520";
+  boot.initrd.luks.devices."luks-94ba8d4d-69c2-4e02-bbcf-b3e026a2f520" = {
+    device = "/dev/disk/by-uuid/94ba8d4d-69c2-4e02-bbcf-b3e026a2f520";
+    # allowDiscards: Pass TRIM commands through the LUKS encryption layer
+    allowDiscards = true;
+    # bypassWorkqueues: Skip kcryptd workqueues to reduce I/O latency on SSDs
+    bypassWorkqueues = true;
+  };
 
   fileSystems."/boot" =
     { device = "/dev/disk/by-uuid/F404-FC52";

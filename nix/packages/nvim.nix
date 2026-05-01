@@ -5,6 +5,8 @@
 {
   programs.neovim = {
     enable = true;
+    withRuby = false;
+    withPython3 = false;
     # Add Treesitter with all required grammars to Neovim's runtimepath
     plugins = with pkgs.vimPlugins; [
       (nvim-treesitter.withPlugins (p: with p; [

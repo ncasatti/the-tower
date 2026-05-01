@@ -6,8 +6,8 @@
 # Ensure cache directory exists
 mkdir -p "$HOME/.cache/hypr/wallust"
 
-# Define the path to the swww cache directory
-cache_dir="$HOME/.cache/swww/"
+# Define the path to the awww cache directory
+cache_dir="$HOME/.cache/awww/"
 
 # Get a list of monitor outputs
 monitor_outputs=($(ls "$cache_dir"))
@@ -25,7 +25,7 @@ echo "Cache file: $cache_file"
 if [ -f "$cache_file" ]; then
     # Get the wallpaper path from the cache file
     # wallpaper_path=$(cat "$cache_file")
-    wallpaper_path=$(swww query | sed -n 's/.*image: //p' | tail -n 1)
+    wallpaper_path=$(awww query | sed -n 's/.*image: //p' | tail -n 1)
     echo "Wallpaper path: $wallpaper_path"
     # symlink the wallpaper to the location Rofi can access
     if ln -sf "$wallpaper_path" "$HOME/.cache/hypr/current-wallpaper"; then

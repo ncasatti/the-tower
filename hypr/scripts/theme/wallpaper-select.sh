@@ -11,12 +11,12 @@ current_dir="$wallDIR"
 
 # variables
 focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
-# swww transition config
+# awww transition config
 FPS=144
 TYPE="any"
 DURATION=0.8
 BEZIER=".43,1.19,1,.4"
-SWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION"
+AWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION"
 
 # Check if swaybg is running
 if pidof swaybg >/dev/null; then
@@ -85,13 +85,13 @@ menu() {
   show_folder_contents "$current_dir"
 }
 
-# initiate swww if not running
-swww query || swww-daemon --format xrgb
+# initiate awww if not running
+awww query || awww-daemon --format xrgb
 
 # Function to handle wallpaper selection
 set_wallpaper() {
   local wallpaper_path="$1"
-  swww img -o "$focused_monitor" "$wallpaper_path" $SWWW_PARAMS
+  awww img -o "$focused_monitor" "$wallpaper_path" $AWWW_PARAMS
   notify-send "Wallpaper changed"
   notify-send "Getting wallpaper colors"
   "$SCRIPTSDIR/theme/wallpaper-colors.sh"
