@@ -19,3 +19,6 @@ abbr -a aws-cloudf-deploy 'aws cloudformation deploy --stack-name'
 # AWS ECR
 abbr -a aws-ecr 'aws ecr'
 abbr -a aws-ecr-describe 'aws ecr describe-images --repository-name'
+
+abbr -a transes 'trans :es'
+abbr -a transen 'trans :en'
