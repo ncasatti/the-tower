@@ -15,5 +15,6 @@
     awww
     swaynotificationcenter
     wallust
+    wf-recorder
   ];
 }

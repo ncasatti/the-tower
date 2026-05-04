@@ -30,6 +30,8 @@
     posting
     translate-shell
     btop
+    ncdu
+    # (pkgs.callPackage ./gentle-ai.nix {})
   ];
 
   programs.direnv = {
