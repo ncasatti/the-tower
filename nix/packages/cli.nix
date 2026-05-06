@@ -18,6 +18,8 @@
     nettools
     zoxide
     brightnessctl
+    cliphist
+    playerctl
     bat
     jq
     tldr
