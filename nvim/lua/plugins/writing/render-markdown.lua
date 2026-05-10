@@ -62,6 +62,12 @@ return {
 			enabled = true,
 			unchecked = { icon = "󰄱 " },
 			checked = { icon = "󰄵 " },
+			custom = {
+				progress = { raw = "[-]", rendered = "󰥔 ", highlight = "RenderMarkdownTodo" },
+				cancel   = { raw = "[~]", rendered = "󰰱 ", highlight = "RenderMarkdownWarn" },
+				urgent   = { raw = "[!]", rendered = "󰀦 ", highlight = "RenderMarkdownError" },
+				forward  = { raw = "[>]", rendered = "󰅂 ", highlight = "RenderMarkdownInfo" },
+			},
 		},
 
 		-- Bullet points
