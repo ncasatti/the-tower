@@ -1,44 +1,12 @@
 #!/usr/bin/env bash
-#!/bin/bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
-# Wallust Colors for current wallpaper
+# Generate color scheme from current wallpaper via wallust
 
-# Ensure cache directory exists
-mkdir -p "$HOME/.cache/hypr/wallust"
+CACHE_DIR="$HOME/.cache/hypr"
+wallpaper_path=$(cat "$CACHE_DIR/wallpaper-path" 2>/dev/null)
 
-# Define the path to the awww cache directory
-cache_dir="$HOME/.cache/awww/"
-
-# Get a list of monitor outputs
-monitor_outputs=($(ls "$cache_dir"))
-
-# Initialize a flag to determine if the ln command was executed
-ln_success=false
-
-# Get current focused monitor
-current_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
-echo $current_monitor
-# Construct the full path to the cache file
-cache_file="$cache_dir$current_monitor"
-echo "Cache file: $cache_file"
-# Check if the cache file exists for the current monitor output
-if [ -f "$cache_file" ]; then
-    # Get the wallpaper path from the cache file
-    # wallpaper_path=$(cat "$cache_file")
-    wallpaper_path=$(awww query | sed -n 's/.*image: //p' | tail -n 1)
-    echo "Wallpaper path: $wallpaper_path"
-    # symlink the wallpaper to the location Rofi can access
-    if ln -sf "$wallpaper_path" "$HOME/.cache/hypr/current-wallpaper"; then
-        ln_success=true  # Set the flag to true upon successful execution
-    fi
-    # copy the wallpaper for wallpaper effects
-	cp -r "$wallpaper_path" "$HOME/.cache/hypr/current-wallpaper-copy"
+if [[ -z "$wallpaper_path" ]] || [[ ! -f "$wallpaper_path" ]]; then
+    echo "wallpaper-colors: no valid path in $CACHE_DIR/wallpaper-path" >&2
+    exit 1
 fi
 
-# Check the flag before executing further commands
-if [ "$ln_success" = true ]; then
-    # execute wallust
-	echo 'about to execute wallust'
-    # execute wallust skipping tty and terminal changes
-    wallust run "$wallpaper_path" -s
-fi
+wallust run "$wallpaper_path" -s
