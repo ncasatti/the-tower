@@ -13,6 +13,7 @@
     thunderbird
     sioyek
     zoom-us
+    onlyoffice-desktopeditors
   ];
 
   programs.zathura = {
