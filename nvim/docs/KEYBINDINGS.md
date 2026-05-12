@@ -6,7 +6,7 @@ Complete reference for all keybindings in this Neovim configuration.
 
 **Last Updated:** 2026-04-08
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
@@ -31,7 +31,7 @@ Complete reference for all keybindings in this Neovim configuration.
 - [Dashboard (Snacks)](#dashboard-snacks)
 - [Available Keys](#available-keys-for-new-mappings)
 
----
+______________________________________________________________________
 
 ## Critical Information
 
@@ -47,6 +47,7 @@ Standard Vim navigation (`hjkl`) will NOT work. All custom keybindings and Vim c
 - `n` → Move left (replaces `h`)
 
 When using any motion command with operators (`d`, `c`, `y`, `v`), use the Colemak keys:
+
 - `dune` → Delete up
 - `denk` → Delete down and next line
 - `yi3w` → Yank inner 3 words
@@ -57,12 +58,13 @@ When using any motion command with operators (`d`, `c`, `y`, `v`), use the Colem
 File: `lua/config/keys.lua` (lines 57-69)
 
 The operator-pending mode has essential remaps that enable motions to work with `d`, `c`, `y`, `v` operators:
+
 - `u/e/n` → Movement (up/down/left)
 - `N/I` → Word backward/forward
 - `E/U` → Page down/up
 - `o` → Inner text object (remapped from `i`)
 
----
+______________________________________________________________________
 
 ## Core Navigation (Colemak)
 
@@ -134,7 +136,7 @@ The operator-pending mode has essential remaps that enable motions to work with 
 |-----|------|-------------|
 | `<leader>to` | n | Switch to previous buffer |
 
----
+______________________________________________________________________
 
 ## Window Management
 
@@ -149,7 +151,7 @@ The operator-pending mode has essential remaps that enable motions to work with 
 | `<leader>h` | n | Vertical split |
 | `<leader>v` | n | Horizontal split |
 
----
+______________________________________________________________________
 
 ## LSP (Language Server Protocol)
 
@@ -207,7 +209,7 @@ The operator-pending mode has essential remaps that enable motions to work with 
 | `<leader>le` | n | Open diagnostic float |
 | `<leader>lq` | n | Set location list with diagnostics |
 
----
+______________________________________________________________________
 
 ## Debugging (DAP)
 
@@ -248,6 +250,7 @@ Debug Adapter Protocol integration for Java/Kotlin debugging.
 ### Debug UI Navigation
 
 The debug UI uses Colemak-friendly navigation:
+
 - `<CR>` or double-click: Expand/collapse
 - `o`: Open item
 - `d`: Remove item
@@ -256,7 +259,7 @@ The debug UI uses Colemak-friendly navigation:
 - `t`: Toggle element
 - `q` or `<Esc>`: Close floating windows
 
----
+______________________________________________________________________
 
 ## Android Development
 
@@ -306,20 +309,22 @@ Comprehensive Android development utilities for device management, logcat viewin
 ### Quick Workflows
 
 **Development Workflow:**
+
 1. `<leader>aR` - Build, install, and run
-2. `<leader>al` or `<leader>ap` - View logs
-3. Make changes
-4. Repeat
+1. `<leader>al` or `<leader>ap` - View logs
+1. Make changes
+1. Repeat
 
 **Debugging Workflow:**
-1. Set breakpoints with `F9`
-2. `<leader>aDb` - Build, install, and start in debug mode
-3. `F5` - Attach debugger
-4. Use `F10/F11/F12` to step through code
-5. `<leader>de` - Evaluate expressions
-6. `<leader>dt` - Terminate when done
 
----
+1. Set breakpoints with `F9`
+1. `<leader>aDb` - Build, install, and start in debug mode
+1. `F5` - Attach debugger
+1. Use `F10/F11/F12` to step through code
+1. `<leader>de` - Evaluate expressions
+1. `<leader>dt` - Terminate when done
+
+______________________________________________________________________
 
 ## Gradle Build System
 
@@ -347,12 +352,13 @@ Gradle integration for Android and Java projects.
 ### Gradle Ex Commands
 
 You can also use Ex commands:
+
 - `:GradleExec <task>` - Execute any Gradle task
 - `:GradleTasks` - List all available tasks
 - `:GradleWhich` - Show which gradlew file will be used
 - `:GradleFixPermissions` - Make gradlew executable
 
----
+______________________________________________________________________
 
 ## Go Development
 
@@ -384,7 +390,7 @@ You can also use Ex commands:
 | `<leader>gdb` | n | Start debugging |
 | `<leader>gdt` | n | Stop debugging |
 
----
+______________________________________________________________________
 
 ## Nix Development
 
@@ -397,7 +403,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 | `<leader>ll` | n | Format Nix file (via Alejandra) |
 | `<leader>lf` | n | Toggle format-on-save |
 
----
+______________________________________________________________________
 
 ## Git Integration
 
@@ -418,7 +424,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 
 **Note:** Git diff picker uses `<leader>gd`, but this conflicts with Gradle `<leader>gd` (assemble debug). The Gradle binding takes precedence due to load order. Use `:GradleExec gitDiffCommand` as alternative if needed.
 
----
+______________________________________________________________________
 
 ## File Navigation & Exploration
 
@@ -469,7 +475,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 | `g\` | Toggle trash |
 | `q` | Close Oil |
 
----
+______________________________________________________________________
 
 ## Search & Grep
 
@@ -511,7 +517,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 | `<leader>ss` | n | LSP symbols |
 | `<leader>sS` | n | LSP workspace symbols |
 
----
+______________________________________________________________________
 
 ## Zettelkasten & Tasks (TaskNotes)
 
@@ -570,7 +576,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 | `<leader>ozvl` | n | View Freelance |
 | `<leader>ozvd` | n | View Done |
 
----
+______________________________________________________________________
 
 ## Markdown Rendering & Tools
 
@@ -596,7 +602,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 | `<leader>lv` | n | LaTeX enable virtual text (disabled) |
 | `<leader>ld` | n | LaTeX disable virtual text (disabled) |
 
----
+______________________________________________________________________
 
 ## UI & Utilities
 
@@ -629,7 +635,7 @@ Nix support with `nil_ls` LSP and `alejandra` formatter.
 | `]]` | n/t | Next reference |
 | `[[` | n/t | Previous reference |
 
----
+______________________________________________________________________
 
 ## Goto Preview
 
@@ -645,7 +651,7 @@ Custom mappings with `gz*` prefix.
 | `gzr` | n | Preview references |
 | `gzz` | n | Close all preview windows |
 
----
+______________________________________________________________________
 
 ## Completion (nvim-cmp)
 
@@ -663,7 +669,7 @@ Custom mappings with `gz*` prefix.
 | `<Tab>` | i/s | Next completion item / expand snippet |
 | `<S-Tab>` | i/s | Previous completion item / jump back in snippet |
 
----
+______________________________________________________________________
 
 ## AI Completion (Codeium)
 
@@ -679,7 +685,7 @@ Custom mappings with `gz*` prefix.
 | `<C-n>` | i | Previous Codeium completion |
 | `<C-x>` | i | Clear Codeium suggestions |
 
----
+______________________________________________________________________
 
 ## Dashboard (Snacks)
 
@@ -699,7 +705,7 @@ Custom mappings with `gz*` prefix.
 | `L` | Lazy plugin manager |
 | `q` | Quit |
 
----
+______________________________________________________________________
 
 ## Available Keys for New Mappings
 
@@ -717,6 +723,7 @@ These keys have no current mappings and are safe to use:
 ### Partially Used Prefixes
 
 These prefixes have some mappings but room for additional related commands:
+
 - `<leader>d*` - Diagnostics/Debug (many d-prefixed keys are available)
 - `<leader>t*` - Find/Test (many t-prefixed keys are available)
 - `<leader>l*` - LSP/Location (le, lq, ll, lf are used; others available)
@@ -726,9 +733,9 @@ These prefixes have some mappings but room for additional related commands:
 ### Known Conflicts
 
 1. **`<leader>gd` conflict**: Maps to Gradle "assemble debug" in Android projects. Git diff is at `<leader>gd` in snacks but Gradle binding takes precedence.
-2. **`<leader>gs` conflict**: Git status picker (snacks) vs Go struct tags (go.nvim). Snacks binding loads first, so Git status is active.
+1. **`<leader>gs` conflict**: Git status picker (snacks) vs Go struct tags (go.nvim). Snacks binding loads first, so Git status is active.
 
----
+______________________________________________________________________
 
 ## Mode Legend
 
@@ -741,45 +748,53 @@ These prefixes have some mappings but room for additional related commands:
 - `s` - Select mode
 - `c` - Command-line mode
 
----
+______________________________________________________________________
 
 ## Notes
 
 ### Colemak Layout
+
 All navigation commands in this configuration use Colemak layout:
+
 - Standard Vim `hjkl` navigation is completely remapped
 - When writing custom keybindings, remember to use `u/e/i/n` for movement
 - Operator-pending mode has special remaps that must be considered
 
 ### Plugin Priority
+
 Keybindings are loaded in this order:
+
 1. Core config (keys.lua)
-2. LSP on_attach (each LSP connection)
-3. Plugin-specific keybindings (lazy-loaded in order)
+1. LSP on_attach (each LSP connection)
+1. Plugin-specific keybindings (lazy-loaded in order)
 
 Later keybindings may override earlier ones. Check the source files listed above if a binding isn't working as expected.
 
 ### Which-key Integration
+
 The which-key plugin provides a popup menu for leader key combinations. Press `<leader>?` to see available keybindings grouped by prefix.
 
 ### Custom Keybindings
+
 To add new keybindings:
+
 1. Edit the appropriate file:
    - Global core: `lua/config/keys.lua`
    - LSP-specific: `lua/lsp/utils.lua` (on_attach function)
    - Plugin-specific: respective plugin file in `lua/plugins/`
-2. Always use `vim.keymap.set()` with mode, key, action, and options table
-3. Include a `desc` field for which-key integration
-4. Remember Colemak remapping when using movement keys
-5. Restart Neovim for changes to take effect
+1. Always use `vim.keymap.set()` with mode, key, action, and options table
+1. Include a `desc` field for which-key integration
+1. Remember Colemak remapping when using movement keys
+1. Restart Neovim for changes to take effect
 
----
+______________________________________________________________________
 
 ## Last Updated
 
 This documentation was generated on 2026-03-30 by auditing all Lua configuration files.
 
 For the most current and detailed keybinding information, refer to the source files:
+
 - `/home/ncasatti/.config/konfig/nvim/lua/config/keys.lua`
 - `/home/ncasatti/.config/konfig/nvim/lua/lsp/utils.lua`
 - `/home/ncasatti/.config/konfig/nvim/lua/plugins/**/*.lua`
