@@ -24,7 +24,10 @@ return {
 			-- icons = { "󰲠 ", "󰲢 ", "󰲤 ", "󰲦 ", "󰲪 " },
 			-- icons = { "󰎥 ", "󰎨 ", "󰎫 ", "󰎲 ", "󰎯 ", "󰎴 " },
 			-- icons = { "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 ", "󱙝 " },
-			icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
+			-- icons = { " ", " ", " ", " ", " ", " " },
+			icons = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " },
+			-- icons = { "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 " },
+			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
 			-- icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
 			-- icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
 			-- Use single line borders to match your theme
@@ -60,20 +63,20 @@ return {
 		-- Checkbox rendering for task lists
 		checkbox = {
 			enabled = true,
-			unchecked = { icon = "󰄱 " },
-			checked = { icon = "󰄵 " },
+			unchecked = { icon = "󰄱" },
+			checked = { icon = "󰄵" },
 			custom = {
-				progress = { raw = "[-]", rendered = "󰥔 ", highlight = "RenderMarkdownTodo" },
-				cancel   = { raw = "[~]", rendered = "󰰱 ", highlight = "RenderMarkdownWarn" },
-				urgent   = { raw = "[!]", rendered = "󰀦 ", highlight = "RenderMarkdownError" },
-				forward  = { raw = "[>]", rendered = "󰅂 ", highlight = "RenderMarkdownInfo" },
+				progress = { raw = "[~]", rendered = "", highlight = "RenderMarkdownInfo" },
+				cancel = { raw = "[-]", rendered = "󰗎", highlight = "RenderMarkdownCalloutFaq" },
+				urgent = { raw = "[!]", rendered = "", highlight = "RenderMarkdownCalloutFaq" },
+				forward = { raw = "[>]", rendered = "", highlight = "RenderMarkdownCalloutImportant" },
 			},
 		},
 
 		-- Bullet points
 		bullet = {
 			enabled = true,
-			-- icons: ● ○ 󰸶 󱤙  󰌕 󰌖 󰫥 󱤙 󰤲   󱦰 󱞩
+			-- icons: ● ○ 󰸶 󱤙 󰌕 󰌖 󰫥 󰤲   󱦰 󱞩
 			icons = { "", "", "", "" },
 		},
 
