@@ -6,9 +6,6 @@ return {
 	},
 	ft = { "markdown", "md" },
 	opts = {
-		-- Render on file open
-		start_enabled = true,
-
 		-- Show raw markdown when cursor is on the line (anti-conceal)
 		anti_conceal = {
 			enabled = true,
@@ -66,8 +63,8 @@ return {
 			unchecked = { icon = "󰄱" },
 			checked = { icon = "󰄵" },
 			custom = {
-				progress = { raw = "[~]", rendered = "", highlight = "RenderMarkdownInfo" },
-				cancel = { raw = "[-]", rendered = "󰗎", highlight = "RenderMarkdownCalloutFaq" },
+				todo = { raw = "[-]", rendered = "", highlight = "RenderMarkdownInfo" },
+				cancel = { raw = "[~]", rendered = "󰗎", highlight = "RenderMarkdownCalloutFaq" },
 				urgent = { raw = "[!]", rendered = "", highlight = "RenderMarkdownCalloutFaq" },
 				forward = { raw = "[>]", rendered = "", highlight = "RenderMarkdownCalloutImportant" },
 			},
@@ -91,7 +88,7 @@ return {
 		},
 
 		-- Tables
-		table = {
+		pipe_table = {
 			enabled = true,
 			style = "full",
 			border = "single", -- Single line borders
