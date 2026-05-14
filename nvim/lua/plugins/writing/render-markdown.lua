@@ -91,7 +91,6 @@ return {
 		pipe_table = {
 			enabled = true,
 			style = "full",
-			border = "single", -- Single line borders
 		},
 
 		-- LaTeX support (integrated with nabla.nvim)
