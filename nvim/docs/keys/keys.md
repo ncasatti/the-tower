@@ -11,6 +11,7 @@ Leader is `<Space>`. Local leader is `<Space>`.
 - [Debug (DAP)](debug.md) — breakpoints, stepping, REPL, DAP UI
 - [Testing (neotest)](testing.md) — run/debug tests, output panels
 - [Navigation](navigation.md) — Snacks find, Harpoon, Oil, goto-preview
+- [Database](database.md) — dadbod-ui, SQL execution, connections
 - [Android](android.md) — ADB, build, logcat + Gradle
 - [Writing](writing.md) — Obsidian, TaskNotes, Markdown rendering
 - [Languages](languages.md) — Go (go.nvim, gopher), Python (REPL, Jupyter)
