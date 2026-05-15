@@ -193,35 +193,35 @@ M.enable_debug = function()
 end
 
 -- Keybindings for ADB helpers
-vim.keymap.set("n", "<leader>ad", function()
+vim.keymap.set("n", "<leader>xd", function()
   M.get_devices()
 end, { desc = "Android: List Devices" })
 
-vim.keymap.set("n", "<leader>ai", function()
+vim.keymap.set("n", "<leader>xi", function()
   M.install_apk()
 end, { desc = "Android: Install APK" })
 
-vim.keymap.set("n", "<leader>au", function()
+vim.keymap.set("n", "<leader>xu", function()
   M.uninstall_app()
 end, { desc = "Android: Uninstall App" })
 
-vim.keymap.set("n", "<leader>aD", function()
+vim.keymap.set("n", "<leader>xD", function()
   M.clear_app_data()
 end, { desc = "Android: Clear App Data" })
 
-vim.keymap.set("n", "<leader>as", function()
+vim.keymap.set("n", "<leader>xs", function()
   M.start_app()
 end, { desc = "Android: Start App" })
 
-vim.keymap.set("n", "<leader>aS", function()
+vim.keymap.set("n", "<leader>xS", function()
   M.stop_app()
 end, { desc = "Android: Stop App" })
 
-vim.keymap.set("n", "<leader>ar", function()
+vim.keymap.set("n", "<leader>xr", function()
   M.restart_app()
 end, { desc = "Android: Restart App" })
 
-vim.keymap.set("n", "<leader>adb", function()
+vim.keymap.set("n", "<leader>xdb", function()
   M.enable_debug()
 end, { desc = "Android: Enable Debug Mode" })
 

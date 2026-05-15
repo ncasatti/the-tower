@@ -125,52 +125,52 @@ vim.api.nvim_create_user_command("GradleWhich", function()
 end, { desc = "Show which gradlew will be used" })
 
 -- Keybindings for common Gradle tasks (Android-optimized)
-vim.keymap.set("n", "<leader>gb", function()
+vim.keymap.set("n", "<leader>xgb", function()
   M.exec_task("build")
 end, { desc = "Gradle: Build" })
 
-vim.keymap.set("n", "<leader>gc", function()
+vim.keymap.set("n", "<leader>xgc", function()
   M.exec_task("clean")
 end, { desc = "Gradle: Clean" })
 
-vim.keymap.set("n", "<leader>gr", function()
+vim.keymap.set("n", "<leader>xgr", function()
   -- For Android projects, installDebug is more useful than "run"
   M.exec_task("installDebug")
 end, { desc = "Gradle: Install & Run Debug" })
 
-vim.keymap.set("n", "<leader>gt", function()
+vim.keymap.set("n", "<leader>xgt", function()
   M.exec_task("test")
 end, { desc = "Gradle: Test" })
 
-vim.keymap.set("n", "<leader>gd", function()
+vim.keymap.set("n", "<leader>xgd", function()
   M.exec_task("assembleDebug")
 end, { desc = "Gradle: Assemble Debug" })
 
-vim.keymap.set("n", "<leader>gR", function()
+vim.keymap.set("n", "<leader>xgR", function()
   M.exec_task("assembleRelease")
 end, { desc = "Gradle: Assemble Release" })
 
-vim.keymap.set("n", "<leader>gi", function()
+vim.keymap.set("n", "<leader>xgi", function()
   M.exec_task("installDebug")
 end, { desc = "Gradle: Install Debug" })
 
-vim.keymap.set("n", "<leader>gI", function()
+vim.keymap.set("n", "<leader>xgI", function()
   M.exec_task("installRelease")
 end, { desc = "Gradle: Install Release" })
 
-vim.keymap.set("n", "<leader>gu", function()
+vim.keymap.set("n", "<leader>xgu", function()
   M.exec_task("uninstallDebug")
 end, { desc = "Gradle: Uninstall Debug" })
 
-vim.keymap.set("n", "<leader>gU", function()
+vim.keymap.set("n", "<leader>xgU", function()
   M.exec_task("uninstallRelease")
 end, { desc = "Gradle: Uninstall Release" })
 
-vim.keymap.set("n", "<leader>gs", function()
+vim.keymap.set("n", "<leader>xgs", function()
   M.show_tasks()
 end, { desc = "Gradle: Show Tasks" })
 
-vim.keymap.set("n", "<leader>gx", function()
+vim.keymap.set("n", "<leader>xgx", function()
   M.custom_task()
 end, { desc = "Gradle: Execute Custom Task" })
 

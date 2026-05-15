@@ -8,15 +8,37 @@ This is a personal Neovim configuration using **Lazy.nvim** as the plugin manage
 
 **Critical**: This configuration completely remaps standard Vim navigation keys to Colemak layout. All editing must account for these remaps.
 
+## Keymap namespace (2026-05-15 refactor)
+
+| Prefix | Domain |
+|---|---|
+| `<leader>a` | AI (OpenCode) |
+| `<leader>b` | Buffers |
+| `<leader>B` | Database |
+| `<leader>d` | Debug (DAP) |
+| `<leader>g` | Git |
+| `<leader>l` | LSP (`lw` = workspace folders) |
+| `<leader>L` | Language tools (Go, Python tags) |
+| `<leader>m` | Markdown |
+| `<leader>o` | Obsidian / TaskNotes (`ow` = Zettelkasten, `oz` = tasks) |
+| `<leader>r` | REPL / Jupyter |
+| `<leader>s` | Search (Snacks pickers) |
+| `<leader>t` | Find files + Harpoon |
+| `<leader>T` | Test (neotest) |
+| `<leader>w` | Window (splits + resize) |
+| `<leader>x` | Android (`xg` = Gradle) |
+
+Codeium uses `<C-*>`. Full reference: `docs/keys/`.
+
 ## Documentation
 
-- **[KEYBINDINGS.md](docs/KEYBINDINGS.md)**: Complete reference for ALL keybindings in this configuration
-  - Core navigation (Colemak remaps)
-  - LSP keybindings
-  - Plugin-specific bindings (Git, Obsidian, Go, etc.)
-  - Available keys for new mappings
-- **android-setup.md**: Android/Java development setup guide
-- **TASKNOTES.md**: TaskNotes plugin documentation (if enabled)
+- **[docs/keys/keys.md](docs/keys/keys.md)**: Index of all keybindings — split by category:
+  - `editor.md` — Colemak core + windows + search + buffers
+  - `lsp.md`, `git.md`, `debug.md`, `testing.md`, `navigation.md`
+  - `android.md` (incl. Gradle), `writing.md`, `languages.md`, `ai.md`
+- **docs/keys-refactor-plan.md**: 2026-05-15 namespace allocation reference
+- **docs/android-setup.md**: Android/Java development setup guide
+- **docs/TASKNOTES.md**: TaskNotes plugin documentation
 
 ## Architecture
 
@@ -51,7 +73,7 @@ plugins/
 
 **CRITICAL**: This configuration completely remaps navigation. Standard Vim commands will NOT work as expected.
 
-**See [KEYBINDINGS.md](docs/KEYBINDINGS.md) for the complete keybinding reference.**
+**See [docs/keys/editor.md](docs/keys/editor.md) for the full Colemak remap table.**
 
 ### Quick Reference - Core Navigation (replaces hjkl)
 - **u/e/i/n** → Up/Down/Right/Left (maps to k/j/l/h)
@@ -101,7 +123,7 @@ vim.lsp.enable('server_name')
 
 ### LSP Keybindings (on_attach function, lines 18-61)
 
-**See [KEYBINDINGS.md](docs/KEYBINDINGS.md#lsp-language-server-protocol) for complete LSP keybindings.**
+**See [docs/keys/lsp.md](docs/keys/lsp.md) for complete LSP keybindings.**
 
 Quick reference:
 - **gd/gD/gI** → Go to definition/declaration/implementation

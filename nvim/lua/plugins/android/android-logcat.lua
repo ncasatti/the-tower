@@ -101,27 +101,27 @@ M.open_logcat_package = function()
 end
 
 -- Keybindings for logcat
-vim.keymap.set("n", "<leader>al", function()
+vim.keymap.set("n", "<leader>xl", function()
   M.open_logcat()
 end, { desc = "Android: Logcat (All)" })
 
-vim.keymap.set("n", "<leader>ae", function()
+vim.keymap.set("n", "<leader>xe", function()
   M.open_logcat_errors()
 end, { desc = "Android: Logcat (Errors)" })
 
-vim.keymap.set("n", "<leader>aw", function()
+vim.keymap.set("n", "<leader>xw", function()
   M.open_logcat_warnings()
 end, { desc = "Android: Logcat (Warnings)" })
 
-vim.keymap.set("n", "<leader>ac", function()
+vim.keymap.set("n", "<leader>xc", function()
   M.clear_logcat()
 end, { desc = "Android: Clear Logcat" })
 
-vim.keymap.set("n", "<leader>ap", function()
+vim.keymap.set("n", "<leader>xp", function()
   M.open_logcat_package()
 end, { desc = "Android: Logcat (Current Package)" })
 
-vim.keymap.set("n", "<leader>af", function()
+vim.keymap.set("n", "<leader>xf", function()
   M.open_logcat_custom()
 end, { desc = "Android: Logcat (Custom Filter)" })
 

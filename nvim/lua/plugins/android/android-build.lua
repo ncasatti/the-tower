@@ -156,35 +156,35 @@ M.run_existing = function()
 end
 
 -- Keybindings for build helpers
-vim.keymap.set("n", "<leader>ab", function()
+vim.keymap.set("n", "<leader>xb", function()
   M.build_debug()
 end, { desc = "Android: Build Debug" })
 
-vim.keymap.set("n", "<leader>aB", function()
+vim.keymap.set("n", "<leader>xB", function()
   M.build_release()
 end, { desc = "Android: Build Release" })
 
-vim.keymap.set("n", "<leader>aI", function()
+vim.keymap.set("n", "<leader>xI", function()
   M.build_install_debug()
 end, { desc = "Android: Build & Install Debug" })
 
-vim.keymap.set("n", "<leader>aR", function()
+vim.keymap.set("n", "<leader>xR", function()
   M.build_install_run_debug()
 end, { desc = "Android: Build, Install & Run" })
 
-vim.keymap.set("n", "<leader>aDb", function()
+vim.keymap.set("n", "<leader>xDb", function()
   M.build_install_debug_mode()
 end, { desc = "Android: Build, Install & Debug" })
 
-vim.keymap.set("n", "<leader>aq", function()
+vim.keymap.set("n", "<leader>xq", function()
   M.quick_rebuild()
 end, { desc = "Android: Quick Rebuild (Clean + Build)" })
 
-vim.keymap.set("n", "<leader>ax", function()
+vim.keymap.set("n", "<leader>xx", function()
   M.install_existing_apk("debug")
 end, { desc = "Android: Install Existing APK" })
 
-vim.keymap.set("n", "<leader>aX", function()
+vim.keymap.set("n", "<leader>xX", function()
   M.run_existing()
 end, { desc = "Android: Run Existing App" })
 

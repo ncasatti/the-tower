@@ -19,20 +19,28 @@ return {
 			},
 		})
 
-		-- Define groups with icons
+		-- Group labels (icons + semantic prefix → domain)
 		wk.add({
-			{ "<leader>a", group = "Android", icon = " " },
-			{ "<leader>b", group = "Buffers", icon = "󰓩 " },
-			{ "<leader>c", group = "Code/Config", icon = "󰅱 " },
-			{ "<leader>d", group = "Debug", icon = "󰃤 " },
-			{ "<leader>g", group = "Git/Go/Gradle", icon = "󰊢 " },
-			{ "<leader>l", group = "LSP", icon = "󰒋 " },
-			{ "<leader>m", group = "Markdown", icon = "󰍔 " },
-			{ "<leader>o", group = "Obsidian", icon = "󱓧 " },
-			{ "<leader>oz", group = "Task Management", icon = "󰄬 " },
-			{ "<leader>ow", group = "Zettelkasten", icon = "󰍉 " },
-			{ "<leader>s", group = "Search", icon = "󰍉 " },
-			{ "<leader>t", group = "Telescope/Test", icon = "󰭎 " },
+			{ "<leader>a",  group = "AI",                icon = "󰚩 " },
+			{ "<leader>b",  group = "Buffers",           icon = "󰓩 " },
+			{ "<leader>B",  group = "Database",          icon = "󰆼 " },
+			{ "<leader>c",  group = "Code/Config",       icon = "󰅱 " },
+			{ "<leader>d",  group = "Debug",             icon = "󰃤 " },
+			{ "<leader>g",  group = "Git",               icon = "󰊢 " },
+			{ "<leader>l",  group = "LSP",               icon = "󰒋 " },
+			{ "<leader>lw", group = "Workspace folders", icon = "󰉋 " },
+			{ "<leader>L",  group = "Language tools",    icon = "󰘧 " },
+			{ "<leader>m",  group = "Markdown",          icon = "󰍔 " },
+			{ "<leader>o",  group = "Obsidian",          icon = "󱓧 " },
+			{ "<leader>ow", group = "Zettelkasten",      icon = "󰍉 " },
+			{ "<leader>oz", group = "Task Management",   icon = "󰄬 " },
+			{ "<leader>r",  group = "REPL",              icon = "󰜎 " },
+			{ "<leader>s",  group = "Search",            icon = "󰍉 " },
+			{ "<leader>t",  group = "Find/Harpoon",      icon = "󰭎 " },
+			{ "<leader>T",  group = "Test",              icon = "󰙨 " },
+			{ "<leader>w",  group = "Window",            icon = "󰖯 " },
+			{ "<leader>x",  group = "Android",           icon = " " },
+			{ "<leader>xg", group = "Gradle",            icon = "󰫼 " },
 		})
 	end,
 

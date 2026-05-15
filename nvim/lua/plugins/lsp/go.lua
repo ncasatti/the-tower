@@ -97,20 +97,20 @@ return {
       --]]
       
       -- Go-specific keymaps
-      vim.keymap.set("n", "<leader>gsj", "<cmd>GoAddTag json<cr>", { desc = "Add json struct tags" })
-      vim.keymap.set("n", "<leader>gsy", "<cmd>GoAddTag yaml<cr>", { desc = "Add yaml struct tags" })
-      vim.keymap.set("n", "<leader>gst", "<cmd>GoAddTag<cr>", { desc = "Add struct tags" })
-      vim.keymap.set("n", "<leader>gsr", "<cmd>GoRmTag<cr>", { desc = "Remove struct tags" })
-      vim.keymap.set("n", "<leader>gsf", "<cmd>GoFillStruct<cr>", { desc = "Fill struct" })
-      vim.keymap.set("n", "<leader>gsi", "<cmd>GoIfErr<cr>", { desc = "Add if err" })
-      vim.keymap.set("n", "<leader>gch", "<cmd>GoCoverage<cr>", { desc = "Test coverage" })
-      vim.keymap.set("n", "<leader>gtt", "<cmd>GoTest<cr>", { desc = "Run tests" })
-      vim.keymap.set("n", "<leader>gts", "<cmd>GoTestSum<cr>", { desc = "Run tests with summary" })
-      vim.keymap.set("n", "<leader>gtf", "<cmd>GoTestFunc<cr>", { desc = "Run test for current func" })
-      vim.keymap.set("n", "<leader>gtF", "<cmd>GoTestFile<cr>", { desc = "Run test for current file" })
-      vim.keymap.set("n", "<leader>gta", "<cmd>GoAlt!<cr>", { desc = "Open alt file" })
-      vim.keymap.set("n", "<leader>gdb", "<cmd>GoDebug<cr>", { desc = "Start debugging" })
-      vim.keymap.set("n", "<leader>gdt", "<cmd>GoDbgStop<cr>", { desc = "Stop debugging" })
+      vim.keymap.set("n", "<leader>Lsj", "<cmd>GoAddTag json<cr>", { desc = "Add json struct tags" })
+      vim.keymap.set("n", "<leader>Lsy", "<cmd>GoAddTag yaml<cr>", { desc = "Add yaml struct tags" })
+      vim.keymap.set("n", "<leader>Lst", "<cmd>GoAddTag<cr>", { desc = "Add struct tags" })
+      vim.keymap.set("n", "<leader>Lsr", "<cmd>GoRmTag<cr>", { desc = "Remove struct tags" })
+      vim.keymap.set("n", "<leader>Lsf", "<cmd>GoFillStruct<cr>", { desc = "Fill struct" })
+      vim.keymap.set("n", "<leader>Lsi", "<cmd>GoIfErr<cr>", { desc = "Add if err" })
+      vim.keymap.set("n", "<leader>Lch", "<cmd>GoCoverage<cr>", { desc = "Test coverage" })
+      vim.keymap.set("n", "<leader>Ltt", "<cmd>GoTest<cr>", { desc = "Run tests" })
+      vim.keymap.set("n", "<leader>Lts", "<cmd>GoTestSum<cr>", { desc = "Run tests with summary" })
+      vim.keymap.set("n", "<leader>Ltf", "<cmd>GoTestFunc<cr>", { desc = "Run test for current func" })
+      vim.keymap.set("n", "<leader>LtF", "<cmd>GoTestFile<cr>", { desc = "Run test for current file" })
+      vim.keymap.set("n", "<leader>Lta", "<cmd>GoAlt!<cr>", { desc = "Open alt file" })
+      vim.keymap.set("n", "<leader>Ldb", "<cmd>GoDebug<cr>", { desc = "Start debugging" })
+      vim.keymap.set("n", "<leader>Ldt", "<cmd>GoDbgStop<cr>", { desc = "Stop debugging" })
     end,
     event = {"CmdlineEnter"},
     ft = {"go", 'gomod'},
@@ -123,9 +123,9 @@ return {
       require("gopher").setup(opts)
       
       -- Additional gopher keymaps
-      vim.keymap.set("n", "<leader>gsm", "<cmd>GoMod tidy<cr>", { desc = "Go mod tidy" })
-      vim.keymap.set("n", "<leader>gsi", "<cmd>GoImpl<cr>", { desc = "Go impl" })
-      vim.keymap.set("n", "<leader>gie", "<cmd>GoIfErr<cr>", { desc = "Go if err" })
+      vim.keymap.set("n", "<leader>Lsm", "<cmd>GoMod tidy<cr>", { desc = "Go mod tidy" })
+      vim.keymap.set("n", "<leader>Lim", "<cmd>GoImpl<cr>", { desc = "Go impl" })
+      vim.keymap.set("n", "<leader>Lie", "<cmd>GoIfErr<cr>", { desc = "Go if err" })
     end,
     build = function()
       vim.cmd [[silent! GoInstallDeps]]
