@@ -233,6 +233,123 @@ return {
           port = config.port or 5005,
         })
       end
+
+      -- ============================================================
+      -- JavaScript / TypeScript debugging via vscode-js-debug (Mason)
+      -- ============================================================
+      local js_debug_bin = vim.fn.stdpath("data") .. "/mason/packages/js-debug-adapter/js-debug-adapter"
+
+      if vim.fn.executable(js_debug_bin) == 1 then
+        dap.adapters["pwa-node"] = {
+          type = "server",
+          host = "localhost",
+          port = "${port}",
+          executable = {
+            command = js_debug_bin,
+            args = { "${port}" },
+          },
+        }
+
+        dap.adapters["pwa-chrome"] = {
+          type = "server",
+          host = "localhost",
+          port = "${port}",
+          executable = {
+            command = js_debug_bin,
+            args = { "${port}" },
+          },
+        }
+
+        local js_configs = {
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch file (Node)",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+            protocol = "inspector",
+            console = "integratedTerminal",
+          },
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Launch file with arguments (Node)",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+            args = function()
+              local args_string = vim.fn.input("Arguments: ")
+              return vim.split(args_string, " +", { trimempty = true })
+            end,
+            sourceMaps = true,
+            protocol = "inspector",
+            console = "integratedTerminal",
+          },
+          {
+            type = "pwa-node",
+            request = "attach",
+            name = "Attach to Node process",
+            processId = require("dap.utils").pick_process,
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+          },
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Debug Jest (current file)",
+            runtimeExecutable = "node",
+            runtimeArgs = {
+              "${workspaceFolder}/node_modules/.bin/jest",
+              "--runInBand",
+              "--no-coverage",
+              "${file}",
+            },
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+            protocol = "inspector",
+            console = "integratedTerminal",
+            rootPath = "${workspaceFolder}",
+            internalConsoleOptions = "neverOpen",
+          },
+          {
+            type = "pwa-node",
+            request = "launch",
+            name = "Debug Vitest (current file)",
+            runtimeExecutable = "node",
+            runtimeArgs = {
+              "${workspaceFolder}/node_modules/.bin/vitest",
+              "run",
+              "${file}",
+            },
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+            protocol = "inspector",
+            console = "integratedTerminal",
+          },
+          {
+            type = "pwa-chrome",
+            request = "attach",
+            name = "Attach to Chrome (port 9222)",
+            program = "${file}",
+            cwd = "${workspaceFolder}",
+            sourceMaps = true,
+            port = 9222,
+            webRoot = "${workspaceFolder}",
+          },
+          {
+            type = "pwa-chrome",
+            request = "launch",
+            name = "Launch Chrome (http://localhost:3000)",
+            url = "http://localhost:3000",
+            webRoot = "${workspaceFolder}",
+            sourceMaps = true,
+          },
+        }
+
+        for _, ft in ipairs({ "javascript", "typescript", "javascriptreact", "typescriptreact" }) do
+          dap.configurations[ft] = js_configs
+        end
+      end
     end,
   },
 }
