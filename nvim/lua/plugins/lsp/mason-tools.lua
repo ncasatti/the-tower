@@ -16,6 +16,9 @@ return {
 				"ruff", -- Python linter (faster than pylint)
 				"mypy", -- Python type checker
 
+				-- JS/TS debugger
+				"js-debug-adapter", -- vscode-js-debug (Node/Chrome DAP)
+
 				-- Other formatters
 				"prettier", -- JS/TS/JSON/YAML/Markdown formatter
 				"stylua", -- Lua formatter
