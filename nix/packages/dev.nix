@@ -12,6 +12,7 @@
     postman
     postgresql
     dbeaver-bin
+    mariadb.client
     beekeeper-studio
     antigravity-nix
   ];
