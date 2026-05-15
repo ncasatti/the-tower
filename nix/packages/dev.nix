@@ -12,6 +12,7 @@
     postman
     postgresql
     dbeaver-bin
+    beekeeper-studio
     antigravity-nix
   ];
 }
