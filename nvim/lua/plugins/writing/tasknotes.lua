@@ -36,12 +36,68 @@ return {
 		M.config = {
 			vault_path = vim.fn.expand("~/.the-grid/zettelkasten"),
 			tasks_folder = "TaskNotes/Tasks",
+			api_url = "http://localhost:8080/api",
 			cache_ttl = 30, -- seconds
 			default_status = "open",
 			default_priority = "normal",
 			statuses = { "none", "open", "in-progress", "on-hold", "waiting", "done", "archive" },
 			priorities = { "none", "low", "normal", "high" },
 		}
+
+		-- ─────────────────────────────────────────────────────────────────
+		-- API HELPER
+		-- ─────────────────────────────────────────────────────────────────
+		M.api = {}
+
+		function M.api.request(method, endpoint, params)
+			local curl = require("plenary.curl")
+			local url = M.config.api_url .. endpoint
+			local options = {
+				headers = {
+					content_type = "application/json",
+				},
+			}
+
+			if method == "POST" then
+				options.body = vim.fn.json_encode(params or {})
+				local res = curl.post(url, options)
+				if res.status ~= 200 then
+					vim.notify("TaskNotes API error (POST " .. endpoint .. "): " .. res.status, vim.log.levels.ERROR)
+					return nil
+				end
+				return vim.fn.json_decode(res.body)
+			else
+				options.query = params
+				local res = curl.get(url, options)
+				if res.status ~= 200 then
+					vim.notify("TaskNotes API error (GET " .. endpoint .. "): " .. res.status, vim.log.levels.ERROR)
+					return nil
+				end
+				return vim.fn.json_decode(res.body)
+			end
+		end
+
+		function M.api.post(endpoint, body)
+			return M.api.request("POST", endpoint, body)
+		end
+
+		function M.api.get(endpoint, params)
+			return M.api.request("GET", endpoint, params)
+		end
+
+		function M.api.query_tasks(query)
+			local res
+			if query then
+				res = M.api.post("/tasks/query", { query = query, limit = 1000 })
+			else
+				res = M.api.get("/tasks", { limit = 1000 })
+			end
+			
+			if res and res.success and res.data and res.data.tasks then
+				return res.data.tasks
+			end
+			return {}
+		end
 
 		-- ─────────────────────────────────────────────────────────────────
 		-- UTILITY FUNCTIONS
@@ -179,64 +235,7 @@ return {
 			last_full_scan = 0,
 		}
 
-		-- Scans all .md files in the vault, parsing only new/changed files
-		local function scan_vault()
-			local vault = M.config.vault_path
-			local files = vim.fn.glob(vault .. "/**/*.md", false, true)
-
-			for _, filepath in ipairs(files) do
-				local mtime = vim.fn.getftime(filepath)
-				local cached = M.cache.data[filepath]
-
-				-- Only re-parse if file has changed since last scan
-				if not cached or cached.mtime ~= mtime then
-					local fm = parse_frontmatter(filepath)
-					if fm then
-						M.cache.data[filepath] = { fm = fm, mtime = mtime }
-					else
-						-- File has no frontmatter — remove stale entry if any
-						M.cache.data[filepath] = nil
-					end
-				end
-			end
-		end
-
-		-- Builds the inverted index from the parsed cache data.
-		-- Result: keys_index[key][value] = { filepath1, filepath2, ... }
-		local function build_index()
-			local index = {}
-
-			for filepath, entry in pairs(M.cache.data) do
-				for key, value in pairs(entry.fm) do
-					if not index[key] then
-						index[key] = {}
-					end
-
-					-- Normalize value to a list for uniform processing
-					local values
-					if type(value) == "table" then
-						values = value
-					else
-						values = { tostring(value) }
-					end
-
-					for _, v in ipairs(values) do
-						v = tostring(v)
-						if v ~= "" then
-							if not index[key][v] then
-								index[key][v] = {}
-							end
-							table.insert(index[key][v], filepath)
-						end
-					end
-				end
-			end
-
-			M.cache.keys_index = index
-		end
-
-		-- Ensures the cache is fresh. Skips work if within TTL.
-		-- On TTL expiry: runs incremental scan + rebuilds index.
+		-- Ensures the cache is fresh by fetching from the API.
 		local function ensure_cache()
 			local now = os.time()
 			if now - M.cache.last_full_scan < M.config.cache_ttl then
@@ -244,17 +243,46 @@ return {
 			end
 
 			local t_start = vim.fn.reltime()
-			scan_vault()
-			build_index()
+			
+			local all_tasks = M.api.query_tasks(nil) or {}
+			local index = {}
+			local cache_data = {}
+
+			for _, task in ipairs(all_tasks) do
+				-- The API returns metadata flattened in the task object
+				local fm = task
+				-- Normalize to absolute path
+				local filepath = M.config.vault_path .. "/" .. task.path
+				cache_data[filepath] = { fm = fm, mtime = 0 }
+
+				for key, value in pairs(fm) do
+					-- Skip non-metadata fields to keep the index clean
+					if key ~= "path" and key ~= "id" and key ~= "title" then
+						if not index[key] then
+							index[key] = {}
+						end
+
+						local values = type(value) == "table" and value or { tostring(value) }
+						for _, v in ipairs(values) do
+							v = tostring(v)
+							if v ~= "" then
+								if not index[key][v] then
+									index[key][v] = {}
+								end
+								table.insert(index[key][v], filepath)
+							end
+						end
+					end
+				end
+			end
+
+			M.cache.data = cache_data
+			M.cache.keys_index = index
 			M.cache.last_full_scan = now
 
 			local elapsed = vim.fn.reltimestr(vim.fn.reltime(t_start))
-			local file_count = 0
-			for _ in pairs(M.cache.data) do
-				file_count = file_count + 1
-			end
 			vim.notify(
-				string.format("TaskNotes: cache refreshed (%d files, %ss)", file_count, elapsed),
+				string.format("TaskNotes: cache refreshed from API (%d files, %ss)", #all_tasks, elapsed),
 				vim.log.levels.DEBUG
 			)
 		end
@@ -299,7 +327,7 @@ return {
 		end
 
 	-- Stage 3: Pick a file from the list matching key=value
-	-- Displays relative path from vault root with optional status/priority badge.
+	-- Displays filename only with optional status/priority badge.
 	-- On <CR>: opens the file in a buffer.
 	M.telescope.pick_file = function(key, value, from_shortcut)
 			local pickers = require("telescope.pickers")
@@ -314,10 +342,9 @@ return {
 				return
 			end
 
-			local vault = M.config.vault_path
 			local entries = {}
 			for _, fp in ipairs(filepaths) do
-				local rel = fp:gsub("^" .. vim.pesc(vault) .. "/", "")
+				local filename = vim.fn.fnamemodify(fp, ":t")
 				local fm = M.cache.data[fp] and M.cache.data[fp].fm or {}
 
 				-- Build optional badge: [status][priority]
@@ -331,11 +358,11 @@ return {
 					badge = badge .. "[" .. fm.priority .. "]"
 				end
 
-				local display = badge ~= "" and (badge .. " " .. rel) or rel
+				local display = badge ~= "" and (badge .. " " .. filename) or filename
 
 				table.insert(entries, {
 					display = display,
-					ordinal = rel,
+					ordinal = filename,
 					path = fp,
 					filename = fp,
 				})
@@ -356,7 +383,6 @@ return {
 						end,
 					}),
 				sorter = conf.generic_sorter({}),
-				previewer = make_previewer(),
 				attach_mappings = function(prompt_bufnr, map)
 					actions.select_default:replace(function()
 						local selection = action_state.get_selected_entry()
@@ -520,16 +546,10 @@ end
 		M.telescope.pick_value("status", true)
 	end
 
-	-- Jumps directly to Stage 2 for the 'tags' key
+	-- Jumps directly to Stage 2 for the 'tags' key (formerly pick_file_by_tag)
 	M.telescope.pick_file_by_tag = function()
 		ensure_cache()
 		M.telescope.pick_value("tags", true)
-	end
-
-	-- Jumps directly to Stage 2 for the 'projects' key
-	M.telescope.pick_file_by_project = function()
-		ensure_cache()
-		M.telescope.pick_value("projects", true)
 	end
 
 		-- ─────────────────────────────────────────────────────────────────
@@ -623,13 +643,20 @@ end
 			return body or ""
 		end
 
-		-- Creates a new task file with frontmatter template
+		-- Creates a new task file with frontmatter template using NLP API
 		M.task_ops.create_task = function()
-			vim.ui.input({ prompt = "Task title: " }, function(title)
-				if not title or title == "" then
+			vim.ui.input({ prompt = "Quick Add (NLP): " }, function(input)
+				if not input or input == "" then
 					return
 				end
 
+				local res = M.api.post("/nlp/parse", { text = input })
+				if not res or not res.success or not res.data then
+					return
+				end
+
+				local nlp = res.data.taskData or {}
+				local title = nlp.title or input
 				local filename = create_filename(title)
 				local filepath = M.config.vault_path .. "/" .. M.config.tasks_folder .. "/" .. filename
 
@@ -637,13 +664,27 @@ end
 				vim.fn.mkdir(M.config.vault_path .. "/" .. M.config.tasks_folder, "p")
 
 				local metadata = {
-					status = M.config.default_status,
-					priority = M.config.default_priority,
-					scheduled = get_date(0),
-					tags = { "task" },
+					status = nlp.status or M.config.default_status,
+					priority = nlp.priority or M.config.default_priority,
+					scheduled = nlp.scheduled or get_date(0),
+					tags = nlp.tags or { "task" },
+					projects = nlp.projects or {},
+					contexts = nlp.contexts or {},
 					dateCreated = get_timestamp(),
 					dateModified = get_timestamp(),
 				}
+
+				-- If tags doesn't have 'task', add it
+				local has_task_tag = false
+				for _, t in ipairs(metadata.tags) do
+					if t == "task" then
+						has_task_tag = true
+						break
+					end
+				end
+				if not has_task_tag then
+					table.insert(metadata.tags, "task")
+				end
 
 				if write_frontmatter(filepath, metadata, "") then
 					vim.cmd("edit " .. vim.fn.fnameescape(filepath))
@@ -888,51 +929,67 @@ end
 			end
 		end
 
-		-- Finds tasks in the tasks folder and opens a Telescope picker.
-		-- Uses the new Telescope-based picker instead of vim.ui.select.
-		M.find_tasks = function(filter)
+		-- Finds tasks using the API and opens a Telescope picker.
+		-- @param query_or_filter table|function|nil: API FilterQuery OR legacy filter function
+		-- @param filter_fn function|nil: Legacy filter function (if first arg is api_query)
+		M.find_tasks = function(query_or_filter, filter_fn)
 			local pickers = require("telescope.pickers")
 			local finders = require("telescope.finders")
 			local conf = require("telescope.config").values
 			local actions = require("telescope.actions")
 			local action_state = require("telescope.actions.state")
 
-			local tasks_dir = M.config.vault_path .. "/" .. M.config.tasks_folder
-			local files = vim.fn.glob(tasks_dir .. "/**/*.md", false, true)
+			local api_query, final_filter
+			if type(query_or_filter) == "function" then
+				final_filter = query_or_filter
+			else
+				api_query = query_or_filter
+				final_filter = filter_fn
+			end
+
+			local tasks = {}
+			if api_query then
+				tasks = M.api.query_tasks(api_query) or {}
+			else
+				-- Get all tasks and filter locally if a filter_fn is provided
+				local all_tasks = M.api.query_tasks(nil) or {}
+				if final_filter then
+					for _, t in ipairs(all_tasks) do
+						if final_filter(t.frontmatter or {}) then
+							table.insert(tasks, t)
+						end
+					end
+				else
+					tasks = all_tasks
+				end
+			end
 
 			local entries = {}
-			for _, file in ipairs(files) do
-				local metadata = parse_frontmatter(file)
-				if metadata then
-					local include = true
-					if filter then
-						include = filter(metadata)
-					end
-
-					if include then
-						local status_val = metadata.status
-						if type(status_val) == "table" then
-							status_val = status_val[1]
-						end
-						local priority_val = metadata.priority
-						if type(priority_val) == "table" then
-							priority_val = priority_val[1]
-						end
-
-						local title = vim.fn.fnamemodify(file, ":t:r"):match("%d+%-(.+)")
-							or vim.fn.fnamemodify(file, ":t:r")
-
-						local display =
-							string.format("[%s][%s] %s", status_val or "none", priority_val or "none", title)
-
-						table.insert(entries, {
-							display = display,
-							ordinal = display,
-							path = file,
-							filename = file,
-						})
-					end
+			for _, task in ipairs(tasks) do
+				local fm = task -- API returns flat object
+				local status_val = fm.status
+				if type(status_val) == "table" then
+					status_val = status_val[1]
 				end
+				local priority_val = fm.priority
+				if type(priority_val) == "table" then
+					priority_val = priority_val[1]
+				end
+
+				-- Normalize to absolute path
+				local abs_path = M.config.vault_path .. "/" .. task.path
+				local filename = vim.fn.fnamemodify(abs_path, ":t")
+				local title = filename:gsub("%.md$", "")
+
+				local display =
+					string.format("[%s][%s] %s", status_val or "none", priority_val or "none", title)
+
+				table.insert(entries, {
+					display = display,
+					ordinal = title,
+					path = abs_path,
+					filename = abs_path,
+				})
 			end
 
 			if #entries == 0 then
@@ -954,7 +1011,6 @@ end
 						end,
 					}),
 					sorter = conf.generic_sorter({}),
-					previewer = make_previewer(),
 					attach_mappings = function(prompt_bufnr, _)
 						actions.select_default:replace(function()
 							local selection = action_state.get_selected_entry()
@@ -1064,8 +1120,7 @@ end
 		)
 		vim.keymap.set("n", "<leader>owr", M.cache_ops.force_refresh, { desc = "Force cache rebuild" })
 		vim.keymap.set("n", "<leader>ows", M.telescope.pick_file_by_status, { desc = "Filter by status" })
-		vim.keymap.set("n", "<leader>ow#", M.telescope.pick_file_by_tag, { desc = "Filter by tag" })
-		vim.keymap.set("n", "<leader>owo", M.telescope.pick_file_by_project, { desc = "Filter by project" })
+		vim.keymap.set("n", "<leader>owo", M.telescope.pick_file_by_tag, { desc = "Filter by tag/project" })
 
 		-- <leader>oz* — Task management
 		vim.keymap.set("n", "<leader>ozn", M.task_ops.create_task, { desc = "Task: New" })
