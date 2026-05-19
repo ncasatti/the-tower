@@ -35,6 +35,7 @@ Colors = {
 	blue_note = "#39BAE6",
 	red = "#D26464",
 	blue_dark = "#334454", -- 253340
+	blue_dark2 = "#2b3b4d",
 	-- Markdown colors
 	h1 = "#e65064",
 	h2 = "#17ACF2",
@@ -48,7 +49,7 @@ Elements = {
 	code = Colors.cyan_gray4,
 	italic = Colors.gray4,
 	cursor = Colors.white1,
-	selection = Colors.white4, --344240
+	selection = Colors.blue_dark2, --344240
 	matched = Colors.red,
 	comments = Colors.gray,
 }
@@ -93,12 +94,17 @@ return {
 			SnacksNormal = { bg = "None" },
 			SnacksBorder = { bg = "None" },
 
+			-- Search highlights
+			Search = { fg = Colors.yellow1, bg = "None", bold = true, underline = true },
+			IncSearch = { fg = Colors.orange, bg = "None", bold = true, underline = true },
+			CurSearch = { fg = Colors.orange, bg = "None", bold = true, underline = true },
+
 			--- Cursor and selection
 			-- Cursor
 			Cursor = { fg = Colors.black, bg = Elements.cursor },
 			-- Visual selection
-			Visual = { fg = Colors.black, bg = Elements.selection },
-			VisualNOS = { fg = Colors.black, bg = Elements.selection },
+			Visual = { bg = Elements.selection },
+			VisualNOS = { bg = Elements.selection },
 			-- Matched parens
 			MatchParen = { fg = Elements.matched, bold = true, underline = true },
 
@@ -253,6 +259,11 @@ return {
 		vim.api.nvim_set_hl(0, "SnacksPickerDir", { fg = "#BFBDB6" })
 		vim.api.nvim_set_hl(0, "SnacksPickerFile", { fg = "#39BAE6" })
 		vim.api.nvim_set_hl(0, "Directory", { fg = "#BFBDB6" })
+
+		-- Search highlights
+		vim.api.nvim_set_hl(0, "Search", { fg = Colors.yellow1, bg = "None", bold = true, underline = true })
+		vim.api.nvim_set_hl(0, "IncSearch", { fg = Colors.orange, bg = "None", bold = true, underline = true })
+		vim.api.nvim_set_hl(0, "CurSearch", { fg = Colors.orange, bg = "None", bold = true, underline = true })
 
 		-- Cursor and selection colors
 		vim.api.nvim_set_hl(0, "Cursor", { fg = Colors.black, bg = Elements.cursor })

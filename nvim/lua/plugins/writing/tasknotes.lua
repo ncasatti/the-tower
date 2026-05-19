@@ -976,17 +976,18 @@ end
 					priority_val = priority_val[1]
 				end
 
-				-- Normalize to absolute path
+				-- Normalize to absolute path for opening
 				local abs_path = M.config.vault_path .. "/" .. task.path
-				local filename = vim.fn.fnamemodify(abs_path, ":t")
-				local title = filename:gsub("%.md$", "")
+				-- Use relative path for ordinal/display to provide context
+				local rel_path = task.path
+				local title = vim.fn.fnamemodify(abs_path, ":t:r")
 
 				local display =
 					string.format("[%s][%s] %s", status_val or "none", priority_val or "none", title)
 
 				table.insert(entries, {
 					display = display,
-					ordinal = title,
+					ordinal = rel_path,
 					path = abs_path,
 					filename = abs_path,
 				})
