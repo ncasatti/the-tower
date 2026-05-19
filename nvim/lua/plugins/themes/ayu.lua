@@ -103,8 +103,8 @@ return {
 			-- Cursor
 			Cursor = { fg = Colors.black, bg = Elements.cursor },
 			-- Visual selection
-			Visual = { bg = Elements.selection },
-			VisualNOS = { bg = Elements.selection },
+			Visual = { fg = Colors.white1, bg = Elements.selection, bold = true },
+			VisualNOS = { fg = Colors.white1, bg = Elements.selection, bold = true },
 			-- Matched parens
 			MatchParen = { fg = Elements.matched, bold = true, underline = true },
 
@@ -267,8 +267,8 @@ return {
 
 		-- Cursor and selection colors
 		vim.api.nvim_set_hl(0, "Cursor", { fg = Colors.black, bg = Elements.cursor })
-		vim.api.nvim_set_hl(0, "Visual", { fg = Colors.black, bg = Elements.selection })
-		vim.api.nvim_set_hl(0, "VisualNOS", { fg = Colors.black, bg = Elements.selection })
+		vim.api.nvim_set_hl(0, "Visual", { fg = Colors.white1, bg = Elements.selection, bold = true })
+		vim.api.nvim_set_hl(0, "VisualNOS", { fg = Colors.white1, bg = Elements.selection, bold = true })
 		vim.api.nvim_set_hl(0, "MatchParen", { fg = Elements.matched, bold = true, underline = true })
 
 		-- Markdown bold - bright white
