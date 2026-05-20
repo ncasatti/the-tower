@@ -345,32 +345,66 @@ return {
 			local entries = {}
 			for _, fp in ipairs(filepaths) do
 				local filename = vim.fn.fnamemodify(fp, ":t")
+				local title = filename:gsub("%.md$", "")
 				local fm = M.cache.data[fp] and M.cache.data[fp].fm or {}
+
+				local status_val = fm.status
+				if type(status_val) == "table" then
+					status_val = status_val[1]
+				end
+				local priority_val = fm.priority
+				if type(priority_val) == "table" then
+					priority_val = priority_val[1]
+				end
+
+				-- Calculate ranks for sorting
+				local status_rank = 99
+				for i, s in ipairs(M.config.statuses) do
+					if s == status_val then
+						status_rank = i
+						break
+					end
+				end
+
+				local priority_rank = 99
+				for i, p in ipairs(M.config.priorities) do
+					if p == priority_val then
+						priority_rank = #M.config.priorities - i + 1
+						break
+					end
+				end
 
 				-- Build optional badge: [status][priority]
 				local badge = ""
-				if fm.status and type(fm.status) == "string" then
-					badge = badge .. "[" .. fm.status .. "]"
-				elseif fm.status and type(fm.status) == "table" and fm.status[1] then
-					badge = badge .. "[" .. fm.status[1] .. "]"
+				if status_val then
+					badge = badge .. "[" .. status_val .. "]"
 				end
-				if fm.priority and type(fm.priority) == "string" then
-					badge = badge .. "[" .. fm.priority .. "]"
+				if priority_val then
+					badge = badge .. "[" .. priority_val .. "]"
 				end
 
-				local display = badge ~= "" and (badge .. " " .. filename) or filename
+				local display = badge ~= "" and (badge .. " " .. title) or title
 
 				table.insert(entries, {
 					display = display,
-					ordinal = filename,
+					ordinal = title,
 					path = fp,
 					filename = fp,
+					status_rank = status_rank,
+					priority_rank = priority_rank,
+					title = title,
 				})
 			end
 
-			-- Sort by display string
+			-- Sort by status, then priority, then title
 			table.sort(entries, function(a, b)
-				return a.ordinal < b.ordinal
+				if a.status_rank ~= b.status_rank then
+					return a.status_rank < b.status_rank
+				end
+				if a.priority_rank ~= b.priority_rank then
+					return a.priority_rank < b.priority_rank
+				end
+				return a.title < b.title
 			end)
 
 			pickers
@@ -976,6 +1010,24 @@ end
 					priority_val = priority_val[1]
 				end
 
+				-- Calculate ranks for sorting
+				local status_rank = 99
+				for i, s in ipairs(M.config.statuses) do
+					if s == status_val then
+						status_rank = i
+						break
+					end
+				end
+
+				local priority_rank = 99
+				-- We want high priority first, so reverse the index
+				for i, p in ipairs(M.config.priorities) do
+					if p == priority_val then
+						priority_rank = #M.config.priorities - i + 1
+						break
+					end
+				end
+
 				-- Normalize to absolute path for opening
 				local abs_path = M.config.vault_path .. "/" .. task.path
 				-- Use relative path for ordinal/display to provide context
@@ -990,6 +1042,9 @@ end
 					ordinal = rel_path,
 					path = abs_path,
 					filename = abs_path,
+					status_rank = status_rank,
+					priority_rank = priority_rank,
+					title = title,
 				})
 			end
 
@@ -999,7 +1054,13 @@ end
 			end
 
 			table.sort(entries, function(a, b)
-				return a.ordinal < b.ordinal
+				if a.status_rank ~= b.status_rank then
+					return a.status_rank < b.status_rank
+				end
+				if a.priority_rank ~= b.priority_rank then
+					return a.priority_rank < b.priority_rank
+				end
+				return a.title < b.title
 			end)
 
 			pickers
