@@ -114,10 +114,29 @@ return {
 			return os.date("%Y-%m-%d", os.time() + (offset_days * 86400))
 		end
 
-		-- Creates a Zettelkasten-style filename from a title
+		-- Creates a filename from a title, matching Obsidian/TaskNotes style
 		local function create_filename(title)
-			local suffix = title:gsub(" ", "-"):gsub("[^A-Za-z0-9-]", ""):lower()
-			return tostring(os.time()) .. "-" .. suffix .. ".md"
+			-- Remove only illegal filename characters: / \ : * ? " < > |
+			local name = title:gsub("[%/%\\%:%*%?%\"%<%>%|]", "")
+			return name .. ".md"
+		end
+
+		-- Calculates days remaining until a YYYY-MM-DD date
+		local function get_days_until(date_str)
+			if not date_str or date_str == "" then
+				return nil
+			end
+			-- Support both YYYY-MM-DD and full ISO strings
+			local y, m, d = date_str:match("(%d+)-(%d+)-(%d+)")
+			if not y or not m or not d then
+				return nil
+			end
+
+			local target_time = os.time({ year = tonumber(y), month = tonumber(m), day = tonumber(d), hour = 0, min = 0, sec = 0 })
+			local now = os.time()
+			local diff = os.difftime(target_time, now)
+			local days = math.ceil(diff / 86400)
+			return days
 		end
 
 		-- ─────────────────────────────────────────────────────────────────
@@ -383,7 +402,30 @@ return {
 					badge = badge .. "[" .. priority_val .. "]"
 				end
 
-				local display = badge ~= "" and (badge .. " " .. title) or title
+				-- Handle time until due/scheduled
+				local time_info = ""
+				local days_until_due = get_days_until(fm.due)
+				local days_until_sched = get_days_until(fm.scheduled)
+
+				if days_until_due then
+					if days_until_due == 0 then
+						time_info = " (DUE TODAY)"
+					elseif days_until_due < 0 then
+						time_info = string.format(" (%dd OVERDUE)", math.abs(days_until_due))
+					else
+						time_info = string.format(" (%dd until due)", days_until_due)
+					end
+				elseif days_until_sched then
+					if days_until_sched == 0 then
+						time_info = " (Sched: Today)"
+					elseif days_until_sched < 0 then
+						time_info = string.format(" (%dd ago)", math.abs(days_until_sched))
+					else
+						time_info = string.format(" (%dd until sched)", days_until_sched)
+					end
+				end
+
+				local display = badge ~= "" and (badge .. " " .. title .. time_info) or (title .. time_info)
 
 				table.insert(entries, {
 					display = display,
@@ -1034,8 +1076,31 @@ end
 				local rel_path = task.path
 				local title = vim.fn.fnamemodify(abs_path, ":t:r")
 
+				-- Handle time until due/scheduled
+				local time_info = ""
+				local days_until_due = get_days_until(fm.due)
+				local days_until_sched = get_days_until(fm.scheduled)
+
+				if days_until_due then
+					if days_until_due == 0 then
+						time_info = " (DUE TODAY)"
+					elseif days_until_due < 0 then
+						time_info = string.format(" (%dd OVERDUE)", math.abs(days_until_due))
+					else
+						time_info = string.format(" (%dd until due)", days_until_due)
+					end
+				elseif days_until_sched then
+					if days_until_sched == 0 then
+						time_info = " (Sched: Today)"
+					elseif days_until_sched < 0 then
+						time_info = string.format(" (%dd ago)", math.abs(days_until_sched))
+					else
+						time_info = string.format(" (%dd until sched)", days_until_sched)
+					end
+				end
+
 				local display =
-					string.format("[%s][%s] %s", status_val or "none", priority_val or "none", title)
+					string.format("[%s][%s] %s%s", status_val or "none", priority_val or "none", title, time_info)
 
 				table.insert(entries, {
 					display = display,
@@ -1173,7 +1238,7 @@ end
 		--     and Harpoon. <leader>n is occupied by Colemak window navigation.
 		-- ─────────────────────────────────────────────────────────────────
 
-		-- <leader>ow* — Zettelkasten search
+		-- <leader>ow* — Zettelkasten search & Task Management
 		vim.keymap.set(
 			"n",
 			"<leader>owt",
@@ -1184,22 +1249,11 @@ end
 		vim.keymap.set("n", "<leader>ows", M.telescope.pick_file_by_status, { desc = "Filter by status" })
 		vim.keymap.set("n", "<leader>owo", M.telescope.pick_file_by_tag, { desc = "Filter by tag/project" })
 
-		-- <leader>oz* — Task management
-		vim.keymap.set("n", "<leader>ozn", M.task_ops.create_task, { desc = "Task: New" })
-		vim.keymap.set("n", "<leader>ozs", M.task_ops.cycle_status, { desc = "Task: Cycle Status" })
-		vim.keymap.set("n", "<leader>ozp", M.task_ops.cycle_priority, { desc = "Task: Cycle Priority" })
-
-		-- Context management
-		vim.keymap.set("n", "<leader>ozcw", function()
-			M.task_ops.add_context("work")
-		end, { desc = "Task: Add 'work' context" })
-		vim.keymap.set("n", "<leader>ozcf", function()
-			M.task_ops.add_context("freelance")
-		end, { desc = "Task: Add 'freelance' context" })
-		vim.keymap.set("n", "<leader>ozcs", function()
-			M.task_ops.add_context("study")
-		end, { desc = "Task: Add 'study' context" })
-		vim.keymap.set("n", "<leader>ozcc", function()
+		-- <leader>owk* — Task management (Unified)
+		vim.keymap.set("n", "<leader>owkn", M.task_ops.create_task, { desc = "Task: New" })
+		vim.keymap.set("n", "<leader>owks", M.task_ops.cycle_status, { desc = "Task: Cycle Status" })
+		vim.keymap.set("n", "<leader>owkp", M.task_ops.cycle_priority, { desc = "Task: Cycle Priority" })
+		vim.keymap.set("n", "<leader>owkt", function()
 			vim.ui.input({ prompt = "Context: " }, function(context)
 				if context and context ~= "" then
 					M.task_ops.add_context(context)
@@ -1207,17 +1261,17 @@ end
 			end)
 		end, { desc = "Task: Add custom context" })
 
-		-- Date scheduling
-		vim.keymap.set("n", "<leader>ozdt", function()
+		-- <leader>owkd* — Date scheduling
+		vim.keymap.set("n", "<leader>owkdt", function()
 			M.task_ops.set_scheduled(0)
 		end, { desc = "Task: Schedule for today" })
-		vim.keymap.set("n", "<leader>ozdm", function()
+		vim.keymap.set("n", "<leader>owkdm", function()
 			M.task_ops.set_scheduled(1)
 		end, { desc = "Task: Schedule for tomorrow" })
-		vim.keymap.set("n", "<leader>ozdw", function()
+		vim.keymap.set("n", "<leader>owkdw", function()
 			M.task_ops.set_scheduled(7)
 		end, { desc = "Task: Schedule for next week" })
-		vim.keymap.set("n", "<leader>ozdd", function()
+		vim.keymap.set("n", "<leader>owkdd", function()
 			vim.ui.input({ prompt = "Days from now: " }, function(days)
 				if days and days ~= "" then
 					M.task_ops.set_scheduled(tonumber(days) or 0)
@@ -1225,25 +1279,20 @@ end
 			end)
 		end, { desc = "Task: Schedule custom date" })
 
-		-- Task finder and views (Telescope-based)
-		vim.keymap.set("n", "<leader>ozq", M.query_tasks, { desc = "Task: Query (custom filter)" })
-		vim.keymap.set("n", "<leader>ozvf", function()
-			M.find_tasks()
-		end, { desc = "Task: Find All" })
-
-		-- Predefined query shortcuts
-		vim.keymap.set("n", "<leader>ozqh", function()
+		-- <leader>owq* — Smart Queries
+		vim.keymap.set("n", "<leader>owqq", M.query_tasks, { desc = "Task: Query (custom filter)" })
+		vim.keymap.set("n", "<leader>owqh", function()
 			local filter = M.build_query_filter({ status = { "open", "in-progress" }, priority = { "high" } })
 			M.find_tasks(filter)
 		end, { desc = "Task: Query High priority active" })
 
-		vim.keymap.set("n", "<leader>ozqt", function()
+		vim.keymap.set("n", "<leader>owqt", function()
 			local today = get_date(0)
 			local filter = M.build_query_filter({ scheduled_before = today, scheduled_after = today })
 			M.find_tasks(filter)
 		end, { desc = "Task: Query Scheduled today" })
 
-		vim.keymap.set("n", "<leader>ozqo", function()
+		vim.keymap.set("n", "<leader>owqo", function()
 			local today = get_date(0)
 			local filter = function(m)
 				local s = m.status
@@ -1260,72 +1309,5 @@ end
 			end
 			M.find_tasks(filter)
 		end, { desc = "Task: Query Overdue" })
-
-		-- View shortcuts
-		vim.keymap.set("n", "<leader>ozvi", function()
-			M.find_tasks(function(m)
-				local s = m.status
-				if type(s) == "table" then
-					s = s[1]
-				end
-				return s == "none"
-			end)
-		end, { desc = "Task: View Inbox (none)" })
-
-		vim.keymap.set("n", "<leader>ozvt", function()
-			M.find_tasks(function(m)
-				local s = m.status
-				if type(s) == "table" then
-					s = s[1]
-				end
-				return s == "open" or s == "in-progress"
-			end)
-		end, { desc = "Task: View Todo" })
-
-		vim.keymap.set("n", "<leader>ozvw", function()
-			M.find_tasks(function(m)
-				if not m.contexts then
-					return false
-				end
-				local ctx = m.contexts
-				if type(ctx) == "string" then
-					return ctx == "work"
-				end
-				for _, c in ipairs(ctx) do
-					if c == "work" then
-						return true
-					end
-				end
-				return false
-			end)
-		end, { desc = "Task: View Work" })
-
-		vim.keymap.set("n", "<leader>ozvl", function()
-			M.find_tasks(function(m)
-				if not m.contexts then
-					return false
-				end
-				local ctx = m.contexts
-				if type(ctx) == "string" then
-					return ctx == "freelance"
-				end
-				for _, c in ipairs(ctx) do
-					if c == "freelance" then
-						return true
-					end
-				end
-				return false
-			end)
-		end, { desc = "Task: View Freelance" })
-
-		vim.keymap.set("n", "<leader>ozvd", function()
-			M.find_tasks(function(m)
-				local s = m.status
-				if type(s) == "table" then
-					s = s[1]
-				end
-				return s == "done"
-			end)
-		end, { desc = "Task: View Done" })
 	end, -- end config
 }
