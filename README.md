@@ -2,7 +2,7 @@
 
 A declarative, modular Nix configuration for dual-target deployment: **NixOS** (notebook) and **Home Manager standalone** (Arch Linux main rig).
 
-Part of **The Grid** — a cohesive system architecture managed through Nix flakes and `agenix` secret management.
+Part of **The Grid** — a cohesive system architecture managed through Nix flakes.
 
 ---
 
@@ -31,7 +31,6 @@ Both targets share a common Home Manager configuration and modular package defin
 - **Utilities:** Tmux, Yazi, Starship, Rofi, Lazygit, Ripgrep, FZF
 - **Theming:** GTK (Sweet-Ambar-Blue-Dark), Icons (Qogir-dark), Fonts (JetBrains Mono, 3270 Nerd Font)
 - **Wayland Ecosystem:** Waybar, Hyprlock, Hypridle, Sway Notification Center, Wallust
-- **Secrets:** Managed via `agenix` (encrypted, version-controlled)
 
 All configuration is declarative, modular, and version-controlled.
 
@@ -41,7 +40,7 @@ All configuration is declarative, modular, and version-controlled.
 
 ```
 .
-├── flake.nix                 # Nix flake entry point (nixpkgs-unstable, home-manager, agenix)
+├── flake.nix                 # Nix flake entry point (nixpkgs-unstable, home-manager)
 ├── flake.lock               # Locked dependency versions
 │
 ├── nix/
@@ -50,10 +49,7 @@ All configuration is declarative, modular, and version-controlled.
 │   │       ├── default.nix  # System configuration entry point
 │   │       ├── hardware-configuration.nix
 │   │       ├── audio.nix    # Audio (PipeWire, ALSA)
-│   │       ├── services.nix # System services
-│   │       └── secrets/     # agenix encrypted secrets
-│   │           ├── secrets.nix
-│   │           └── secrets.age (encrypted)
+│   │       └── services.nix # System services
 │   │
 │   ├── home/
 │   │   ├── main.nix         # Home Manager config for main (Arch)
@@ -103,13 +99,7 @@ All configuration is declarative, modular, and version-controlled.
    cd ~/.the-grid/the-tower
    ```
 
-2. **Set up secrets (agenix):**
-   ```bash
-   # Decrypt and place secrets in nix/hosts/notebook/secrets/
-   # (Requires agenix private key in ~/.config/sops/age/keys.txt)
-   ```
-
-3. **Deploy to your target:**
+2. **Deploy to your target:**
 
    **For NixOS (notebook):**
    ```bash
@@ -121,7 +111,7 @@ All configuration is declarative, modular, and version-controlled.
    nix run home-manager/master -- switch --flake .#main
    ```
 
-4. **Reboot or restart your session** to activate Hyprland and all services.
+3. **Reboot or restart your session** to activate Hyprland and all services.
 
 ---
 
@@ -159,20 +149,6 @@ The flake defines two outputs:
 - `hardware-configuration.nix` — Hardware-specific settings
 - `audio.nix` — PipeWire and ALSA configuration
 - `services.nix` — System services and daemons
-- `secrets/` — agenix encrypted secrets
-
-### Secrets Management (agenix)
-
-Secrets are encrypted with `agenix` and stored in version control:
-```
-nix/hosts/notebook/secrets/
-├── secrets.nix      # Secret definitions
-└── secrets.age      # Encrypted secrets file
-```
-
-To decrypt and use secrets:
-1. Ensure your agenix private key is in `~/.config/sops/age/keys.txt`
-2. Secrets are automatically decrypted during deployment
 
 ### Adding New Packages
 
@@ -295,30 +271,14 @@ nix flake check
    ```
 3. Apply the configuration
 
-### Managing Secrets
-
-To add a new secret:
-1. Edit `nix/hosts/notebook/secrets/secrets.nix` to define the secret
-2. Encrypt with agenix:
-   ```bash
-   agenix -e nix/hosts/notebook/secrets/secrets.age
-   ```
-3. Reference in your configuration via `config.age.secrets.<name>.path`
-
 ---
 
 ## Troubleshooting
 
 ### Configuration won't apply
 - Ensure `flake.nix` syntax is valid: `nix flake check`
-- Check agenix secrets are properly decrypted: `agenix -d nix/hosts/notebook/secrets/secrets.age`
 - Review Home Manager logs: `journalctl --user -u home-manager-*`
 - For NixOS: `journalctl -u nixos-rebuild`
-
-### Secrets decryption fails
-- Verify agenix private key exists: `~/.config/sops/age/keys.txt`
-- Check key permissions: `chmod 600 ~/.config/sops/age/keys.txt`
-- Ensure the key is authorized in `nix/hosts/notebook/secrets/secrets.nix`
 
 ### Wayland issues
 - Verify Hyprland is installed: `hyprland --version`
@@ -353,5 +313,5 @@ This project is licensed under the **GNU General Public License v3.0**. See the 
 ---
 
 **Maintained by:** Nico (Kasatto)  
-**Targets:** NixOS (notebook) + Arch Linux (main) + Hyprland + Nix Flakes + agenix  
+**Targets:** NixOS (notebook) + Arch Linux (main) + Hyprland + Nix Flakes  
 **Last Updated:** 2026-03-30
