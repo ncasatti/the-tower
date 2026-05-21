@@ -10,7 +10,6 @@ return {
       opacity = nil,
       resizing_mappings = false,
       post_open_hook = nil,
-      -- references configuration removed (Telescope dependency)
       focus_on_open = true,
       dismiss_on_move = false,
       force_close = true,

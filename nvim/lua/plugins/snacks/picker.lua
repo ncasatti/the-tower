@@ -1,5 +1,6 @@
 return {
   enabled = true,
+  ui_select = true, -- replace vim.ui.select with Snacks picker (LSP code actions, DAP configs, mason prompts, etc.)
   layout = {
     reverse = false, -- search bar at top, correct symbol order
     preview = {

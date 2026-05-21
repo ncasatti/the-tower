@@ -56,7 +56,7 @@ plugins/
 ├── editor/       # Core editing (treesitter, cmp, autopairs, todo-comments)
 ├── git/          # Neogit (magit-like interface)
 ├── lsp/          # Mason + LSP configuration for 8+ languages
-├── navigation/   # Telescope, Oil.nvim, goto-preview
+├── navigation/   # Oil.nvim, goto-preview
 ├── snacks/       # Snacks.nvim plugin (dashboard, picker, scroll, styles)
 ├── themes/       # Ayu color scheme
 ├── ui/           # Lualine, noice, which-key, zen-mode, twilight
@@ -127,7 +127,7 @@ vim.lsp.enable('server_name')
 
 Quick reference:
 - **gd/gD/gI** → Go to definition/declaration/implementation
-- **gr** → References via Snacks.picker (not Telescope)
+- **gr** → References via Snacks.picker
 - **K/Ctrl-k** → Hover documentation/signature help
 - **`<leader>rn/ca/D`** → Rename/code actions/type definition
 - **`<leader>ds/ws`** → Document/workspace symbols via Snacks.picker
@@ -142,8 +142,7 @@ Quick reference:
 - **Cmdline completion**: Enabled for `/`, `?`, and `:` commands
 
 ### Navigation
-- **Telescope** (deprecated for LSP): `<leader>tt/tg/tb/th` (files/grep/buffers/help)
-- **Snacks.picker**: Primary picker for LSP references/symbols (replaces Telescope)
+- **Snacks.picker**: Unified picker for files, grep, buffers, LSP refs/symbols, git, diagnostics, etc.
 - **Oil.nvim**: Edit directories as buffers
 
 ### Git Integration

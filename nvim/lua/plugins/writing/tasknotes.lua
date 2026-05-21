@@ -1,4 +1,4 @@
--- TaskNotes v2 — Multi-stage Telescope search + task management
+-- TaskNotes v2 — Multi-stage Snacks.picker search + task management
 -- Provides frontmatter-indexed search across the entire Zettelkasten vault
 -- and preserves all legacy task management operations.
 --
@@ -9,19 +9,17 @@
 --   scan_vault()    — Full/incremental vault scan
 --   build_index()   — Inverted index: key → value → [filepaths]
 --   ensure_cache()  — TTL-gated cache refresh
---   M.telescope.*   — 3-stage Telescope pickers (Key → Value → File)
+--   M.picker.*      — 3-stage Snacks pickers (Key → Value → File)
 --   M.task_ops.*    — Task CRUD operations (ported from legacy)
---   Keybindings     — <leader>z* (search) + <leader>w* (task management)
+--   Keybindings     — <leader>ow* (search + task management)
 
 return {
-	-- This is a standalone plugin spec.
-	-- It depends on telescope and plenary which are already installed.
 	dir = vim.fn.stdpath("config") .. "/lua/plugins/writing",
 	name = "tasknotes",
 	event = "VeryLazy",
 	dependencies = {
-		"nvim-telescope/telescope.nvim",
 		"nvim-lua/plenary.nvim",
+		"folke/snacks.nvim",
 	},
 
 	config = function()
@@ -326,42 +324,22 @@ return {
 		end
 
 		-- ─────────────────────────────────────────────────────────────────
-		-- STEP 5-8: Telescope pickers (3-stage drill-down)
+		-- STEP 5-8: Snacks pickers (3-stage drill-down)
 		-- ─────────────────────────────────────────────────────────────────
 
-		M.telescope = {}
+		M.picker = {}
 
-		-- Creates the glow-based markdown previewer (mirrors telescope.lua config)
-		local function make_previewer()
-			local previewers = require("telescope.previewers")
-			return previewers.new_termopen_previewer({
-				get_command = function(entry)
-					local path = entry.path or entry.filename or entry.value
-					if path and path:match("%.md$") then
-						return { "glow", "-s", "dark", path }
-					end
-					return { "bat", "--style=numbers", "--color=always", path }
-				end,
-			})
-		end
-
-	-- Stage 3: Pick a file from the list matching key=value
-	-- Displays filename only with optional status/priority badge.
-	-- On <CR>: opens the file in a buffer.
-	M.telescope.pick_file = function(key, value, from_shortcut)
-			local pickers = require("telescope.pickers")
-			local finders = require("telescope.finders")
-			local conf = require("telescope.config").values
-			local actions = require("telescope.actions")
-			local action_state = require("telescope.actions.state")
-
+		-- Stage 3: Pick a file from the list matching key=value.
+		-- Displays filename with optional status/priority badge + time info.
+		-- On <CR>: opens the file. On close without confirm: back to Stage 2.
+		M.picker.pick_file = function(key, value, from_shortcut)
 			local filepaths = M.cache.keys_index[key] and M.cache.keys_index[key][value]
 			if not filepaths or #filepaths == 0 then
 				vim.notify(string.format("TaskNotes: no files found for %s = %s", key, value), vim.log.levels.WARN)
 				return
 			end
 
-			local entries = {}
+			local items = {}
 			for _, fp in ipairs(filepaths) do
 				local filename = vim.fn.fnamemodify(fp, ":t")
 				local title = filename:gsub("%.md$", "")
@@ -376,7 +354,6 @@ return {
 					priority_val = priority_val[1]
 				end
 
-				-- Calculate ranks for sorting
 				local status_rank = 99
 				for i, s in ipairs(M.config.statuses) do
 					if s == status_val then
@@ -393,7 +370,6 @@ return {
 					end
 				end
 
-				-- Build optional badge: [status][priority]
 				local badge = ""
 				if status_val then
 					badge = badge .. "[" .. status_val .. "]"
@@ -402,7 +378,6 @@ return {
 					badge = badge .. "[" .. priority_val .. "]"
 				end
 
-				-- Handle time until due/scheduled
 				local time_info = ""
 				local days_until_due = get_days_until(fm.due)
 				local days_until_sched = get_days_until(fm.scheduled)
@@ -427,19 +402,16 @@ return {
 
 				local display = badge ~= "" and (badge .. " " .. title .. time_info) or (title .. time_info)
 
-				table.insert(entries, {
-					display = display,
-					ordinal = title,
-					path = fp,
-					filename = fp,
+				table.insert(items, {
+					text = display,
+					file = fp,
 					status_rank = status_rank,
 					priority_rank = priority_rank,
 					title = title,
 				})
 			end
 
-			-- Sort by status, then priority, then title
-			table.sort(entries, function(a, b)
+			table.sort(items, function(a, b)
 				if a.status_rank ~= b.status_rank then
 					return a.status_rank < b.status_rank
 				end
@@ -448,48 +420,38 @@ return {
 				end
 				return a.title < b.title
 			end)
+			for i, item in ipairs(items) do
+				item.idx = i
+			end
 
-			pickers
-				.new({}, {
-					prompt_title = string.format("%s: %s (%d files)", key, value, #filepaths),
-					finder = finders.new_table({
-						results = entries,
-						entry_maker = function(e)
-							return e
-						end,
-					}),
-				sorter = conf.generic_sorter({}),
-				attach_mappings = function(prompt_bufnr, map)
-					actions.select_default:replace(function()
-						local selection = action_state.get_selected_entry()
-						actions.close(prompt_bufnr)
-						if selection then
-							vim.cmd("edit " .. vim.fn.fnameescape(selection.path))
-						end
-					end)
-
-					local handle_esc = function()
-						actions.close(prompt_bufnr)
-						M.telescope.pick_value(key, from_shortcut)
+			local confirmed = false
+			Snacks.picker.pick({
+				source = "tasknotes_file",
+				title = string.format("%s: %s (%d files)", key, value, #filepaths),
+				items = items,
+				format = "text",
+				preview = "file",
+				confirm = function(picker, item)
+					confirmed = true
+					picker:close()
+					if item then
+						vim.cmd("edit " .. vim.fn.fnameescape(item.file))
 					end
-					map("i", "<Esc>", handle_esc)
-					map("n", "<Esc>", handle_esc)
-
-					return true
+				end,
+				on_close = function()
+					if not confirmed then
+						vim.schedule(function()
+							M.picker.pick_value(key, from_shortcut)
+						end)
+					end
 				end,
 			})
-			:find()
-	end
+		end
 
-	-- Stage 2: Pick a value for the given key.
-	-- Displays value + file count. On <CR>: transitions to Stage 3.
-	M.telescope.pick_value = function(key, from_shortcut)
-			local pickers = require("telescope.pickers")
-			local finders = require("telescope.finders")
-			local conf = require("telescope.config").values
-			local actions = require("telescope.actions")
-			local action_state = require("telescope.actions.state")
-
+		-- Stage 2: Pick a value for the given key.
+		-- Displays value + file count. On <CR>: transitions to Stage 3.
+		-- On close without confirm: back to Stage 1 (unless from_shortcut).
+		M.picker.pick_value = function(key, from_shortcut)
 			ensure_cache()
 
 			local value_map = M.cache.keys_index[key]
@@ -498,68 +460,54 @@ return {
 				return
 			end
 
-			local entries = {}
+			local items = {}
 			for v, fps in pairs(value_map) do
-				table.insert(entries, {
-					display = string.format("%s (%d files)", v, #fps),
-					ordinal = v,
+				table.insert(items, {
+					text = string.format("%s (%d files)", v, #fps),
 					value = v,
 				})
 			end
 
-			-- Sort alphabetically
-			table.sort(entries, function(a, b)
-				return a.ordinal < b.ordinal
+			table.sort(items, function(a, b)
+				return a.value < b.value
 			end)
+			for i, item in ipairs(items) do
+				item.idx = i
+			end
 
-			pickers
-				.new({}, {
-					prompt_title = string.format("Values for: %s", key),
-					finder = finders.new_table({
-						results = entries,
-						entry_maker = function(e)
-							return e
-						end,
-					}),
-			sorter = conf.generic_sorter({}),
-			attach_mappings = function(prompt_bufnr, map)
-				actions.select_default:replace(function()
-					local selection = action_state.get_selected_entry()
-					actions.close(prompt_bufnr)
-					if selection then
-						M.telescope.pick_file(key, selection.value, from_shortcut)
+			local confirmed = false
+			Snacks.picker.pick({
+				source = "tasknotes_value",
+				title = string.format("Values for: %s", key),
+				items = items,
+				format = "text",
+				preview = "none",
+				confirm = function(picker, item)
+					confirmed = true
+					picker:close()
+					if item then
+						vim.schedule(function()
+							M.picker.pick_file(key, item.value, from_shortcut)
+						end)
 					end
-				end)
-				
-				local handle_esc = function()
-					actions.close(prompt_bufnr)
-					if not from_shortcut then
-						M.telescope.pick_key()
+				end,
+				on_close = function()
+					if not confirmed and not from_shortcut then
+						vim.schedule(function()
+							M.picker.pick_key()
+						end)
 					end
-				end
-				map("i", "<Esc>", handle_esc)
-				map("n", "<Esc>", handle_esc)
-				
-				return true
-			end,
-		})
-		:find()
-	end
+				end,
+			})
+		end
 
 		-- Stage 1: Pick a frontmatter key from the vault index.
 		-- Displays key + file count. On <CR>: transitions to Stage 2.
-		M.telescope.pick_key = function()
-			local pickers = require("telescope.pickers")
-			local finders = require("telescope.finders")
-			local conf = require("telescope.config").values
-			local actions = require("telescope.actions")
-			local action_state = require("telescope.actions.state")
-
+		M.picker.pick_key = function()
 			ensure_cache()
 
-			local entries = {}
+			local items = {}
 			for key, value_map in pairs(M.cache.keys_index) do
-				-- Count unique files for this key
 				local file_set = {}
 				for _, fps in pairs(value_map) do
 					for _, fp in ipairs(fps) do
@@ -571,62 +519,56 @@ return {
 					file_count = file_count + 1
 				end
 
-				table.insert(entries, {
-					display = string.format("%s (%d files)", key, file_count),
-					ordinal = key,
+				table.insert(items, {
+					text = string.format("%s (%d files)", key, file_count),
 					value = key,
 				})
 			end
 
-			-- Sort alphabetically
-			table.sort(entries, function(a, b)
-				return a.ordinal < b.ordinal
-			end)
-
-			if #entries == 0 then
-				vim.notify("TaskNotes: vault index is empty. Try <leader>zr to force refresh.", vim.log.levels.WARN)
+			if #items == 0 then
+				vim.notify("TaskNotes: vault index is empty. Try <leader>owr to force refresh.", vim.log.levels.WARN)
 				return
 			end
 
-			pickers
-				.new({}, {
-					prompt_title = "Frontmatter Key",
-					finder = finders.new_table({
-						results = entries,
-						entry_maker = function(e)
-							return e
-						end,
-					}),
-		sorter = conf.generic_sorter({}),
-		attach_mappings = function(prompt_bufnr, _)
-			actions.select_default:replace(function()
-				local selection = action_state.get_selected_entry()
-				actions.close(prompt_bufnr)
-				if selection then
-					M.telescope.pick_value(selection.value, false)
-				end
+			table.sort(items, function(a, b)
+				return a.value < b.value
 			end)
-			return true
-		end,
-	})
-	:find()
-end
+			for i, item in ipairs(items) do
+				item.idx = i
+			end
+
+			Snacks.picker.pick({
+				source = "tasknotes_key",
+				title = "Frontmatter Key",
+				items = items,
+				format = "text",
+				preview = "none",
+				confirm = function(picker, item)
+					picker:close()
+					if item then
+						vim.schedule(function()
+							M.picker.pick_value(item.value, false)
+						end)
+					end
+				end,
+			})
+		end
 
 		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 8: Shortcut pickers (skip Stage 1)
 		-- ─────────────────────────────────────────────────────────────────
 
-	-- Jumps directly to Stage 2 for the 'status' key
-	M.telescope.pick_file_by_status = function()
-		ensure_cache()
-		M.telescope.pick_value("status", true)
-	end
+		-- Jumps directly to Stage 2 for the 'status' key
+		M.picker.pick_file_by_status = function()
+			ensure_cache()
+			M.picker.pick_value("status", true)
+		end
 
-	-- Jumps directly to Stage 2 for the 'tags' key (formerly pick_file_by_tag)
-	M.telescope.pick_file_by_tag = function()
-		ensure_cache()
-		M.telescope.pick_value("tags", true)
-	end
+		-- Jumps directly to Stage 2 for the 'tags' key
+		M.picker.pick_file_by_tag = function()
+			ensure_cache()
+			M.picker.pick_value("tags", true)
+		end
 
 		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 9: Task management operations (ported from legacy)
@@ -775,8 +717,10 @@ end
 		-- Cycles the status field on the current TaskNotes file
 		M.task_ops.cycle_status = function()
 			local filepath = vim.fn.expand("%:p")
-			if not filepath:match("TaskNotes/Tasks") then
-				vim.notify("Not a TaskNotes file", vim.log.levels.WARN)
+			local vault = M.config.vault_path
+			-- Looser check: must be a markdown file within the vault
+			if not (filepath:match("%.md$") and filepath:find(vim.pesc(vault), 1, true)) then
+				vim.notify("Not a TaskNotes file (outside vault or not .md)", vim.log.levels.WARN)
 				return
 			end
 
@@ -786,43 +730,36 @@ end
 				return
 			end
 
-			-- Normalize status: may be a table (e.g. status: [done])
-			local current_status
-			if type(metadata.status) == "table" then
-				current_status = metadata.status[1] or "none"
-			else
-				current_status = metadata.status or "none"
-			end
+			vim.ui.select(M.config.statuses, {
+				prompt = "Select Status:",
+				format_item = function(item)
+					return item:gsub("^%l", string.upper)
+				end,
+			}, function(choice)
+				if not choice then return end
 
-			local current_idx = 1
-			for i, s in ipairs(M.config.statuses) do
-				if s == current_status then
-					current_idx = i
-					break
+				metadata.status = choice
+				metadata.dateModified = get_timestamp()
+
+				-- Auto-set completedDate when marking done
+				if metadata.status == "done" and not metadata.completedDate then
+					metadata.completedDate = get_date(0)
 				end
-			end
 
-			local next_idx = (current_idx % #M.config.statuses) + 1
-			metadata.status = M.config.statuses[next_idx]
-			metadata.dateModified = get_timestamp()
-
-			-- Auto-set completedDate when marking done
-			if metadata.status == "done" and not metadata.completedDate then
-				metadata.completedDate = get_date(0)
-			end
-
-			local body = extract_body(filepath)
-			if write_frontmatter(filepath, metadata, body) then
-				vim.notify("Status: " .. metadata.status, vim.log.levels.INFO)
-				vim.cmd("edit!")
-				invalidate_file(filepath)
-			end
+				local body = extract_body(filepath)
+				if write_frontmatter(filepath, metadata, body) then
+					vim.notify("Status set to: " .. metadata.status, vim.log.levels.INFO)
+					vim.cmd("edit!")
+					invalidate_file(filepath)
+				end
+			end)
 		end
 
 		-- Cycles the priority field on the current TaskNotes file
 		M.task_ops.cycle_priority = function()
 			local filepath = vim.fn.expand("%:p")
-			if not filepath:match("TaskNotes/Tasks") then
+			local vault = M.config.vault_path
+			if not (filepath:match("%.md$") and filepath:find(vim.pesc(vault), 1, true)) then
 				vim.notify("Not a TaskNotes file", vim.log.levels.WARN)
 				return
 			end
@@ -833,29 +770,24 @@ end
 				return
 			end
 
-			local current_priority = metadata.priority or "none"
-			if type(current_priority) == "table" then
-				current_priority = current_priority[1] or "none"
-			end
+			vim.ui.select(M.config.priorities, {
+				prompt = "Select Priority:",
+				format_item = function(item)
+					return item:gsub("^%l", string.upper)
+				end,
+			}, function(choice)
+				if not choice then return end
 
-			local current_idx = 1
-			for i, p in ipairs(M.config.priorities) do
-				if p == current_priority then
-					current_idx = i
-					break
+				metadata.priority = choice
+				metadata.dateModified = get_timestamp()
+
+				local body = extract_body(filepath)
+				if write_frontmatter(filepath, metadata, body) then
+					vim.notify("Priority set to: " .. metadata.priority, vim.log.levels.INFO)
+					vim.cmd("edit!")
+					invalidate_file(filepath)
 				end
-			end
-
-			local next_idx = (current_idx % #M.config.priorities) + 1
-			metadata.priority = M.config.priorities[next_idx]
-			metadata.dateModified = get_timestamp()
-
-			local body = extract_body(filepath)
-			if write_frontmatter(filepath, metadata, body) then
-				vim.notify("Priority: " .. metadata.priority, vim.log.levels.INFO)
-				vim.cmd("edit!")
-				invalidate_file(filepath)
-			end
+			end)
 		end
 
 		-- Adds a context tag to the current TaskNotes file
@@ -1005,16 +937,10 @@ end
 			end
 		end
 
-		-- Finds tasks using the API and opens a Telescope picker.
+		-- Finds tasks using the API and opens a Snacks picker.
 		-- @param query_or_filter table|function|nil: API FilterQuery OR legacy filter function
 		-- @param filter_fn function|nil: Legacy filter function (if first arg is api_query)
 		M.find_tasks = function(query_or_filter, filter_fn)
-			local pickers = require("telescope.pickers")
-			local finders = require("telescope.finders")
-			local conf = require("telescope.config").values
-			local actions = require("telescope.actions")
-			local action_state = require("telescope.actions.state")
-
 			local api_query, final_filter
 			if type(query_or_filter) == "function" then
 				final_filter = query_or_filter
@@ -1027,7 +953,6 @@ end
 			if api_query then
 				tasks = M.api.query_tasks(api_query) or {}
 			else
-				-- Get all tasks and filter locally if a filter_fn is provided
 				local all_tasks = M.api.query_tasks(nil) or {}
 				if final_filter then
 					for _, t in ipairs(all_tasks) do
@@ -1040,9 +965,9 @@ end
 				end
 			end
 
-			local entries = {}
+			local items = {}
 			for _, task in ipairs(tasks) do
-				local fm = task -- API returns flat object
+				local fm = task
 				local status_val = fm.status
 				if type(status_val) == "table" then
 					status_val = status_val[1]
@@ -1052,7 +977,6 @@ end
 					priority_val = priority_val[1]
 				end
 
-				-- Calculate ranks for sorting
 				local status_rank = 99
 				for i, s in ipairs(M.config.statuses) do
 					if s == status_val then
@@ -1062,7 +986,6 @@ end
 				end
 
 				local priority_rank = 99
-				-- We want high priority first, so reverse the index
 				for i, p in ipairs(M.config.priorities) do
 					if p == priority_val then
 						priority_rank = #M.config.priorities - i + 1
@@ -1070,13 +993,9 @@ end
 					end
 				end
 
-				-- Normalize to absolute path for opening
 				local abs_path = M.config.vault_path .. "/" .. task.path
-				-- Use relative path for ordinal/display to provide context
-				local rel_path = task.path
 				local title = vim.fn.fnamemodify(abs_path, ":t:r")
 
-				-- Handle time until due/scheduled
 				local time_info = ""
 				local days_until_due = get_days_until(fm.due)
 				local days_until_sched = get_days_until(fm.scheduled)
@@ -1102,23 +1021,21 @@ end
 				local display =
 					string.format("[%s][%s] %s%s", status_val or "none", priority_val or "none", title, time_info)
 
-				table.insert(entries, {
-					display = display,
-					ordinal = rel_path,
-					path = abs_path,
-					filename = abs_path,
+				table.insert(items, {
+					text = display,
+					file = abs_path,
 					status_rank = status_rank,
 					priority_rank = priority_rank,
 					title = title,
 				})
 			end
 
-			if #entries == 0 then
+			if #items == 0 then
 				vim.notify("No tasks found", vim.log.levels.INFO)
 				return
 			end
 
-			table.sort(entries, function(a, b)
+			table.sort(items, function(a, b)
 				if a.status_rank ~= b.status_rank then
 					return a.status_rank < b.status_rank
 				end
@@ -1127,29 +1044,23 @@ end
 				end
 				return a.title < b.title
 			end)
+			for i, item in ipairs(items) do
+				item.idx = i
+			end
 
-			pickers
-				.new({}, {
-					prompt_title = "TaskNotes",
-					finder = finders.new_table({
-						results = entries,
-						entry_maker = function(e)
-							return e
-						end,
-					}),
-					sorter = conf.generic_sorter({}),
-					attach_mappings = function(prompt_bufnr, _)
-						actions.select_default:replace(function()
-							local selection = action_state.get_selected_entry()
-							actions.close(prompt_bufnr)
-							if selection then
-								vim.cmd("edit " .. vim.fn.fnameescape(selection.path))
-							end
-						end)
-						return true
-					end,
-				})
-				:find()
+			Snacks.picker.pick({
+				source = "tasknotes_find",
+				title = "TaskNotes",
+				items = items,
+				format = "text",
+				preview = "file",
+				confirm = function(picker, item)
+					picker:close()
+					if item then
+						vim.cmd("edit " .. vim.fn.fnameescape(item.file))
+					end
+				end,
+			})
 		end
 
 		-- Interactive query builder (preserved from legacy)
@@ -1234,20 +1145,20 @@ end
 		--     Note: <leader>z (single key) = Snacks Zen Mode — multi-key
 		--     sequences like <leader>zs are distinct and do not conflict.
 		--   <leader>z* — Task/Note management (Z = Zettel/Task management)
-		--     Note: <leader>t is occupied by Snacks (Telescope/Test group)
-		--     and Harpoon. <leader>n is occupied by Colemak window navigation.
+		--     Note: <leader>t is occupied by Snacks pickers and Harpoon.
+		--     <leader>n is occupied by Colemak window navigation.
 		-- ─────────────────────────────────────────────────────────────────
 
 		-- <leader>ow* — Zettelkasten search & Task Management
 		vim.keymap.set(
 			"n",
 			"<leader>owt",
-			M.telescope.pick_key,
+			M.picker.pick_key,
 			{ desc = "Search By Key" }
 		)
 		vim.keymap.set("n", "<leader>owr", M.cache_ops.force_refresh, { desc = "Force cache rebuild" })
-		vim.keymap.set("n", "<leader>ows", M.telescope.pick_file_by_status, { desc = "Filter by status" })
-		vim.keymap.set("n", "<leader>owo", M.telescope.pick_file_by_tag, { desc = "Filter by tag/project" })
+		vim.keymap.set("n", "<leader>ows", M.picker.pick_file_by_status, { desc = "Filter by status" })
+		vim.keymap.set("n", "<leader>owo", M.picker.pick_file_by_tag, { desc = "Filter by tag/project" })
 
 		-- <leader>owk* — Task management (Unified)
 		vim.keymap.set("n", "<leader>owkn", M.task_ops.create_task, { desc = "Task: New" })
