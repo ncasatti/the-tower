@@ -18,44 +18,29 @@ Obsidian (Zettelkasten), TaskNotes (task management), Markdown rendering.
 - `<leader>oi` — Paste image
 - `<leader>ov` — Open in Obsidian app
 
-## TaskNotes — Zettelkasten search (`<leader>ow*`)
+## TaskNotes — Vault search (`<leader>ow*`)
 
-- `<leader>owt` — Search by key
-- `<leader>owr` — Force cache rebuild
-- `<leader>ows` — Filter by status
-- `<leader>ow#` — Filter by tag
-- `<leader>owo` — Filter by project
+API-driven via TaskNotes HTTP API (`localhost:8080/api`). Plugin disables itself if the API is unreachable at startup.
 
-## TaskNotes — Task management (`<leader>oz*`)
+- `<leader>owk` — Search by frontmatter key (3-stage drill-down: key → value → file)
+- `<leader>owr` — Force refresh of local cache + API caches
+- `<leader>ows` — Filter by status (shortcut into stage 2)
+- `<leader>owo` — Filter by tag/project (shortcut into stage 2)
 
-### Create / cycle
-- `<leader>ozn` — New task
-- `<leader>ozs` — Cycle status (open → in-progress → on-hold → done → archive)
-- `<leader>ozp` — Cycle priority (none → low → normal → high)
+## TaskNotes — Task management (`<leader>owt*`)
 
-### Context
-- `<leader>ozcw` — Add work context
-- `<leader>ozcf` — Add freelance context
-- `<leader>ozcs` — Add study context
-- `<leader>ozcc` — Add custom context
+All mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses and priorities are pulled live from `/api/filter-options` with their configured labels and colors.
 
-### Schedule
-- `<leader>ozdt` — Schedule today
-- `<leader>ozdm` — Schedule tomorrow
-- `<leader>ozdw` — Schedule next week
-- `<leader>ozdd` — Schedule custom date
+- `<leader>owtn` — New task (NLP quick-add via `/api/nlp/create`, server-side template)
+- `<leader>owts` — Set status (picker with color-coded labels)
+- `<leader>owtp` — Set priority (picker with color-coded labels)
+- `<leader>owtt` — Add context (picker of existing contexts + new-context input)
+- `<leader>owtd` — Schedule (60-day calendar picker + custom date + clear)
+- `<leader>owte` — Multi-field editor (field-selector form: status/priority/contexts/projects/scheduled/due, accumulates changes, one PUT on save)
 
-### Query / view
-- `<leader>ozq` — Custom query filter
-- `<leader>ozqh` — High-priority active
-- `<leader>ozqt` — Scheduled today
-- `<leader>ozqo` — Overdue
-- `<leader>ozvf` — View all
-- `<leader>ozvi` — View inbox
-- `<leader>ozvt` — View todo
-- `<leader>ozvw` — View work
-- `<leader>ozvl` — View freelance
-- `<leader>ozvd` — View done
+## TaskNotes — Queries
+
+- `<leader>owq` — Interactive query builder (field-selector form with multi-select)
 
 ## Markdown rendering (`<leader>m*`, buffer-local in `.md`)
 

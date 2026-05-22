@@ -243,10 +243,10 @@ Open from **Gradle project root** for proper LSP detection.
 
 Full task management system integrated with Obsidian - see **TASKNOTES.md** for complete documentation.
 
-**Quick reference**:
-- Create task: `<leader>tn`
-- Cycle status: `<leader>ts` (none → open → in-progress → on-hold → done → archive)
-- Set priority: `<leader>tp` (none → low → normal → high)
-- Add context: `<leader>tcw/f/s` (work/freelance/study)
-- Find tasks: `<leader>tvf/i/t/w/d` (all/inbox/todo/work/done)
-- Query tasks: `<leader>tq` (interactive), `<leader>tqh/t/o` (high-priority/today/overdue)
+**Quick reference** (all under `<leader>ow*`):
+- Search by frontmatter key: `<leader>owk` (3-stage drill-down via Snacks)
+- Filter by status / tag: `<leader>ows` / `<leader>owo`
+- Force cache rebuild: `<leader>owr`
+- Task ops (under `<leader>owt*`): `owtn` (new), `owts` (set status), `owtp` (set priority), `owtt` (add context), `owte` (multi-field editor), `owtd` (schedule calendar)
+- **All mutations via TaskNotes HTTP API at `http://localhost:8080/api`.** Plugin refuses to load keymaps if API is down (boot health check). Statuses/priorities pulled live from `/api/filter-options`.
+- Query: `<leader>owq` (interactive builder with multi-select via `<Tab>`)
