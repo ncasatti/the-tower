@@ -20,7 +20,7 @@ This is a personal Neovim configuration using **Lazy.nvim** as the plugin manage
 | `<leader>l` | LSP (`lw` = workspace folders) |
 | `<leader>L` | Language tools (Go, Python tags) |
 | `<leader>m` | Markdown |
-| `<leader>o` | Obsidian / TaskNotes (`ow` = Zettelkasten, `oz` = tasks) |
+| `<leader>o` | Obsidian / TaskNotes (`ow*` flat — `own`/`owe` mutate; lowercase reads) |
 | `<leader>r` | REPL / Jupyter |
 | `<leader>s` | Search (Snacks pickers) |
 | `<leader>t` | Find files + Harpoon |
@@ -163,9 +163,9 @@ Quick reference:
 ### Writing & Note-Taking
 - **Obsidian** (lua/plugins/writing/obsidian.lua): Zettelkasten integration at `~/Documents/Zettelkasten`
 - **TaskNotes**: Task management integrated with Obsidian (see TASKNOTES.md for full guide)
-  - Keybindings: `<leader>t*` prefix
-  - Task creation, status/priority cycling, context tagging, date scheduling
-  - Query system: `<leader>tq` (interactive), `<leader>tqh/tqt/tqo` (presets)
+  - Keybindings: `<leader>ow*` (flat)
+  - Read/filter: `owk` drill-down, `ows` filter status, `owo` filter tag, `owq` query builder, `owr` refresh
+  - Mutations: `own` new task, `owe` edit fields (handles status/priority/contexts/projects/scheduled/due in one PUT)
 
 ### UI Enhancements
 - **Snacks.nvim** (lua/plugins/snacks/init.lua): Dashboard, picker, scroll, indent animation
@@ -243,10 +243,10 @@ Open from **Gradle project root** for proper LSP detection.
 
 Full task management system integrated with Obsidian - see **TASKNOTES.md** for complete documentation.
 
-**Quick reference** (all under `<leader>ow*`):
+**Quick reference** (all flat under `<leader>ow*`):
 - Search by frontmatter key: `<leader>owk` (3-stage drill-down via Snacks)
 - Filter by status / tag: `<leader>ows` / `<leader>owo`
+- Query builder: `<leader>owq` (interactive, multi-select via `<Tab>`, inclusive date bounds)
 - Force cache rebuild: `<leader>owr`
-- Task ops (under `<leader>owt*`): `owtn` (new), `owts` (set status), `owtp` (set priority), `owtt` (add context), `owte` (multi-field editor), `owtd` (schedule calendar)
-- **All mutations via TaskNotes HTTP API at `http://localhost:8080/api`.** Plugin refuses to load keymaps if API is down (boot health check). Statuses/priorities pulled live from `/api/filter-options`.
-- Query: `<leader>owq` (interactive builder with multi-select via `<Tab>`)
+- Task ops: `own` (new task) / `owe` (edit fields — single multi-field PUT)
+- **All mutations via TaskNotes HTTP API at `http://localhost:8080/api`.** Plugin refuses to load keymaps if API is down (boot health check). Filter options pulled live from `/api/filter-options`.

@@ -18,29 +18,24 @@ Obsidian (Zettelkasten), TaskNotes (task management), Markdown rendering.
 - `<leader>oi` — Paste image
 - `<leader>ov` — Open in Obsidian app
 
-## TaskNotes — Vault search (`<leader>ow*`)
+## TaskNotes (`<leader>ow*`)
 
 API-driven via TaskNotes HTTP API (`localhost:8080/api`). Plugin disables itself if the API is unreachable at startup.
+
+### Search / filter
 
 - `<leader>owk` — Search by frontmatter key (3-stage drill-down: key → value → file)
 - `<leader>owr` — Force refresh of local cache + API caches
 - `<leader>ows` — Filter by status (shortcut into stage 2)
 - `<leader>owo` — Filter by tag/project (shortcut into stage 2)
+- `<leader>owq` — Interactive query builder (field-selector with multi-select, inclusive date bounds)
 
-## TaskNotes — Task management (`<leader>owt*`)
+### Task management
 
-All mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses and priorities are pulled live from `/api/filter-options` with their configured labels and colors.
+Mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses, priorities, contexts and projects are pulled live from `/api/filter-options`.
 
-- `<leader>owtn` — New task (NLP quick-add via `/api/nlp/create`, server-side template)
-- `<leader>owts` — Set status (picker with color-coded labels)
-- `<leader>owtp` — Set priority (picker with color-coded labels)
-- `<leader>owtt` — Add context (picker of existing contexts + new-context input)
-- `<leader>owtd` — Schedule (60-day calendar picker + custom date + clear)
-- `<leader>owte` — Multi-field editor (field-selector form: status/priority/contexts/projects/scheduled/due, accumulates changes, one PUT on save)
-
-## TaskNotes — Queries
-
-- `<leader>owq` — Interactive query builder (field-selector form with multi-select)
+- `<leader>own` — New task (NLP quick-add via `/api/nlp/create`, server-side template)
+- `<leader>owe` — Edit fields (field-selector form: status / priority / contexts / projects / scheduled / due — multi-select fields pre-mark current values with the native Snacks dot, Tab to toggle, all changes accumulate into one PUT on save)
 
 ## Markdown rendering (`<leader>m*`, buffer-local in `.md`)
 

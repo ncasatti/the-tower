@@ -10,8 +10,7 @@
 --   build_index()    — Inverted index: key → value → [filepaths]
 --   ensure_cache()   — TTL-gated cache refresh
 --   M.picker.*       — 3-stage Snacks pickers (Key → Value → File)
---   M.task_ops.*     — Task CRUD: create_task, set_status, set_priority,
---                      add_context, set_scheduled, pick_scheduled (calendar)
+--   M.task_ops.*     — Task CRUD: create_task + edit_fields (multi-field PUT)
 --   M.query_builder.* — Interactive field-selector query builder
 --   M.find_tasks()   — Snacks picker over API-queried tasks
 --   Keybindings      — <leader>ow* (search + task management)
@@ -62,35 +61,47 @@ return {
 		function M.api.request(method, endpoint, params)
 			local curl = require("plenary.curl")
 			local url = M.config.api_url .. endpoint
+			-- See M.api.health for rationale: `on_error` prevents plenary from
+			-- raising error() from its libuv callback when curl exit code != 0.
 			local options = {
 				headers = {
 					content_type = "application/json",
 				},
+				on_error = function() end,
 			}
 
-			local res
+			local fn
 			if method == "POST" then
 				options.body = vim.fn.json_encode(params or {})
-				res = curl.post(url, options)
+				fn = curl.post
 			elseif method == "PUT" then
 				options.body = vim.fn.json_encode(params or {})
-				res = curl.put(url, options)
+				fn = curl.put
 			elseif method == "DELETE" then
-				res = curl.delete(url, options)
+				fn = curl.delete
 			else -- GET
 				options.query = params
-				res = curl.get(url, options)
+				fn = curl.get
 			end
 
-			if not res or res.status ~= 200 then
-				local code = res and res.status or "no-response"
+			local ok, res = pcall(fn, url, options)
+			if not ok or not res or res.status ~= 200 or not res.body or res.body == "" then
+				local code = (ok and res and res.status) or "no-response"
 				vim.notify(
 					string.format("TaskNotes API error (%s %s): %s", method, endpoint, tostring(code)),
 					vim.log.levels.ERROR
 				)
 				return nil
 			end
-			return vim.fn.json_decode(res.body)
+			local decoded_ok, decoded = pcall(vim.fn.json_decode, res.body)
+			if not decoded_ok then
+				vim.notify(
+					string.format("TaskNotes API decode error (%s %s)", method, endpoint),
+					vim.log.levels.ERROR
+				)
+				return nil
+			end
+			return decoded
 		end
 
 		function M.api.post(endpoint, body)
@@ -109,12 +120,20 @@ return {
 		-- @return boolean true if /api/health responded with success
 		function M.api.health()
 			local curl = require("plenary.curl")
-			local ok, res = pcall(curl.get, M.config.api_url .. "/health", { timeout = 1500 })
-			if not ok or not res or res.status ~= 200 then
+			-- plenary's curl raises `error()` from its libuv on_exit callback when
+			-- exit code != 0. That error escapes a wrapping pcall (different stack)
+			-- and surfaces as "Lua callback" noise. Passing `on_error` neutralizes
+			-- the throw; the curl call returns normally and we infer failure from
+			-- the absent body / non-200 status.
+			local ok, res = pcall(curl.get, M.config.api_url .. "/health", {
+				timeout = 1500,
+				on_error = function() end,
+			})
+			if not ok or not res or res.status ~= 200 or not res.body or res.body == "" then
 				return false
 			end
-			local decoded = vim.fn.json_decode(res.body)
-			return decoded and decoded.success == true or false
+			local decoded_ok, decoded = pcall(vim.fn.json_decode, res.body)
+			return decoded_ok and decoded and decoded.success == true or false
 		end
 
 		-- Returns the full task object for a given vault-relative path.
@@ -206,12 +225,6 @@ return {
 		-- Returns ISO 8601 timestamp with -03:00 offset
 		local function get_timestamp()
 			return os.date("!%Y-%m-%dT%H:%M:%S") .. "-03:00"
-		end
-
-		-- Returns date string YYYY-MM-DD, offset_days from today
-		local function get_date(offset_days)
-			offset_days = offset_days or 0
-			return os.date("%Y-%m-%d", os.time() + (offset_days * 86400))
 		end
 
 		-- Creates a filename from a title, matching Obsidian/TaskNotes style
@@ -947,219 +960,6 @@ return {
 
 		-- get_rank_tables defined earlier (before M.picker) — see line ~437.
 
-		-- Opens a picker to set the status via PUT /api/tasks/{id}.
-		-- Statuses are pulled live from /api/filter-options.
-		M.task_ops.set_status = function()
-			local id = require_task_buffer()
-			if not id then
-				return
-			end
-
-			local options = M.api.get_filter_options()
-			if not options or not options.statuses then
-				vim.notify("Could not fetch statuses from API", vim.log.levels.ERROR)
-				return
-			end
-
-			local task = M.api.get_task(id)
-			local current = task and task.status or nil
-			local items = build_option_items("TaskNotesStatus", options.statuses, current)
-
-			Snacks.picker.pick({
-				source = "tasknotes_set_status",
-				title = string.format("Status (current: %s)", current or "none"),
-				items = items,
-				format = color_format,
-				preview = "none",
-				layout = { hidden = { "preview" } },
-				confirm = function(picker, item)
-					picker:close()
-					if not item then
-						return
-					end
-					local updated = M.api.update_task(id, { status = item.value })
-					if updated then
-						vim.notify("Status: " .. item.label, vim.log.levels.INFO)
-						vim.cmd("edit!")
-						invalidate_file(M.config.vault_path .. "/" .. id)
-					end
-				end,
-			})
-		end
-
-		-- Opens a picker to set the priority via PUT /api/tasks/{id}.
-		-- Priorities are pulled live from /api/filter-options.
-		M.task_ops.set_priority = function()
-			local id = require_task_buffer()
-			if not id then
-				return
-			end
-
-			local options = M.api.get_filter_options()
-			if not options or not options.priorities then
-				vim.notify("Could not fetch priorities from API", vim.log.levels.ERROR)
-				return
-			end
-
-			local task = M.api.get_task(id)
-			local current = task and task.priority or nil
-			local items = build_option_items("TaskNotesPriority", options.priorities, current)
-
-			Snacks.picker.pick({
-				source = "tasknotes_set_priority",
-				title = string.format("Priority (current: %s)", current or "none"),
-				items = items,
-				format = color_format,
-				preview = "none",
-				layout = { hidden = { "preview" } },
-				confirm = function(picker, item)
-					picker:close()
-					if not item then
-						return
-					end
-					local updated = M.api.update_task(id, { priority = item.value })
-					if updated then
-						vim.notify("Priority: " .. item.label, vim.log.levels.INFO)
-						vim.cmd("edit!")
-						invalidate_file(M.config.vault_path .. "/" .. id)
-					end
-				end,
-			})
-		end
-
-		-- Adds a context to the current task via PUT /api/tasks/{id}.
-		-- Lists existing contexts from /api/filter-options + "[+] New context..." option.
-		M.task_ops.add_context = function()
-			local id = require_task_buffer()
-			if not id then
-				return
-			end
-
-			local options = M.api.get_filter_options()
-			local existing = (options and options.contexts) or {}
-
-			local items = {}
-			for i, ctx in ipairs(existing) do
-				table.insert(items, { idx = i, text = ctx, value = ctx, kind = "existing" })
-			end
-			table.insert(items, { idx = #items + 1, text = "[+] New context...", kind = "new" })
-
-			local apply = function(ctx)
-				if not ctx or ctx == "" then
-					return
-				end
-				local task = M.api.get_task(id)
-				local current = (task and task.contexts) or {}
-				for _, existing_ctx in ipairs(current) do
-					if existing_ctx == ctx then
-						vim.notify("Context already exists: " .. ctx, vim.log.levels.INFO)
-						return
-					end
-				end
-				table.insert(current, ctx)
-				local updated = M.api.update_task(id, { contexts = current })
-				if updated then
-					vim.notify("Added context: " .. ctx, vim.log.levels.INFO)
-					vim.cmd("edit!")
-					M.api.invalidate_caches()
-				end
-			end
-
-			Snacks.picker.pick({
-				source = "tasknotes_add_context",
-				title = "Add Context",
-				items = items,
-				format = "text",
-				preview = "none",
-				layout = { hidden = { "preview" } },
-				confirm = function(picker, item)
-					picker:close()
-					if not item then
-						return
-					end
-					if item.kind == "new" then
-						vim.schedule(function()
-							vim.ui.input({ prompt = "New context: " }, apply)
-						end)
-					else
-						apply(item.value)
-					end
-				end,
-			})
-		end
-
-		-- Sets the scheduled date via PUT /api/tasks/{id} (fast-path helper).
-		-- Used by keymaps that have a fixed offset (today / tomorrow / next week).
-		M.task_ops.set_scheduled = function(offset_days)
-			local id = require_task_buffer()
-			if not id then
-				return
-			end
-			local date_str = get_date(offset_days)
-			local updated = M.api.update_task(id, { scheduled = date_str })
-			if updated then
-				vim.notify("Scheduled: " .. date_str, vim.log.levels.INFO)
-				vim.cmd("edit!")
-				invalidate_file(M.config.vault_path .. "/" .. id)
-			end
-		end
-
-		-- Opens an interactive calendar picker to set the scheduled date via API.
-		-- 60 days + Clear + Custom date input. Marks the currently scheduled date.
-		M.task_ops.pick_scheduled = function()
-			local id = require_task_buffer()
-			if not id then
-				return
-			end
-
-			local task = M.api.get_task(id)
-			local current = task and task.scheduled or nil
-			local items = build_calendar_items(current, true)
-
-			local commit = function(date_str)
-				-- For clear, send empty string (the API treats it as removal).
-				local patch_val = date_str or ""
-				local updated = M.api.update_task(id, { scheduled = patch_val })
-				if updated then
-					vim.notify("Scheduled: " .. (date_str or "(cleared)"), vim.log.levels.INFO)
-					vim.cmd("edit!")
-					invalidate_file(M.config.vault_path .. "/" .. id)
-				end
-			end
-
-			Snacks.picker.pick({
-				source = "tasknotes_pick_scheduled",
-				title = string.format("Schedule (current: %s)", current or "none"),
-				items = items,
-				format = "text",
-				preview = "none",
-				layout = { hidden = { "preview" } },
-				confirm = function(picker, item)
-					picker:close()
-					if not item then
-						return
-					end
-					if item.kind == "clear" then
-						commit(nil)
-					elseif item.kind == "custom" then
-						vim.schedule(function()
-							vim.ui.input({ prompt = "Date (YYYY-MM-DD): " }, function(input)
-								if not input or input == "" then
-									return
-								end
-								if input:match("^%d%d%d%d%-%d%d%-%d%d$") then
-									commit(input)
-								else
-									vim.notify("Invalid date format. Use YYYY-MM-DD", vim.log.levels.ERROR)
-								end
-							end)
-						end)
-					else
-						commit(item.value)
-					end
-				end,
-			})
-		end
 
 		-- ─────────────────────────────────────────────────────────────────
 		-- Field editor (Stage 1 = field selector, Stage 2 = value picker)
@@ -1321,58 +1121,71 @@ return {
 				current_set[v] = true
 			end
 
+			-- Items are plain — Snacks renders its native selection dot for
+			-- entries present in picker.list.selected (see `on_show` below).
 			local items = {}
+			local preselect_targets = {}
 			for i, opt in ipairs(raw) do
-				local marker = current_set[opt] and "[x] " or "[ ] "
-				table.insert(items, { idx = i, text = marker .. opt, value = opt })
+				local item = { idx = i, text = opt, value = opt }
+				table.insert(items, item)
+				if current_set[opt] then
+					table.insert(preselect_targets, item)
+				end
 			end
-			-- Allow adding a new value too
-			table.insert(items, { idx = #items + 1, text = "[+] New " .. field:sub(1, -2) .. "...", kind = "new" })
+			table.insert(items, { idx = #items + 1, text = "+ New " .. field:sub(1, -2) .. "...", kind = "new" })
+
+			-- Collects Tab-marked items (the FULL desired set, excluding "[+] New").
+			local function collect_marks(picker)
+				local values = {}
+				for _, it in ipairs(picker.list.selected) do
+					if it.kind ~= "new" then
+						table.insert(values, it.value)
+					end
+				end
+				return values
+			end
 
 			local confirmed = false
 			Snacks.picker.pick({
 				source = "tasknotes_edit_" .. field,
-				title = string.format("%s — <Tab> select, <CR> apply", field),
+				title = string.format("%s — <Tab> toggle, <CR> apply", field),
 				items = items,
 				format = "text",
 				preview = "none",
 				layout = { hidden = { "preview" } },
+				on_show = function(picker)
+					-- Pre-mark items whose value is already in the effective set,
+					-- so the user sees them with the native dot and can Tab them
+					-- off (remove) or Tab additional items on (add) without
+					-- losing the originals.
+					picker.list:set_selected(preselect_targets)
+				end,
 				confirm = function(picker, single_item)
 					confirmed = true
-					local selected = picker:selected({ fallback = true })
-					-- If user picked the "[+] New ..." item with no multi-select, prompt for it
-					local has_new = false
-					for _, it in ipairs(selected) do
-						if it.kind == "new" then
-							has_new = true
-							break
-						end
-					end
-					local values = {}
-					for _, it in ipairs(selected) do
-						if it.kind ~= "new" then
-							table.insert(values, it.value)
-						end
-					end
-					picker:close()
-					local finalize = function()
-						patch[field] = values
-						vim.schedule(function()
-							M.task_ops.edit_fields._show(id, task, patch)
-						end)
-					end
-					if has_new then
+					-- "+ New ..." path: prompt for a new value and append to the
+					-- currently-marked set (preserves originals + any toggles).
+					if single_item and single_item.kind == "new" then
+						local marks = collect_marks(picker)
+						picker:close()
 						vim.schedule(function()
 							vim.ui.input({ prompt = "New " .. field:sub(1, -2) .. ": " }, function(input)
 								if input and input ~= "" then
-									table.insert(values, input)
+									table.insert(marks, input)
 								end
-								finalize()
+								patch[field] = marks
+								M.task_ops.edit_fields._show(id, task, patch)
 							end)
 						end)
-					else
-						finalize()
+						return
 					end
+					-- Regular path: apply the marked set as the new full value.
+					-- An empty set is intentional (user cleared all marks).
+					local values = collect_marks(picker)
+					picker:close()
+					patch[field] = values
+					vim.schedule(function()
+						M.task_ops.edit_fields._show(id, task, patch)
+					end)
 				end,
 				on_close = function()
 					if not confirmed then
@@ -1505,13 +1318,20 @@ return {
 					end
 				end
 
-				if query.scheduled_before and metadata.scheduled then
-					if metadata.scheduled > query.scheduled_before then
+				-- Date range filters: a missing `scheduled` field is treated as
+				-- unknown (SQL NULL semantics) and excluded when a bound is set.
+				-- Bounds are inclusive: scheduled_after = "on or after",
+				-- scheduled_before = "on or before". Comparison is lexicographic
+				-- on ISO YYYY-MM-DD prefixes, which is order-preserving for dates.
+				if query.scheduled_after or query.scheduled_before then
+					if not metadata.scheduled then
 						return false
 					end
-				end
-				if query.scheduled_after and metadata.scheduled then
-					if metadata.scheduled < query.scheduled_after then
+					local sched = tostring(metadata.scheduled):sub(1, 10)
+					if query.scheduled_after and sched < query.scheduled_after then
+						return false
+					end
+					if query.scheduled_before and sched > query.scheduled_before then
 						return false
 					end
 				end
@@ -1664,8 +1484,8 @@ return {
 				{ idx = 1, text = string.format("Status:           %s", fmt_list(query.status)), action = "status" },
 				{ idx = 2, text = string.format("Priority:         %s", fmt_list(query.priority)), action = "priority" },
 				{ idx = 3, text = string.format("Contexts:         %s", fmt_list(query.contexts)), action = "contexts" },
-				{ idx = 4, text = string.format("Scheduled after:  %s", query.scheduled_after or "none"), action = "scheduled_after" },
-				{ idx = 5, text = string.format("Scheduled before: %s", query.scheduled_before or "none"), action = "scheduled_before" },
+				{ idx = 4, text = string.format("Scheduled on/after:  %s", query.scheduled_after or "none"), action = "scheduled_after" },
+				{ idx = 5, text = string.format("Scheduled on/before: %s", query.scheduled_before or "none"), action = "scheduled_before" },
 				{ idx = 6, text = "─────────────────────────", action = "noop" },
 				{ idx = 7, text = "✓ Apply query", action = "apply" },
 				{ idx = 8, text = "✗ Reset filters", action = "reset" },
@@ -1864,21 +1684,17 @@ return {
 			return
 		end
 
-		-- <leader>ow* — Zettelkasten search
+		-- <leader>ow* — Zettelkasten search + filtering
+		-- All mutations route through the multi-field editor (`owe`); singles
+		-- removed because edit_fields covers status/priority/contexts/projects/
+		-- scheduled/due in one PUT.
 		vim.keymap.set("n", "<leader>owk", M.picker.pick_key, { desc = "Search by frontmatter key" })
 		vim.keymap.set("n", "<leader>owr", M.cache_ops.force_refresh, { desc = "Force cache rebuild" })
 		vim.keymap.set("n", "<leader>ows", M.picker.pick_file_by_status, { desc = "Filter by status" })
 		vim.keymap.set("n", "<leader>owo", M.picker.pick_file_by_tag, { desc = "Filter by tag/project" })
-
-		-- <leader>owt* — Task management
-		vim.keymap.set("n", "<leader>owtn", M.task_ops.create_task, { desc = "Task: New" })
-		vim.keymap.set("n", "<leader>owts", M.task_ops.set_status, { desc = "Task: Set Status" })
-		vim.keymap.set("n", "<leader>owtp", M.task_ops.set_priority, { desc = "Task: Set Priority" })
-		vim.keymap.set("n", "<leader>owtt", M.task_ops.add_context, { desc = "Task: Add context" })
-		vim.keymap.set("n", "<leader>owte", M.task_ops.edit_fields.open, { desc = "Task: Edit fields (multi)" })
-		vim.keymap.set("n", "<leader>owtd", M.task_ops.pick_scheduled, { desc = "Task: Schedule (calendar)" })
-
-		-- <leader>owq — Query builder
 		vim.keymap.set("n", "<leader>owq", M.query_builder.open, { desc = "Task: Query builder" })
+
+		vim.keymap.set("n", "<leader>own", M.task_ops.create_task, { desc = "Task: New" })
+		vim.keymap.set("n", "<leader>owe", M.task_ops.edit_fields.open, { desc = "Task: Edit fields" })
 	end, -- end config
 }
