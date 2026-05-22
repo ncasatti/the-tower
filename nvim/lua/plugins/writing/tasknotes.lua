@@ -429,6 +429,31 @@ return {
 		end
 
 		-- ─────────────────────────────────────────────────────────────────
+		-- Rank tables for status/priority display order.
+		-- Declared here (before M.picker) because pick_file and find_tasks
+		-- both close over it. Sourced from /api/filter-options.
+		-- ─────────────────────────────────────────────────────────────────
+
+		local function get_rank_tables()
+			local opts = M.api.get_filter_options()
+			local status_ranks = {}
+			local priority_ranks = {}
+			if opts and opts.statuses then
+				for i, s in ipairs(opts.statuses) do
+					status_ranks[s.value] = s.order or i
+				end
+			end
+			if opts and opts.priorities then
+				-- High priority first → invert the natural order
+				local n = #opts.priorities
+				for i, p in ipairs(opts.priorities) do
+					priority_ranks[p.value] = n - (p.order or i) + 1
+				end
+			end
+			return status_ranks, priority_ranks
+		end
+
+		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 5-8: Snacks pickers (3-stage drill-down)
 		-- ─────────────────────────────────────────────────────────────────
 
@@ -920,28 +945,7 @@ return {
 			return { { item.text, item.hl or "Normal" } }
 		end
 
-		-- Returns two lookup tables { [value] = rank } for status and priority
-		-- sorted-display ranks, sourced from /api/filter-options. Used by the
-		-- 3-stage drill-down picker and find_tasks for stable display order.
-		-- Lower rank = appears earlier. Unknown values fall through to 99.
-		local function get_rank_tables()
-			local opts = M.api.get_filter_options()
-			local status_ranks = {}
-			local priority_ranks = {}
-			if opts and opts.statuses then
-				for i, s in ipairs(opts.statuses) do
-					status_ranks[s.value] = s.order or i
-				end
-			end
-			if opts and opts.priorities then
-				-- High priority first → invert the natural order
-				local n = #opts.priorities
-				for i, p in ipairs(opts.priorities) do
-					priority_ranks[p.value] = n - (p.order or i) + 1
-				end
-			end
-			return status_ranks, priority_ranks
-		end
+		-- get_rank_tables defined earlier (before M.picker) — see line ~437.
 
 		-- Opens a picker to set the status via PUT /api/tasks/{id}.
 		-- Statuses are pulled live from /api/filter-options.
