@@ -46,7 +46,7 @@ Colors = {
 }
 Elements = {
 	bold = Colors.orange3,
-	code = Colors.cyan_gray4,
+	code = Colors.cyan_gray5,
 	italic = Colors.gray4,
 	cursor = Colors.white1,
 	selection = Colors.blue_dark2, --344240
