@@ -14,6 +14,7 @@
     sioyek
     zoom-us
     onlyoffice-desktopeditors
+    ntfs3g
   ];
 
   programs.zathura = {
