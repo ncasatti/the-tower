@@ -54,11 +54,11 @@ return {
 
       notes_subdir = "Fleeting",
 
-      -- Other useful settings from our previous attempts
-      completion = {
-        nvim_cmp = true,
-        min_chars = 2,
-      },
+      -- Completion is deprecated, now provided via the built-in obsidian-ls
+      -- completion = {
+      --   nvim_cmp = true,
+      --   min_chars = 2,
+      -- },
       templates = {
         subdir = "Templates",
         date_format = "%Y-%m-%d-%a",
