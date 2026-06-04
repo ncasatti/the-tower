@@ -25,7 +25,7 @@ return {
     { "<leader>ox", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle Checkbox" },
 
     -- Additional commands
-    { "<leader>o#", "<cmd>Obsidian tags<cr>", desc = "Search Tags" },
+    { "<leader>owt", "<cmd>Obsidian tags<cr>", desc = "Search Tags" },
     {
       "<leader>or",
       function()
