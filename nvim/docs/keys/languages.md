@@ -29,7 +29,10 @@ Filetype-specific tooling: Go (go.nvim + gopher.nvim), Python (Iron REPL + Jupyt
 
 ## Python REPL (`<leader>r*`, buffer-local in `.py`)
 
-### REPL lifecycle
+Iron.nvim wraps an iPython process. Labels in which-key are normalized — the
+`+REPL` group icon already carries the namespace, so descriptions are bare verbs.
+
+### Lifecycle
 - `<leader>rs` — Start / toggle REPL (iPython)
 - `<leader>rr` — Restart REPL
 - `<leader>rf` — Focus REPL window
@@ -37,17 +40,21 @@ Filetype-specific tooling: Go (go.nvim + gopher.nvim), Python (Iron REPL + Jupyt
 - `<leader>rq` — Exit REPL
 - `<leader>rx` — Clear REPL
 
-### Send code (Iron)
-- `<leader>rF` — Send file
-- `<leader>rL` — Send line
-- `<leader>rS` — Send visual selection
-- `<leader>rp` — Send paragraph
-- `<leader>rb` — Send block
-- `<leader>rc{motion}` — Send motion (e.g. `<leader>rcip`)
-- `<leader>rl` — Send current line (iron's keymap config)
+### Send code
+- `<leader>rl` — Send current line
+- `<leader>rc{motion}` — Send motion (e.g. `<leader>rcip` = paragraph)
+- `<leader>rc` (visual) — Send selection
 - `<leader>ru` — Send until cursor
-- `<leader>rm{motion}` — Send mark / mark motion
+- `<leader>rF` — Send file
+- `<leader>rp` — Send paragraph (shortcut for `rcip`)
+- `<leader>rb` — Send block (shortcut for `rcab`)
+
+### Marks
+- `<leader>rm` — Send marked region
+- `<leader>rmc{motion}` — Mark motion (also visual)
 - `<leader>rmd` — Remove mark
+
+### Control
 - `<leader>r<cr>` — Send carriage return
 - `<leader>r<space>` — Interrupt REPL
 

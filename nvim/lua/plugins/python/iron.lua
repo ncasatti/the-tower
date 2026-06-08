@@ -60,40 +60,32 @@ return {
       callback = function()
         local opts = { buffer = true, silent = true, noremap = true }
         
-        -- REPL management
-        vim.keymap.set("n", "<leader>rs", "<cmd>IronRepl<cr>", 
-          vim.tbl_extend("force", opts, { desc = "REPL: Start/Toggle" }))
-        
-        vim.keymap.set("n", "<leader>rr", "<cmd>IronRestart<cr>", 
-          vim.tbl_extend("force", opts, { desc = "REPL: Restart" }))
-        
-        vim.keymap.set("n", "<leader>rf", "<cmd>IronFocus<cr>", 
-          vim.tbl_extend("force", opts, { desc = "REPL: Focus" }))
-        
-        vim.keymap.set("n", "<leader>rh", "<cmd>IronHide<cr>", 
-          vim.tbl_extend("force", opts, { desc = "REPL: Hide" }))
-        
-        -- Send code shortcuts (using iron's send functions)
+        -- REPL lifecycle
+        vim.keymap.set("n", "<leader>rs", "<cmd>IronRepl<cr>",
+          vim.tbl_extend("force", opts, { desc = "Start/Toggle" }))
+
+        vim.keymap.set("n", "<leader>rr", "<cmd>IronRestart<cr>",
+          vim.tbl_extend("force", opts, { desc = "Restart" }))
+
+        vim.keymap.set("n", "<leader>rf", "<cmd>IronFocus<cr>",
+          vim.tbl_extend("force", opts, { desc = "Focus" }))
+
+        vim.keymap.set("n", "<leader>rh", "<cmd>IronHide<cr>",
+          vim.tbl_extend("force", opts, { desc = "Hide" }))
+
+        -- Send code shortcuts (iron.core wrappers)
         vim.keymap.set("n", "<leader>rF", function()
           require("iron.core").send_file()
-        end, vim.tbl_extend("force", opts, { desc = "REPL: Send File" }))
-        
-        vim.keymap.set("n", "<leader>rL", function()
-          require("iron.core").send_line()
-        end, vim.tbl_extend("force", opts, { desc = "REPL: Send Line" }))
-        
-        vim.keymap.set("v", "<leader>rS", function()
-          require("iron.core").visual_send()
-        end, vim.tbl_extend("force", opts, { desc = "REPL: Send Selection" }))
-        
-        -- Quick send motions (more ergonomic)
+        end, vim.tbl_extend("force", opts, { desc = "Send file" }))
+
+        -- Ergonomic motion shortcuts (pre-baked send_motion calls)
         vim.keymap.set("n", "<leader>rp", function()
-          require("iron.core").send_motion("ip") -- Send paragraph
-        end, vim.tbl_extend("force", opts, { desc = "REPL: Send Paragraph" }))
-        
+          require("iron.core").send_motion("ip")
+        end, vim.tbl_extend("force", opts, { desc = "Send paragraph" }))
+
         vim.keymap.set("n", "<leader>rb", function()
-          require("iron.core").send_motion("ab") -- Send block
-        end, vim.tbl_extend("force", opts, { desc = "REPL: Send Block" }))
+          require("iron.core").send_motion("ab")
+        end, vim.tbl_extend("force", opts, { desc = "Send block" }))
       end,
     })
   end,
