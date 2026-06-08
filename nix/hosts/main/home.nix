@@ -25,6 +25,7 @@
     ../../packages/appearance.nix
     ../../packages/utilities.nix
     ../../packages/audio.nix
+    ../../packages/latex.nix
   ];
 
   home.username      = "flyn";

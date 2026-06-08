@@ -6,9 +6,25 @@ return {
 	},
 	ft = { "markdown", "md" },
 	opts = {
-		-- Show raw markdown when cursor is on the line (anti-conceal)
+		-- anti_conceal disabled: its CursorMoved-driven re-render clobbered
+		-- nabla.nvim's inline virt_text. Editing markdown source on the
+		-- cursor line is slightly less convenient — acceptable trade for
+		-- stable math rendering.
 		anti_conceal = {
-			enabled = true,
+			enabled = false,
+		},
+
+		-- Override default win_options: keep conceallevel at 2 (default is 3).
+		-- At level 3, conceal replacement chars are ignored → nabla.nvim's
+		-- per-char conceal renderings (which use conceal="<unicode>") become
+		-- blank gaps. At level 2, replacement chars are honored — nabla works,
+		-- and render-markdown's own conceals (which use conceal="") still hide
+		-- markup correctly.
+		win_options = {
+			conceallevel = {
+				default = vim.o.conceallevel,
+				rendered = 2,
+			},
 		},
 
 		-- Heading configuration
@@ -93,15 +109,10 @@ return {
 			style = "full",
 		},
 
-		-- LaTeX support (integrated with nabla.nvim)
+		-- LaTeX rendering delegated to vimtex + zathura (external PDF viewer).
+		-- Markdown buffers no longer attempt inline LaTeX rendering.
 		latex = {
-			enabled = true,
-			render_modes = false,
-			converter = { "pandoc" }, -- Usando pandoc para mayor robustez
-			highlight = "RenderMarkdownMath",
-			position = "center",
-			top_pad = 0,
-			bottom_pad = 0,
+			enabled = false,
 		},
 
 		-- Horizontal rules
@@ -294,6 +305,13 @@ return {
 		-- 	end
 		-- end, vim.tbl_extend("force", md_opts, { desc = "Markdown: Preview Mermaid (External)" }))
 
-		-- LaTeX preview (External Hibrid PoC) removed
+		-- Markdown PDF preview (pandoc → pdflatex → zathura)
+		vim.keymap.set("n", "<leader>mp", function()
+			require("util.md-preview").preview()
+		end, vim.tbl_extend("force", md_opts, { desc = "󰈙 Preview PDF (pandoc)" }))
+
+		vim.keymap.set("n", "<leader>mP", function()
+			require("util.md-preview").stop()
+		end, vim.tbl_extend("force", md_opts, { desc = "󰈙 Stop PDF preview" }))
 	end,
 }
