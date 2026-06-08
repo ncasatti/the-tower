@@ -1,0 +1,22 @@
+# yazi/keymap.toml
+# Colemak-compatible navigation, mirroring nvim config.
+# uein → up/down/enter/leave  (replaces k/j/l/h)
+# U/E   → half-page up/down    (replaces <C-u>/<C-d>)
+# k/K   → search next/prev     (replaces n/N — same swap as nvim)
+
+[mgr]
+prepend_keymap = [
+    # --- Colemak nav ---
+    { on = "u", run = "arrow -1",              desc = "↑ cursor up" },
+    { on = "e", run = "arrow 1",               desc = "↓ cursor down" },
+    { on = "n", run = "leave",                 desc = "← leave directory" },
+    { on = "i", run = "enter",                 desc = "→ enter directory" },
+
+    # --- Half-page nav ---
+    { on = "U", run = "arrow -50%",            desc = "Half-page up" },
+    { on = "E", run = "arrow 50%",             desc = "Half-page down" },
+
+    # --- Search nav (n/N reassigned to nav, k/K take over) ---
+    { on = "k", run = "find_arrow",            desc = "Next search match" },
+    { on = "K", run = "find_arrow --previous", desc = "Prev search match" },
+]

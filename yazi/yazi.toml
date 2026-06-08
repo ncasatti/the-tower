@@ -14,7 +14,16 @@ xdg = [
 
 [open]
 rules = [
+    # Text-like files → edit in nvim
     { name = "*.{txt,md,json,yaml,yml,toml,fish,nix,lua,py,sh,js,ts,go,rs,cpp,c,h,hpp}", use = ["edit"] },
     { mime = "text/*", use = ["edit"] },
+
+    # PDFs → xdg-open delegates to zathura per xdg.nix
+    { mime = "application/pdf", use = ["xdg"] },
+
+    # Video → multi-choice (preferred apps first, xdg as fallback)
     { mime = "video/*", use = ["vlc", "mpv", "xdg"] },
+
+    # Catch-all → xdg-open consults mimeapps.list (single source of truth)
+    { mime = "*/*", use = ["xdg"] },
 ]

@@ -249,10 +249,26 @@ return {
 			vim.tbl_extend("force", md_opts, { desc = "󰄵 Toggle checkbox" })
 		)
 
-		-- Open link (External/General)
+		-- Open link — wiki-links delegate to obsidian.nvim (vault resolution
+		-- + alias handling), everything else falls back to gx (URLs, paths,
+		-- [text](url) markdown links).
 		vim.keymap.set("n", "<leader>ml", function()
+			local line = vim.api.nvim_get_current_line()
+			local col = vim.api.nvim_win_get_cursor(0)[2]
+
+			local start_idx = 1
+			while true do
+				local s, e = line:find("%[%[.-%]%]", start_idx)
+				if not s then break end
+				if col >= s - 1 and col < e then
+					vim.cmd("Obsidian follow_link")
+					return
+				end
+				start_idx = e + 1
+			end
+
 			vim.cmd("normal! gx")
-		end, vim.tbl_extend("force", md_opts, { desc = "󰌹 Open link (External)" }))
+		end, vim.tbl_extend("force", md_opts, { desc = "󰌹 Open link (External/Wiki)" }))
 
 		-- Mermaid preview (External)
 		-- vim.keymap.set("n", "<leader>mp", function()
