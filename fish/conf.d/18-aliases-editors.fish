@@ -7,7 +7,6 @@
 alias vim=nvim
 abbr -a v nvim
 abbr -a sv 'sudo -E nvim'
-abbr -a n 'nano -T 2'
 abbr -a sn 'sudo nano -T 2'
 abbr -a c claude
 abbr -a gem gemini

@@ -21,3 +21,6 @@ abbr -a enva 'source .venv/bin/activate.fish'
 abbr -a pym 'python manage.py'
 abbr -a p python
 abbr -a pb 'black --line-length 100 && isort --profile black'
+
+# Node
+abbr -a n 'node'
