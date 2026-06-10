@@ -26,7 +26,7 @@ API-driven via TaskNotes HTTP API (`localhost:8080/api`). Plugin disables itself
 - `<leader>owk` — Search by frontmatter key (3-stage drill-down: key → value → file)
 - `<leader>owr` — Force refresh of local cache + API caches
 - `<leader>ows` — Filter by status (shortcut into stage 2)
-- `<leader>owt` — Search tags (Globaly)
+- `<leader>ou` — Search tags (Globaly)
 - `<leader>owo` — Filter by tag/project (shortcut into stage 2)
 - `<leader>owq` — Interactive query builder (field-selector with multi-select, inclusive date bounds)
 
