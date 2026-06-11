@@ -13,7 +13,7 @@
     postgresql
     dbeaver-bin
     mariadb.client
-    beekeeper-studio
+    # beekeeper-studio
     antigravity-nix
   ];
 }

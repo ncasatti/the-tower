@@ -5,13 +5,13 @@
 {
   home.packages = with pkgs; [
     # brave
-    google-chrome
+    # google-chrome
     zen-browser
     tidal-hifi
     mpv
-    yt-dlp
+    # yt-dlp
     thunderbird
-    sioyek
+    # sioyek
     zoom-us
     onlyoffice-desktopeditors
     ntfs3g
