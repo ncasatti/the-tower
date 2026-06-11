@@ -52,6 +52,16 @@ return {
       -- (both plugins conceal list markers and apply icons, causing visual overlap)
       ui = { enable = false },
 
+      -- Disable obsidian.nvim's frontmatter management. Its BufWritePre hook
+      -- (autocmds.lua -> note:update_frontmatter) reserializes the WHOLE
+      -- frontmatter with an encoder that can't represent nested structures
+      -- (lists of maps). TaskNotes writes exactly that — `timeEntries`,
+      -- `recurrence`, `complete_instances` — so every save collapsed those
+      -- arrays into a single quoted string, corrupting the YAML. We own
+      -- frontmatter via TaskNotes (API) + templates, so this automatism is
+      -- pure liability here.
+      frontmatter = { enabled = false },
+
       notes_subdir = "Fleeting",
 
       -- Completion is deprecated, now provided via the built-in obsidian-ls
