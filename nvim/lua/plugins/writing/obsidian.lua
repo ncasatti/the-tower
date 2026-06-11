@@ -25,7 +25,10 @@ return {
     { "<leader>ox", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle Checkbox" },
 
     -- Additional commands
-    { "<leader>owt", "<cmd>Obsidian tags<cr>", desc = "Search Tags" },
+    -- NOTE: <leader>owt is now owned by tasknotes.lua (M.picker.note_search) —
+    -- a cache-backed whole-vault note-by-tag picker. The native `Obsidian tags`
+    -- did a live ripgrep scan on every call (slow) and couldn't inherit our
+    -- Snacks layout/nav, so the binding was moved out of here.
     {
       "<leader>or",
       function()

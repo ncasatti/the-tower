@@ -442,6 +442,14 @@ return {
 			M.cache.last_full_scan = 0
 			ensure_cache()
 			M.api.invalidate_caches()
+			-- Also rebuild the whole-vault notes index used by <leader>owt.
+			M.notes_cache.built = false
+			M.notes_cache.build(function()
+				vim.notify(
+					string.format("TaskNotes: vault notes index rebuilt (%d notes)", #M.notes_cache.entries),
+					vim.log.levels.INFO
+				)
+			end)
 			vim.notify("TaskNotes: local + API caches refreshed", vim.log.levels.INFO)
 		end
 
@@ -473,6 +481,201 @@ return {
 		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 5-8: Snacks pickers (3-stage drill-down)
 		-- ─────────────────────────────────────────────────────────────────
+
+		-- ─────────────────────────────────────────────────────────────────
+		-- Shared Snacks picker view: narrow 0.4 preview + <Tab> dive-into-preview
+		-- (<Esc>/<S-Tab> back). Reused by pick_file (tasks) AND note_search
+		-- (whole-vault notes) so both render and navigate identically.
+		-- ─────────────────────────────────────────────────────────────────
+		M.picker_view = {
+			layout = {
+				layout = {
+					box = "horizontal",
+					width = 0.92,
+					height = 0.9,
+					{
+						box = "vertical",
+						border = "rounded",
+						title = "{title}",
+						title_pos = "center",
+						{ win = "input", height = 1, border = "bottom" },
+						{ win = "list", border = "none" },
+					},
+					{ win = "preview", title = "{preview}", border = "rounded", width = 0.4 },
+				},
+			},
+			win = {
+				input = {
+					keys = {
+						["<Tab>"] = { "focus_preview", mode = { "i", "n" } },
+					},
+				},
+				list = {
+					keys = {
+						["<Tab>"] = "focus_preview",
+					},
+				},
+				preview = {
+					keys = {
+						["<Esc>"] = "focus_list",
+						["<S-Tab>"] = "focus_list",
+					},
+				},
+			},
+		}
+
+		-- ─────────────────────────────────────────────────────────────────
+		-- Whole-vault notes cache (for <leader>owt note-by-tag search).
+		-- Distinct from M.cache (tasks-only, API-sourced). Scans the filesystem
+		-- for frontmatter `tags`; built lazily on first owt and rebuilt on owr.
+		-- Async/chunked across event-loop ticks to avoid freezing on ~750 notes.
+		-- Helpers live on the table (not locals) to stay under Lua's 200-local
+		-- per-function ceiling in this large config closure.
+		-- ─────────────────────────────────────────────────────────────────
+		M.notes_cache = {
+			entries = {}, -- { { idx, path, title, tags = {..}, display } }
+			built = false,
+			building = false,
+		}
+
+		-- Strips surrounding whitespace and quotes from a YAML scalar token.
+		M.notes_cache.clean = function(s)
+			s = (s:gsub("^%s+", ""):gsub("%s+$", ""))
+			s = (s:gsub('^"(.*)"$', "%1"):gsub("^'(.*)'$", "%1"))
+			return (s:gsub("^%s+", ""):gsub("%s+$", ""))
+		end
+
+		-- Parses ONLY the YAML frontmatter of a note, extracting `tags` (block
+		-- list, inline [..], or scalar) plus a display title. Returns nil when the
+		-- note has no frontmatter or no tags.
+		M.notes_cache.parse = function(path)
+			local fd = io.open(path, "r")
+			if not fd then
+				return nil
+			end
+
+			local in_fm, in_tags = false, false
+			local tags, title = {}, nil
+			local lineno = 0
+
+			for line in fd:lines() do
+				lineno = lineno + 1
+				if lineno == 1 and line ~= "---" then
+					break
+				end
+
+				if line == "---" then
+					if in_fm then
+						break
+					end
+					in_fm = true
+				elseif in_fm then
+					local handled = false
+					if in_tags then
+						local item = line:match("^%s*%-%s*(.+)$")
+						if item then
+							local t = M.notes_cache.clean(item)
+							if t ~= "" then
+								tags[#tags + 1] = t
+							end
+							handled = true
+						else
+							in_tags = false
+						end
+					end
+
+					if not handled then
+						local k, v = line:match("^([%w_]+):%s*(.*)$")
+						if k == "tags" then
+							if v == "" then
+								in_tags = true
+							else
+								local inner = v:match("^%[(.*)%]$")
+								if inner then
+									for t in inner:gmatch("[^,]+") do
+										t = M.notes_cache.clean(t)
+										if t ~= "" then
+											tags[#tags + 1] = t
+										end
+									end
+								else
+									local t = M.notes_cache.clean(v)
+									if t ~= "" then
+										tags[#tags + 1] = t
+									end
+								end
+							end
+						elseif (k == "task" or k == "title") and not title then
+							local t = M.notes_cache.clean(v)
+							if t ~= "" then
+								title = t
+							end
+						end
+					end
+				end
+			end
+
+			fd:close()
+
+			if #tags == 0 then
+				return nil
+			end
+
+			title = title or vim.fn.fnamemodify(path, ":t:r")
+			return {
+				path = path,
+				title = title,
+				tags = tags,
+				display = string.format("%s  #%s", title, table.concat(tags, " #")),
+			}
+		end
+
+		-- Builds M.notes_cache asynchronously (chunked). on_done() fires when ready.
+		M.notes_cache.build = function(on_done)
+			if M.notes_cache.building then
+				return
+			end
+			M.notes_cache.building = true
+
+			local files = vim.fs.find(function(name, dir)
+				return name:match("%.md$")
+					and not dir:find("/.obsidian", 1, true)
+					and not dir:find("/Templates", 1, true)
+			end, { path = M.config.vault_path, type = "file", limit = math.huge })
+
+			local entries = {}
+			local i = 1
+			local CHUNK = 80
+
+			local function step()
+				local stop = math.min(i + CHUNK - 1, #files)
+				for j = i, stop do
+					local e = M.notes_cache.parse(files[j])
+					if e then
+						entries[#entries + 1] = e
+					end
+				end
+				i = stop + 1
+				if i <= #files then
+					vim.schedule(step)
+				else
+					table.sort(entries, function(a, b)
+						return a.title:lower() < b.title:lower()
+					end)
+					for idx, e in ipairs(entries) do
+						e.idx = idx
+					end
+					M.notes_cache.entries = entries
+					M.notes_cache.built = true
+					M.notes_cache.building = false
+					if on_done then
+						on_done()
+					end
+				end
+			end
+
+			step()
+		end
 
 		M.picker = {}
 
@@ -536,7 +739,7 @@ return {
 					end
 				end
 
-				local display = badge ~= "" and (title .. " " .. badge .. time_info) or (title .. time_info)
+				local display = badge ~= "" and (badge .. " " .. title .. time_info) or (title .. time_info)
 
 				table.insert(items, {
 					text = display,
@@ -567,45 +770,9 @@ return {
 				items = items,
 				format = "text",
 				preview = "file",
-				-- Custom layout: narrower preview (0.4) to give the task list more
-				-- horizontal room for long titles. List/input get the remaining ~0.6.
-				layout = {
-					layout = {
-						box = "horizontal",
-						width = 0.92,
-						height = 0.9,
-						{
-							box = "vertical",
-							border = "rounded",
-							title = "{title}",
-							title_pos = "center",
-							{ win = "input", height = 1, border = "bottom" },
-							{ win = "list", border = "none" },
-						},
-						{ win = "preview", title = "{preview}", border = "rounded", width = 0.4 },
-					},
-				},
-				-- <Tab> dives into the preview window (read-only note view) WITHOUT
-				-- closing the picker; <Esc>/<S-Tab> return focus to the list. Avoids
-				-- <C-i> (terminal-identical to <Tab>) and <C-n> (already list_down).
-				win = {
-					input = {
-						keys = {
-							["<Tab>"] = { "focus_preview", mode = { "i", "n" } },
-						},
-					},
-					list = {
-						keys = {
-							["<Tab>"] = "focus_preview",
-						},
-					},
-					preview = {
-						keys = {
-							["<Esc>"] = "focus_list",
-							["<S-Tab>"] = "focus_list",
-						},
-					},
-				},
+				-- Shared layout (0.4 preview) + nav keys (<Tab> dive / <Esc> back).
+				layout = M.picker_view.layout,
+				win = M.picker_view.win,
 				confirm = function(picker, item)
 					confirmed = true
 					picker:close()
@@ -745,6 +912,102 @@ return {
 		M.picker.pick_file_by_tag = function()
 			ensure_cache()
 			M.picker.pick_value("tags", true)
+		end
+
+		-- Whole-vault note search by tag (<leader>owt). Two-stage drill-down:
+		-- Stage 1 = distinct tags (no preview, fuzzy by tag name); pick one →
+		-- Stage 2 = notes carrying that tag (preview + shared view). <Esc> in
+		-- Stage 2 (without picking) returns to Stage 1. Cache-backed (instant);
+		-- cold cache builds async first. Distinct from owo (tasks only).
+		M.picker.note_search = function()
+			-- Stage 2: notes for a single tag, with preview.
+			local function stage_notes(tag, notes, back)
+				local items = {}
+				for i, e in ipairs(notes) do
+					items[#items + 1] = { idx = i, text = e.title, file = e.path }
+				end
+
+				local confirmed = false
+				Snacks.picker.pick({
+					source = "tasknotes_tag_notes",
+					title = string.format("#%s (%d notes)", tag, #notes),
+					items = items,
+					format = "text",
+					preview = "file",
+					layout = M.picker_view.layout,
+					win = M.picker_view.win,
+					confirm = function(picker, item)
+						confirmed = true
+						picker:close()
+						if item then
+							vim.cmd("edit " .. vim.fn.fnameescape(item.file))
+						end
+					end,
+					on_close = function()
+						if not confirmed then
+							vim.schedule(back)
+						end
+					end,
+				})
+			end
+
+			-- Stage 1: distinct tags with note counts.
+			local function stage_tags()
+				local index = {} -- tag -> { entry, .. }
+				for _, e in ipairs(M.notes_cache.entries) do
+					for _, t in ipairs(e.tags) do
+						if not index[t] then
+							index[t] = {}
+						end
+						index[t][#index[t] + 1] = e
+					end
+				end
+
+				local items = {}
+				for t, notes in pairs(index) do
+					items[#items + 1] = {
+						text = string.format("%s (%d)", t, #notes),
+						tag = t,
+						notes = notes,
+					}
+				end
+
+				if #items == 0 then
+					vim.notify("TaskNotes: no tagged notes found in vault", vim.log.levels.WARN)
+					return
+				end
+
+				table.sort(items, function(a, b)
+					return a.tag < b.tag
+				end)
+				for i, it in ipairs(items) do
+					it.idx = i
+				end
+
+				Snacks.picker.pick({
+					source = "tasknotes_tags",
+					title = string.format("Tags (%d)", #items),
+					items = items,
+					format = "text",
+					preview = "none",
+					layout = { hidden = { "preview" } },
+					confirm = function(picker, item)
+						picker:close()
+						if item then
+							vim.schedule(function()
+								stage_notes(item.tag, item.notes, stage_tags)
+							end)
+						end
+					end,
+				})
+			end
+
+			if M.notes_cache.built then
+				stage_tags()
+			else
+				vim.notify("TaskNotes: indexing vault…", vim.log.levels.INFO)
+				M.notes_cache.build(stage_tags)
+			end
 		end
 
 		-- ─────────────────────────────────────────────────────────────────
@@ -2175,6 +2438,7 @@ return {
 		vim.keymap.set("n", "<leader>owr", M.cache_ops.force_refresh, { desc = "Force cache rebuild" })
 		vim.keymap.set("n", "<leader>ows", M.picker.pick_file_by_status, { desc = "Filter by status" })
 		vim.keymap.set("n", "<leader>owo", M.picker.pick_file_by_tag, { desc = "Filter by tag/project" })
+		vim.keymap.set("n", "<leader>owt", M.picker.note_search, { desc = "Search notes by tag (vault)" })
 		vim.keymap.set("n", "<leader>owq", M.query_builder.open, { desc = "Task: Query builder" })
 
 		vim.keymap.set("n", "<leader>own", M.task_ops.create_task, { desc = "Task: New" })
