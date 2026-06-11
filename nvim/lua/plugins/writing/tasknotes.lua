@@ -42,6 +42,10 @@ return {
 			-- Live statuses/priorities are pulled from /api/filter-options.
 			default_status = "inbox",
 			default_priority = "normal",
+			-- Optional override for the pomodoro WORK length (minutes). Left nil so
+			-- the TaskNotes plugin uses its own configured length. Breaks are
+			-- always server-managed (auto short/long-break), so only work applies.
+			pomodoro_minutes = nil,
 		}
 
 		-- ─────────────────────────────────────────────────────────────────
@@ -1775,6 +1779,338 @@ return {
 		end
 
 		-- ─────────────────────────────────────────────────────────────────
+		-- STEP 9b: Pomodoro & time-tracking panel (<leader>owp)
+		--
+		-- A single state-aware Snacks picker. The title reflects live pomodoro
+		-- state; the item list mutates with state. State machine empirically
+		-- verified against GET /api/pomodoro/status:
+		--   idle    = no currentSession (isRunning=false)
+		--   running = currentSession present + isRunning=true
+		--   paused  = currentSession present + isRunning=false
+		-- Phase = currentSession.type ("work" | "short-break" | "long-break");
+		-- timeRemaining is seconds. Breaks are server-auto-managed, so we never
+		-- start a break manually — Start is only offered for a task buffer.
+		-- Helpers hang off M.pomodoro (not `local`) to avoid growing this
+		-- closure's local count toward Lua's 200-per-function ceiling.
+		-- ─────────────────────────────────────────────────────────────────
+		M.pomodoro = {}
+
+		M.pomodoro.phase_label = {
+			work = "Focus",
+			["short-break"] = "Short break",
+			["long-break"] = "Long break",
+		}
+
+		-- seconds -> "m:ss"
+		function M.pomodoro.fmt_mmss(secs)
+			secs = tonumber(secs) or 0
+			if secs < 0 then
+				secs = 0
+			end
+			return string.format("%d:%02d", math.floor(secs / 60), secs % 60)
+		end
+
+		-- minutes -> "Hh Mm" / "Mm"
+		function M.pomodoro.fmt_minutes(mins)
+			mins = math.floor(tonumber(mins) or 0)
+			local h = math.floor(mins / 60)
+			local m = mins % 60
+			if h > 0 then
+				return string.format("%dh %dm", h, m)
+			end
+			return string.format("%dm", m)
+		end
+
+		-- Resolves the buffer's task id without notifying (panel is also usable
+		-- from non-task buffers for the read-only views).
+		function M.pomodoro.buffer_task_id()
+			local id = buffer_to_id()
+			if not id then
+				return nil
+			end
+			local paths = M.api.get_task_paths()
+			if paths and paths[id] then
+				return id
+			end
+			return nil
+		end
+
+		-- GET /api/pomodoro/status -> { state, phase, data } or nil
+		function M.pomodoro.status()
+			local res = M.api.get("/pomodoro/status")
+			if not (res and res.success) then
+				return nil
+			end
+			local d = res.data or {}
+			local state, phase
+			if d.currentSession then
+				state = d.isRunning and "running" or "paused"
+				phase = d.currentSession.type or "work"
+			else
+				state = "idle"
+			end
+			return { state = state, phase = phase, data = d }
+		end
+
+		function M.pomodoro.panel()
+			local st = M.pomodoro.status()
+			if not st then
+				vim.notify("Could not fetch pomodoro status", vim.log.levels.ERROR)
+				return
+			end
+			local task_id = M.pomodoro.buffer_task_id()
+			local d = st.data
+
+			local title
+			if st.state == "idle" then
+				title = "Pomodoro — idle"
+			else
+				title = string.format(
+					"Pomodoro — %s %s (%s)",
+					M.pomodoro.phase_label[st.phase] or st.phase,
+					M.pomodoro.fmt_mmss(d.timeRemaining),
+					st.state
+				)
+			end
+
+			local items = {}
+
+			-- Pomodoro controls (state-dependent).
+			if st.state == "idle" then
+				if task_id then
+					table.insert(items, { text = "Start focus on buffer task", action = "pomo_start" })
+				else
+					table.insert(items, { text = "Start focus  (open a task buffer first)", action = "noop" })
+				end
+			elseif st.state == "running" then
+				table.insert(items, { text = "Pause", action = "pomo_pause" })
+				table.insert(items, { text = "Stop pomodoro", action = "pomo_stop" })
+			elseif st.state == "paused" then
+				table.insert(items, { text = "Resume", action = "pomo_resume" })
+				table.insert(items, { text = "Stop pomodoro", action = "pomo_stop" })
+			end
+
+			table.insert(items, { text = "─────────────────────────", action = "noop" })
+
+			-- Time tracking (buffer task only).
+			if task_id then
+				table.insert(items, { text = "Start time tracking", action = "time_start" })
+				table.insert(items, { text = "Start time tracking (description)…", action = "time_start_desc" })
+				table.insert(items, { text = "Stop time tracking", action = "time_stop" })
+			else
+				table.insert(items, { text = "Time tracking  (open a task buffer first)", action = "noop" })
+			end
+
+			table.insert(items, { text = "─────────────────────────", action = "noop" })
+
+			-- Read-only views.
+			table.insert(items, { text = "Pomodoro stats", action = "view_stats" })
+			table.insert(items, { text = "Time summary (today)", action = "view_summary" })
+			table.insert(items, { text = "Active sessions…", action = "view_active" })
+
+			Snacks.picker.pick({
+				source = "tasknotes_pomodoro",
+				title = title,
+				items = items,
+				format = "text",
+				preview = "none",
+				layout = { hidden = { "preview" } },
+				confirm = function(picker, item)
+					picker:close()
+					if not item or item.action == "noop" then
+						vim.schedule(function()
+							M.pomodoro.panel()
+						end)
+						return
+					end
+					vim.schedule(function()
+						M.pomodoro.dispatch(item.action, task_id)
+					end)
+				end,
+			})
+		end
+
+		function M.pomodoro.dispatch(action, task_id)
+			local function enc()
+				return M.api._encode_id(task_id)
+			end
+			if action == "pomo_start" then
+				if not task_id then
+					return
+				end
+				local body = { taskId = task_id }
+				if M.config.pomodoro_minutes then
+					body.duration = M.config.pomodoro_minutes
+				end
+				local res = M.api.post("/pomodoro/start", body)
+				if res and res.success then
+					vim.notify("Pomodoro started", vim.log.levels.INFO)
+				end
+				M.pomodoro.panel()
+			elseif action == "pomo_pause" then
+				local res = M.api.post("/pomodoro/pause", {})
+				if res and res.success then
+					vim.notify("Pomodoro paused", vim.log.levels.INFO)
+				end
+				M.pomodoro.panel()
+			elseif action == "pomo_resume" then
+				local res = M.api.post("/pomodoro/resume", {})
+				if res and res.success then
+					vim.notify("Pomodoro resumed", vim.log.levels.INFO)
+				end
+				M.pomodoro.panel()
+			elseif action == "pomo_stop" then
+				local res = M.api.post("/pomodoro/stop", {})
+				if res and res.success then
+					vim.notify("Pomodoro stopped", vim.log.levels.INFO)
+				end
+				M.pomodoro.panel()
+			elseif action == "time_start" then
+				if not task_id then
+					return
+				end
+				local res = M.api.post("/tasks/" .. enc() .. "/time/start", {})
+				if res and res.success then
+					vim.notify("Time tracking started", vim.log.levels.INFO)
+				end
+				M.pomodoro.panel()
+			elseif action == "time_start_desc" then
+				if not task_id then
+					return
+				end
+				vim.ui.input({ prompt = "Description: " }, function(input)
+					-- nil = Esc → re-open panel, no mutation.
+					if input == nil then
+						M.pomodoro.panel()
+						return
+					end
+					local res = M.api.post(
+						"/tasks/" .. enc() .. "/time/start-with-description",
+						{ description = input }
+					)
+					if res and res.success then
+						vim.notify("Time tracking started", vim.log.levels.INFO)
+					end
+					M.pomodoro.panel()
+				end)
+			elseif action == "time_stop" then
+				if not task_id then
+					return
+				end
+				local res = M.api.post("/tasks/" .. enc() .. "/time/stop", {})
+				if res and res.success then
+					vim.notify("Time tracking stopped", vim.log.levels.INFO)
+				end
+				M.pomodoro.panel()
+			elseif action == "view_stats" then
+				M.pomodoro.show_stats()
+			elseif action == "view_summary" then
+				M.pomodoro.show_summary()
+			elseif action == "view_active" then
+				M.pomodoro.show_active()
+			end
+		end
+
+		function M.pomodoro.show_stats()
+			local res = M.api.get("/pomodoro/stats")
+			if not (res and res.success) then
+				vim.notify("Could not fetch pomodoro stats", vim.log.levels.ERROR)
+				return
+			end
+			local s = res.data or {}
+			local msg = string.format(
+				"Pomodoro stats (today)\n  Completed:   %s\n  Streak:      %s\n  Total time:  %s\n  Avg length:  %s min\n  Completion:  %s%%",
+				tostring(s.pomodorosCompleted or 0),
+				tostring(s.currentStreak or 0),
+				M.pomodoro.fmt_minutes(s.totalMinutes or 0),
+				tostring(s.averageSessionLength or 0),
+				tostring(s.completionRate or 0)
+			)
+			vim.notify(msg, vim.log.levels.INFO)
+		end
+
+		function M.pomodoro.show_summary()
+			local res = M.api.get("/time/summary", { period = "today" })
+			if not (res and res.success) then
+				vim.notify("Could not fetch time summary", vim.log.levels.ERROR)
+				return
+			end
+			local d = res.data or {}
+			local sm = d.summary or {}
+			local lines = {
+				"Time summary (today)",
+				string.format("  Total:   %s", M.pomodoro.fmt_minutes(sm.totalMinutes or 0)),
+				string.format(
+					"  Tasks:   %s (active %s, done %s)",
+					tostring(sm.tasksWithTime or 0),
+					tostring(sm.activeTasks or 0),
+					tostring(sm.completedTasks or 0)
+				),
+			}
+			local top = d.topTasks or {}
+			if #top > 0 then
+				table.insert(lines, "  Top tasks:")
+				for i = 1, math.min(5, #top) do
+					local t = top[i]
+					table.insert(
+						lines,
+						string.format("    • %s — %s", t.title or t.task or "?", M.pomodoro.fmt_minutes(t.minutes or 0))
+					)
+				end
+			end
+			vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
+		end
+
+		function M.pomodoro.show_active()
+			local res = M.api.get("/time/active")
+			if not (res and res.success) then
+				vim.notify("Could not fetch active sessions", vim.log.levels.ERROR)
+				return
+			end
+			local sessions = (res.data and res.data.activeSessions) or {}
+			if #sessions == 0 then
+				vim.notify("No active time-tracking sessions", vim.log.levels.INFO)
+				vim.schedule(function()
+					M.pomodoro.panel()
+				end)
+				return
+			end
+			local items = {}
+			for _, s in ipairs(sessions) do
+				local task = s.task or {}
+				local mins = s.elapsedMinutes or (s.session and s.session.elapsedMinutes)
+				table.insert(items, {
+					text = string.format(
+						"%s%s",
+						task.title or task.id or "?",
+						mins and string.format("  (%s)", M.pomodoro.fmt_minutes(mins)) or ""
+					),
+					task_id = task.id,
+				})
+			end
+			Snacks.picker.pick({
+				source = "tasknotes_active_sessions",
+				title = string.format("Active sessions (%d)", #sessions),
+				items = items,
+				format = "text",
+				preview = "none",
+				layout = { hidden = { "preview" } },
+				confirm = function(picker, item)
+					picker:close()
+					if item and item.task_id then
+						vim.schedule(function()
+							vim.cmd("edit " .. vim.fn.fnameescape(M.config.vault_path .. "/" .. item.task_id))
+						end)
+					else
+						vim.schedule(function()
+							M.pomodoro.panel()
+						end)
+					end
+				end,
+			})
+		end
+
+		-- ─────────────────────────────────────────────────────────────────
 		-- STEP 10: Boot health check + Keybindings
 		--
 		-- Per the API-driven directive: if /api/health does not respond at
@@ -1804,5 +2140,6 @@ return {
 
 		vim.keymap.set("n", "<leader>own", M.task_ops.create_task, { desc = "Task: New" })
 		vim.keymap.set("n", "<leader>owe", M.task_ops.edit_fields.open, { desc = "Task: Edit fields" })
+		vim.keymap.set("n", "<leader>owp", M.pomodoro.panel, { desc = "Pomodoro & time tracking" })
 	end, -- end config
 }
