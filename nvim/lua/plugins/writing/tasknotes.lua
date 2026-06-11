@@ -877,12 +877,36 @@ return {
 				else
 					label = string.format("+%dd", offset)
 				end
-				local marker = (date_str == current) and "● " or "  "
+				-- current may carry a THH:MM suffix (edit_fields); match on the
+				-- date prefix so the day marker still renders.
+				local cur_date = current and current:sub(1, 10)
+				local marker = (date_str == cur_date) and "● " or "  "
 				table.insert(items, {
 					text = string.format("%s%s %s — %s", marker, day_name, date_str, label),
 					value = date_str,
 					kind = "date",
 				})
+			end
+			for i, item in ipairs(items) do
+				item.idx = i
+			end
+			return items
+		end
+
+		-- Builds the item list for the time-of-day picker (Stage 2 of date edit).
+		-- @param current_time string|nil: currently selected "HH:MM" (renders a marker)
+		local function build_time_items(current_time)
+			local items = {
+				{ text = "  [x] All-day (no time)", kind = "allday" },
+				{ text = "  [+] Custom time (HH:MM)...", kind = "custom" },
+			}
+			-- Full 24h grid in 15-minute steps (00:00 → 23:45); filter by typing.
+			for h = 0, 23 do
+				for _, m in ipairs({ 0, 15, 30, 45 }) do
+					local t = string.format("%02d:%02d", h, m)
+					local marker = (t == current_time) and "● " or "  "
+					table.insert(items, { text = marker .. t, value = t, kind = "time" })
+				end
 			end
 			for i, item in ipairs(items) do
 				item.idx = i
@@ -1006,15 +1030,19 @@ return {
 
 		M.task_ops.edit_fields._show = function(id, task, patch)
 			local items = {
-				{ idx = 1, text = string.format("Status:    %s", fmt_field(effective(task, patch, "status"))), action = "status" },
-				{ idx = 2, text = string.format("Priority:  %s", fmt_field(effective(task, patch, "priority"))), action = "priority" },
-				{ idx = 3, text = string.format("Contexts:  %s", fmt_field(effective(task, patch, "contexts"))), action = "contexts" },
-				{ idx = 4, text = string.format("Projects:  %s", fmt_field(effective(task, patch, "projects"))), action = "projects" },
-				{ idx = 5, text = string.format("Scheduled: %s", fmt_field(effective(task, patch, "scheduled"))), action = "scheduled" },
-				{ idx = 6, text = string.format("Due:       %s", fmt_field(effective(task, patch, "due"))), action = "due" },
-				{ idx = 7, text = "─────────────────────────", action = "noop" },
-				{ idx = 8, text = "✓ Save changes", action = "save" },
-				{ idx = 9, text = "✗ Discard", action = "discard" },
+				-- API maps `title` to the configured title-source frontmatter field
+				-- (here `task:`); editing it via PUT does not rename the file.
+				{ idx = 1, text = string.format("Task:      %s", fmt_field(effective(task, patch, "title"))), action = "title" },
+				{ idx = 2, text = string.format("Status:    %s", fmt_field(effective(task, patch, "status"))), action = "status" },
+				{ idx = 3, text = string.format("Priority:  %s", fmt_field(effective(task, patch, "priority"))), action = "priority" },
+				{ idx = 4, text = string.format("Contexts:  %s", fmt_field(effective(task, patch, "contexts"))), action = "contexts" },
+				{ idx = 5, text = string.format("Projects:  %s", fmt_field(effective(task, patch, "projects"))), action = "projects" },
+				{ idx = 6, text = string.format("Tags:      %s", fmt_field(effective(task, patch, "tags"))), action = "tags" },
+				{ idx = 7, text = string.format("Scheduled: %s", fmt_field(effective(task, patch, "scheduled"))), action = "scheduled" },
+				{ idx = 8, text = string.format("Due:       %s", fmt_field(effective(task, patch, "due"))), action = "due" },
+				{ idx = 9, text = "─────────────────────────", action = "noop" },
+				{ idx = 10, text = "✓ Save changes", action = "save" },
+				{ idx = 11, text = "✗ Discard", action = "discard" },
 			}
 
 			local pending_count = 0
@@ -1057,7 +1085,9 @@ return {
 							vim.notify("Changes discarded", vim.log.levels.INFO)
 						elseif item.action == "status" or item.action == "priority" then
 							M.task_ops.edit_fields._pick_option(id, task, patch, item.action)
-						elseif item.action == "contexts" or item.action == "projects" then
+						elseif item.action == "title" then
+							M.task_ops.edit_fields._pick_text(id, task, patch, item.action)
+						elseif item.action == "contexts" or item.action == "projects" or item.action == "tags" then
 							M.task_ops.edit_fields._pick_multi(id, task, patch, item.action)
 						elseif item.action == "scheduled" or item.action == "due" then
 							M.task_ops.edit_fields._pick_date(id, task, patch, item.action)
@@ -1065,6 +1095,20 @@ return {
 					end)
 				end,
 			})
+		end
+
+		-- Free-text editor for scalar string fields (e.g. `title`, which the API
+		-- routes to the configured title-source frontmatter field). Pre-fills the
+		-- current value so the user edits in place rather than retyping.
+		M.task_ops.edit_fields._pick_text = function(id, task, patch, field)
+			local current = effective(task, patch, field)
+			vim.ui.input({ prompt = field .. ": ", default = current or "" }, function(input)
+				-- nil = cancelled (Esc) → leave patch untouched.
+				if input ~= nil then
+					patch[field] = input
+				end
+				M.task_ops.edit_fields._show(id, task, patch)
+			end)
 		end
 
 		M.task_ops.edit_fields._pick_option = function(id, task, patch, field)
@@ -1225,17 +1269,81 @@ return {
 						end)
 					elseif item.kind == "custom" then
 						vim.schedule(function()
-							vim.ui.input({ prompt = "Date (YYYY-MM-DD): " }, function(input)
-								if input and input:match("^%d%d%d%d%-%d%d%-%d%d$") then
+							vim.ui.input({ prompt = "Date (YYYY-MM-DD[THH:MM]): " }, function(input)
+								if input and input:match("^%d%d%d%d%-%d%d%-%d%dT%d%d:%d%d$") then
+									-- Full date+time given inline → set directly, skip time stage.
 									patch[field] = input
+									M.task_ops.edit_fields._show(id, task, patch)
+								elseif input and input:match("^%d%d%d%d%-%d%d%-%d%d$") then
+									-- Date only → advance to the time-of-day picker.
+									M.task_ops.edit_fields._pick_time(id, task, patch, field, input)
 								elseif input and input ~= "" then
-									vim.notify("Invalid date format", vim.log.levels.ERROR)
+									vim.notify("Invalid format. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM", vim.log.levels.ERROR)
+									M.task_ops.edit_fields._show(id, task, patch)
+								else
+									M.task_ops.edit_fields._show(id, task, patch)
+								end
+							end)
+						end)
+					else
+						-- A concrete calendar day → choose time (or all-day) in Stage 2.
+						vim.schedule(function()
+							M.task_ops.edit_fields._pick_time(id, task, patch, field, item.value)
+						end)
+					end
+				end,
+				on_close = function()
+					if not confirmed then
+						vim.schedule(function()
+							M.task_ops.edit_fields._show(id, task, patch)
+						end)
+					end
+				end,
+			})
+		end
+
+		-- Stage 2 of date editing: pick the time-of-day for an already-chosen day.
+		-- "All-day" stores the bare YYYY-MM-DD; a time stores YYYY-MM-DDTHH:MM.
+		M.task_ops.edit_fields._pick_time = function(id, task, patch, field, date_str)
+			local current = effective(task, patch, field)
+			local cur_time = nil
+			if current and current:sub(1, 10) == date_str then
+				cur_time = current:match("T(%d%d:%d%d)")
+			end
+			local items = build_time_items(cur_time)
+
+			local confirmed = false
+			Snacks.picker.pick({
+				source = "tasknotes_edit_" .. field .. "_time",
+				title = string.format("%s @ %s — pick time", field, date_str),
+				items = items,
+				format = "text",
+				preview = "none",
+				layout = { hidden = { "preview" } },
+				confirm = function(picker, item)
+					confirmed = true
+					picker:close()
+					if not item or item.kind == "allday" then
+						patch[field] = date_str
+						vim.schedule(function()
+							M.task_ops.edit_fields._show(id, task, patch)
+						end)
+					elseif item.kind == "custom" then
+						vim.schedule(function()
+							vim.ui.input({ prompt = "Time (HH:MM): " }, function(input)
+								if input and input:match("^%d%d:%d%d$") then
+									patch[field] = date_str .. "T" .. input
+								elseif input and input ~= "" then
+									vim.notify("Invalid time format. Use HH:MM", vim.log.levels.ERROR)
+									patch[field] = date_str
+								else
+									patch[field] = date_str
 								end
 								M.task_ops.edit_fields._show(id, task, patch)
 							end)
 						end)
 					else
-						patch[field] = item.value
+						patch[field] = date_str .. "T" .. item.value
 						vim.schedule(function()
 							M.task_ops.edit_fields._show(id, task, patch)
 						end)
