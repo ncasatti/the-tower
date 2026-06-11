@@ -536,7 +536,7 @@ return {
 					end
 				end
 
-				local display = badge ~= "" and (badge .. " " .. title .. time_info) or (title .. time_info)
+				local display = badge ~= "" and (title .. " " .. badge .. time_info) or (title .. time_info)
 
 				table.insert(items, {
 					text = display,
@@ -567,6 +567,45 @@ return {
 				items = items,
 				format = "text",
 				preview = "file",
+				-- Custom layout: narrower preview (0.4) to give the task list more
+				-- horizontal room for long titles. List/input get the remaining ~0.6.
+				layout = {
+					layout = {
+						box = "horizontal",
+						width = 0.92,
+						height = 0.9,
+						{
+							box = "vertical",
+							border = "rounded",
+							title = "{title}",
+							title_pos = "center",
+							{ win = "input", height = 1, border = "bottom" },
+							{ win = "list", border = "none" },
+						},
+						{ win = "preview", title = "{preview}", border = "rounded", width = 0.4 },
+					},
+				},
+				-- <Tab> dives into the preview window (read-only note view) WITHOUT
+				-- closing the picker; <Esc>/<S-Tab> return focus to the list. Avoids
+				-- <C-i> (terminal-identical to <Tab>) and <C-n> (already list_down).
+				win = {
+					input = {
+						keys = {
+							["<Tab>"] = { "focus_preview", mode = { "i", "n" } },
+						},
+					},
+					list = {
+						keys = {
+							["<Tab>"] = "focus_preview",
+						},
+					},
+					preview = {
+						keys = {
+							["<Esc>"] = "focus_list",
+							["<S-Tab>"] = "focus_list",
+						},
+					},
+				},
 				confirm = function(picker, item)
 					confirmed = true
 					picker:close()
