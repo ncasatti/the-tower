@@ -39,6 +39,13 @@
       url = "github:jacopone/antigravity-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Claude Code (community flake, hourly updates from Anthropic npm release).
+    # Intentionally NOT following nixpkgs — preserves cachix prebuilt cache hits
+    # (claude-code.cachix.org). See nix/modules/nix.nix for the substituter.
+    claude-code = {
+      url = "github:sadjow/claude-code-nix";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
