@@ -79,6 +79,24 @@ return {
       },
     })
 
+    -- Patch Note.save_to_buffer to honour `frontmatter.enabled = false` in ALL
+    -- code paths — not only the BufWritePre autocmd. The LSP rename handler
+    -- (obsidian-ls, lua/obsidian/lsp/handlers/_rename.lua) calls save_to_buffer
+    -- directly, which reserializes the WHOLE frontmatter. obsidian's YAML PARSER
+    -- flattens TaskNotes' nested `timeEntries` (a list of maps) into a single
+    -- quoted string on read, so any parse→reserialize round-trip corrupts it.
+    -- With frontmatter management off, TaskNotes owns it — make save_to_buffer a
+    -- no-op so the block stays byte-for-byte intact. Rename still renames the
+    -- file and updates [[backlinks]] (those go via the WorkspaceEdit, untouched).
+    local Note = require("obsidian").Note
+    local orig_save_to_buffer = Note.save_to_buffer
+    Note.save_to_buffer = function(self, save_opts)
+      if self.should_save_frontmatter and not self:should_save_frontmatter() then
+        return false
+      end
+      return orig_save_to_buffer(self, save_opts)
+    end
+
     -- Disable documentSymbol on obsidian-ls (marksman provides cleaner rendered symbols)
     vim.api.nvim_create_autocmd("LspAttach", {
         callback = function(args)

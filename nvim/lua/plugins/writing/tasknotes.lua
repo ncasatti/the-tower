@@ -2232,6 +2232,38 @@ return {
 			})
 		end
 
+		-- Reloads the on-disk task file into its buffer after a server-side write
+		-- (time tracking mutates `timeEntries` in the frontmatter). SAFE: if the
+		-- buffer has unsaved changes it is NOT clobbered — we warn instead. The
+		-- workflow assumes you saved before starting (User-confirmed protocol).
+		function M.pomodoro.reload_task_buffer(task_id)
+			if not task_id then
+				return
+			end
+			local target = vim.fn.fnamemodify(M.config.vault_path .. "/" .. task_id, ":p")
+			for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+				if
+					vim.api.nvim_buf_is_loaded(buf)
+					and vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ":p") == target
+				then
+					if vim.bo[buf].modified then
+						vim.notify(
+							string.format(
+								"TaskNotes: %s changed on disk (time tracking) but the buffer has unsaved changes — not reloading. Save (:w), then :e to sync.",
+								vim.fn.fnamemodify(target, ":t")
+							),
+							vim.log.levels.WARN
+						)
+					else
+						vim.api.nvim_buf_call(buf, function()
+							vim.cmd("silent! edit")
+						end)
+					end
+					return
+				end
+			end
+		end
+
 		function M.pomodoro.dispatch(action, task_id)
 			local function enc()
 				return M.api._encode_id(task_id)
@@ -2274,6 +2306,7 @@ return {
 				local res = M.api.post("/tasks/" .. enc() .. "/time/start", {})
 				if res and res.success then
 					vim.notify("Time tracking started", vim.log.levels.INFO)
+					M.pomodoro.reload_task_buffer(task_id)
 				end
 				M.pomodoro.panel()
 			elseif action == "time_start_desc" then
@@ -2292,6 +2325,7 @@ return {
 					)
 					if res and res.success then
 						vim.notify("Time tracking started", vim.log.levels.INFO)
+						M.pomodoro.reload_task_buffer(task_id)
 					end
 					M.pomodoro.panel()
 				end)
@@ -2302,6 +2336,7 @@ return {
 				local res = M.api.post("/tasks/" .. enc() .. "/time/stop", {})
 				if res and res.success then
 					vim.notify("Time tracking stopped", vim.log.levels.INFO)
+					M.pomodoro.reload_task_buffer(task_id)
 				end
 				M.pomodoro.panel()
 			elseif action == "view_stats" then
