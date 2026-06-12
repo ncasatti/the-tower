@@ -34,6 +34,7 @@
     translate-shell
     btop
     ncdu
+    pdf2md
     # (pkgs.callPackage ./gentle-ai.nix {})
   ];
 

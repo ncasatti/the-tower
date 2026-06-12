@@ -9,5 +9,6 @@
     claude-code = inputs.claude-code.packages.${prev.stdenv.hostPlatform.system}.default;
     engram = prev.callPackage ../packages/custom/engram.nix { };
     gemini-cli = prev.callPackage ../packages/custom/gemini-cli.nix { };
+    pdf2md = prev.callPackage ../packages/custom/pdf2md.nix { };
   };
 }
