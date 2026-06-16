@@ -24,9 +24,7 @@
 
 "modules-left": [
   "custom/arch",
-	"custom/separator#blank_2", 
 	"hyprland/workspaces#rw",
-	"custom/separator#blank_2",
 //	"mpris",
 	"group/notify",
 	"tray",
@@ -40,10 +38,8 @@
 	"memory#forest",
 	"temperature#forest",
 	"disk#forest",
-	"custom/separator#blank_2",
 	"backlight",
   	"battery#forest",
-	"custom/separator#blank_2",
 	"group/audio",
 	"custom/nightlight",
 	],

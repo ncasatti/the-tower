@@ -26,13 +26,12 @@
 	"custom/cava_mviz",
 	"custom/separator#blank",
 	"custom/playerctl",
-	"custom/separator#blank",
 	"hyprland/window",
 	],
 
 "modules-center": [
+	"group/app_drawer",
 	"custom/separator#blank",
-  "group/app_drawer",
 	"group/notify",
 	"hyprland/workspaces#rw",
 	"clock",
@@ -43,7 +42,6 @@
 
 "modules-right": [
 	"tray",
-	"network#speed",
 	"group/laptop",
 	"group/mobo_drawer",
 	"group/audio",

@@ -13,7 +13,7 @@
 @define-color iconcolor #FFFFFF;
 
 /* -----------------------------------------------------
- * General
+ * General 
  * ----------------------------------------------------- */
 
 * {
@@ -22,12 +22,12 @@
     border-radius: 4px;
     font-weight: bold;
 	/* set font-size to 100% if font scaling is set to 1.00 using nwg-look */
-	font-size: 95%;
+	font-size: 97%;
 	font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
 }
 
 window#waybar {
-    background-color: rgba(0,0,0,0.7);
+    background-color: rgba(0,0,0,0.2);
     border-bottom: 0px solid #ffffff;
     /* color: #FFFFFF; */
     transition-property: background-color;
@@ -40,9 +40,9 @@ window#waybar {
 
 #taskbar,
 #workspaces {
-    margin: 4px 1px 4px 1px;
+    margin: 5px 1px 6px 1px;
     padding: 0px 1px;
-    border-radius: 10px;
+    border-radius: 15px;
     border: 0px;
     font-weight: bold;
     font-style: normal;
@@ -155,6 +155,7 @@ window#waybar.empty #window {
 #wireplumber,
 #workspaces,
 #custom-backlight,
+#custom-nightlight,
 #custom-browser,
 #custom-cava_mviz,
 #custom-cycle_wall,
@@ -163,6 +164,7 @@ window#waybar.empty #window {
 #custom-keybinds,
 #custom-keyboard,
 #custom-light_dark,
+#custom-nightlight,
 #custom-lock,
 #custom-hint,
 #custom-hypridle,
@@ -182,7 +184,7 @@ window#waybar.empty #window {
 #custom-weather.clearNight,
 #custom-weather.cloudyFoggyDay,
 #custom-weather.cloudyFoggyNight,
-#custom-weather.default,
+#custom-weather.default, 
 #custom-weather.rainyDay,
 #custom-weather.rainyNight,
 #custom-weather.severe,
@@ -218,8 +220,8 @@ window#waybar.empty #window {
  * ----------------------------------------------------- */
 
  #disk,#memory,#cpu,#language {
-    margin-left: 3px;
-    margin-right: 3px;
+    margin:0px;
+    padding:0px;
     color:@iconcolor;
 }
 

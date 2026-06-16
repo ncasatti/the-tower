@@ -10,7 +10,7 @@ font-size: 97%;
 font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
 }
 
-@import '../../../.cache/hypr/wallust/colors-waybar.css';
+@import '../../.config/waybar/wallust/colors-waybar.css';
 
 #waybar.empty, #waybar.tiled, #waybar.floating {
 	background-color: transparent;
@@ -110,6 +110,7 @@ tooltip {
 #wireplumber,
 #workspaces,
 #custom-backlight,
+#custom-nightlight,
 #custom-browser,
 #custom-cava_mviz,
 #custom-cycle_wall,
@@ -118,6 +119,7 @@ tooltip {
 #custom-keybinds,
 #custom-keyboard,
 #custom-light_dark,
+#custom-nightlight,
 #custom-lock,
 #custom-hint,
 #custom-hypridle,
@@ -164,6 +166,7 @@ tooltip {
 #custom-hypridle.notactive,
 #idle_inhibitor.activated {
 	color: #39FF14;
+    border-bottom: 8px solid rgba(0, 0, 0, 0.2);
 }
 
 #pulseaudio.muted {
