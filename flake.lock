@@ -240,11 +240,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780201496,
-        "narHash": "sha256-ZOEYXr7D+2ZKpgWxolRtzQCe5sClftfbUmXbMkxnLVw=",
+        "lastModified": 1781466322,
+        "narHash": "sha256-hO6KuZQ/MxbcXr9Ckdc+VjcnfDKzhKRPqWuuFTyeC08=",
         "owner": "dominicnunez",
         "repo": "opencode-nix",
-        "rev": "5a5c1547957d7b4ef8d68d38b19cb7fb386031a2",
+        "rev": "aeede583f89fa6ea3887cab78672c998db012bb3",
         "type": "github"
       },
       "original": {
