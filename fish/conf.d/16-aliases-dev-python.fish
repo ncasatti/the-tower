@@ -10,7 +10,7 @@ abbr -a pipir 'pip install -r requirements.txt'
 abbr -a pipclean 'pip freeze > pip-uninstall && pip uninstall -r pip-uninstall -y && rm pip-uninstall'
 
 # Virtual environments
-abbr -a conda-env 'source /home/ncasatti/.local/share/Uts/.sdk/anaconda3/bin/activate'
+abbr -a conda-env 'source /home/flyn/.local/share/Uts/.sdk/anaconda3/bin/activate'
 abbr -a env-aws 'source ~/Documents/Development/Python/.venv/aws/bin/activate'
 abbr -a penv1 'source ~/Documents/Development/Python/.venv/research-corteva-cba/bin/activate'
 abbr -a penv2 'source ~/Documents/Development/Python/.venv/research-corteva-cba36/bin/activate'

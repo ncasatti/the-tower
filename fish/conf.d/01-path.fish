@@ -16,4 +16,4 @@ fish_add_path -g $BUN_INSTALL/bin
 fish_add_path -g $HOME/.local/share/Uts/.sdk/flutter-sdk3/bin
 
 # AI tools
-fish_add_path -g /home/ncasatti/.lmstudio/bin
+fish_add_path -g /home/flyn/.lmstudio/bin

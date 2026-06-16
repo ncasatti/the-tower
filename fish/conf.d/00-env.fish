@@ -10,7 +10,7 @@ set -gx BROWSER brave
 # Development tools
 set -gx DOTNET_ROOT $HOME/.dotnet
 set -gx BUN_INSTALL $HOME/.bun
-set -gx JAVA_HOME /home/ncasatti/.jdks/jbr-17.0.12
+set -gx JAVA_HOME /home/flyn/.jdks/jbr-17.0.12
 
 # Configuration paths
 set -gx BAT_CONFIG_PATH ~/.config/bat/config.conf

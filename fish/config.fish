@@ -5,7 +5,7 @@
 # Functions auto-load from functions/
 
 # opencode
-fish_add_path /home/ncasatti/.opencode/bin
+fish_add_path /home/flyn/.opencode/bin
 
 if status is-interactive
     # Direnv integration (if available)

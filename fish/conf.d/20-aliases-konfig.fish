@@ -5,8 +5,8 @@
 
 # Konfig manager
 # abbr -a k 'python ~/.config/konfig/konfig-manager/manager.py'
-abbr -a km 'source /home/ncasatti/Documents/Development/microservices/manager/.venv/bin/activate.fish && cd /home/ncasatti/.config/konfig/manager/ && clingy'
-abbr -a kv 'source /home/ncasatti/Documents/Development/microservices/manager/.venv/bin/activate.fish'
+abbr -a km 'source /home/flyn/Documents/Development/microservices/manager/.venv/bin/activate.fish && cd /home/flyn/.config/konfig/manager/ && clingy'
+abbr -a kv 'source /home/flyn/Documents/Development/microservices/manager/.venv/bin/activate.fish'
 abbr -a k 'clingy'
 
 # Konfig sync - push, get, sync, resync
