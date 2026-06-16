@@ -14,6 +14,7 @@
     ../../home/activation.nix
     ../../home/xdg.nix
     ../../home/sioyek.nix
+    ../../home/polkit.nix
     # ../../home/secrets.nix  # agenix — disabled for now
 
     # --- Package sets ---

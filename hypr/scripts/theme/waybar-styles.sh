@@ -18,7 +18,7 @@ menu() {
         if [ -f "$waybar_styles/$file" ]; then
             options+=("$(basename "$file" .css)")
         fi
-    done < <(find "$waybar_styles" -maxdepth 1 -type f -name '*.css' -exec basename {} \; | sort)
+    done < <(find -L "$waybar_styles" -maxdepth 1 -type f -name '*.css' -exec basename {} \; | sort)
     
     printf '%s\n' "${options[@]}"
 }
@@ -32,6 +32,7 @@ apply_style() {
 # Main function
 main() {
     choice=$(menu | rofi -i -dmenu -config "$rofi_config")
+    echo $choice
 
     if [[ -z "$choice" ]]; then
         echo "No option selected. Exiting."
