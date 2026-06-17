@@ -2,6 +2,19 @@
 # Utility programs managed via home-manager modules.
 { pkgs, ... }:
 
+let
+  # QCAD bundles its own Qt build that lacks the Wayland buffer/shell
+  # integration plugins, so the native Wayland backend fails to start.
+  # Force the xcb platform plugin to route it through XWayland.
+  qcad = pkgs.symlinkJoin {
+    name = "qcad-xwayland";
+    paths = [ pkgs.qcad ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/qcad --set QT_QPA_PLATFORM xcb
+    '';
+  };
+in
 {
   home.packages = with pkgs; [
     # brave
@@ -15,6 +28,7 @@
     zoom-us
     onlyoffice-desktopeditors
     ntfs3g
+    qcad
   ];
 
   programs.zathura = {
