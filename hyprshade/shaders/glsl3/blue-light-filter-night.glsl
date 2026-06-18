@@ -8,7 +8,7 @@ uniform sampler2D tex;
 out vec4 fragColor;
 
 const float temperature = 3200.0;
-const float temperatureStrength = 0.8;
+const float temperatureStrength = 0.75;
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 18.0;

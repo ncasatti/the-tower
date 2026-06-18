@@ -33,7 +33,7 @@ const float Temperature = 3200.0;
  * @min 0.0
  * @max 1.0
  */
-const float BlueFilterStrength = 0.8;
+const float BlueFilterStrength = 0.75;
 
 /**
  * Per-channel multiplier to vibrance strength.
@@ -41,7 +41,7 @@ const float BlueFilterStrength = 0.8;
  * @min 0.0
  * @max 10.0
  */
-const vec3 Balance = vec3(1.0, 1.0, 1.0);
+const vec3 Balance = vec3(0.6, 1.0, 1.0);
 
 /**
  * Strength of vibrance filter.
@@ -50,7 +50,7 @@ const vec3 Balance = vec3(1.0, 1.0, 1.0);
  * @min -1.0
  * @max 1.0
  */
-const float VibranceStrength = 0.5;
+const float VibranceStrength = 0.2;
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 18.0;
