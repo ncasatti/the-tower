@@ -38,11 +38,11 @@ Colors = {
 	blue_dark2 = "#2b3b4d",
 	-- Markdown colors
 	h1 = "#e65064",
-	h2 = "#17ACF2",
-	h3 = "#70BF56",
-	h4 = "#C385FE",
-	h5 = "#FF8F40",
-	h6 = "#84CEB5",
+	h2 = "#C385FE",
+	h3 = "#FF8F40",
+	h4 = "#84CEB5",
+	h5 = "#70BF56",
+	h6 = "#17ACF2",
 }
 Elements = {
 	bold = Colors.orange3,
@@ -190,9 +190,9 @@ return {
 			RenderMarkdownH3Bg = { bg = "None" },
 			RenderMarkdownH4 = { fg = Colors.h4 },
 			RenderMarkdownH4Bg = { bg = "None" },
-			RenderMarkdownH5 = { fg = Colors.h6 },
+			RenderMarkdownH5 = { fg = Colors.h5 },
 			RenderMarkdownH5Bg = { bg = "None" },
-			RenderMarkdownH6 = { fg = Colors.h5 },
+			RenderMarkdownH6 = { fg = Colors.h6 },
 			RenderMarkdownH6Bg = { bg = "None" },
 
 			-- Markdown Math and Code blocks
@@ -288,9 +288,9 @@ return {
 		vim.api.nvim_set_hl(0, "RenderMarkdownH3Bg", { bg = "None" })
 		vim.api.nvim_set_hl(0, "RenderMarkdownH4", { fg = Colors.h4 })
 		vim.api.nvim_set_hl(0, "RenderMarkdownH4Bg", { bg = "None" })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH5", { fg = Colors.h6 })
+		vim.api.nvim_set_hl(0, "RenderMarkdownH5", { fg = Colors.h5 })
 		vim.api.nvim_set_hl(0, "RenderMarkdownH5Bg", { bg = "None" })
-		vim.api.nvim_set_hl(0, "RenderMarkdownH6", { fg = Colors.h5 })
+		vim.api.nvim_set_hl(0, "RenderMarkdownH6", { fg = Colors.h6 })
 		vim.api.nvim_set_hl(0, "RenderMarkdownH6Bg", { bg = "None" })
 
 		-- Markdown Math and Code blocks
