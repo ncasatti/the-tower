@@ -1,6 +1,7 @@
 # The Tower
 
-A declarative, modular Nix configuration for dual-target deployment: **NixOS** (notebook) and **Home Manager standalone** (Arch Linux main rig).
+A declarative, modular Nix-flake configuration deploying a **Hyprland/Wayland desktop**
+across **three NixOS hosts** (`notebook`, `main`, `server`).
 
 Part of **The Grid** — a cohesive system architecture managed through Nix flakes.
 
@@ -18,21 +19,44 @@ Part of **The Grid** — a cohesive system architecture managed through Nix flak
 
 ## Overview
 
-The Tower is a complete, reproducible desktop environment configuration deployed across two targets:
+The Tower is a complete, reproducible desktop environment deployed across three NixOS
+hosts that share a common Home Manager configuration and modular package definitions:
 
-1. **`notebook`** — NixOS system configuration (full system control)
-2. **`main`** — Home Manager standalone on Arch Linux (user-level only)
+1. **`notebook`** — portable workstation
+2. **`main`** — primary workstation
+3. **`server`** — headless infra node (DNS + VPN)
 
-Both targets share a common Home Manager configuration and modular package definitions. The system manages:
+> **Deployment model:** all three are `nixosConfigurations` in `flake.nix` — there is
+> **no** Home-Manager-standalone / Arch target. Each host pulls in Home Manager via
+> `nix/hosts/<target>/home.nix`.
 
-- **Window Manager:** Hyprland (Wayland)
-- **Terminal & Shell:** Kitty + Fish
-- **Editor:** Neovim (Lazy.nvim, LSP, Treesitter, Telescope)
-- **Utilities:** Tmux, Yazi, Starship, Rofi, Lazygit, Ripgrep, FZF
-- **Theming:** GTK (Sweet-Ambar-Blue-Dark), Icons (Qogir-dark), Fonts (JetBrains Mono, 3270 Nerd Font)
-- **Wayland Ecosystem:** Waybar, Hyprlock, Hypridle, Sway Notification Center, Wallust
+The stack:
+
+- **Window Manager:** Hyprland (Wayland) — Hyprlock, Hypridle, Hyprpaper
+- **Terminal & Shell:** Kitty + Fish + Starship + Tmux
+- **Editor:** Neovim (lazy.nvim, native LSP, Treesitter, Snacks)
+- **Utilities:** Yazi, Rofi, Lazygit, Ripgrep, FZF
+- **Theming:** GTK (Sweet-Ambar-Blue-Dark), icons (Qogir-dark), fonts (JetBrains Mono /
+  3270 Nerd Font), Wallust color generation
+- **Wayland ecosystem:** Waybar, Sway Notification Center, hyprshade
 
 All configuration is declarative, modular, and version-controlled.
+
+---
+
+## Documentation Map
+
+The root README orients; each module's own docs are the **source of truth** for that tool.
+
+| Module | Entry point | Covers |
+|---|---|---|
+| **Neovim** | [nvim/README.md](nvim/README.md) | Colemak layout, native LSP (13 langs), Snacks UI, keybindings, TaskNotes, Python/Android — full doc index |
+| **Hyprland** | [hypr/README.md](hypr/README.md) | Modular Hyprland config, layouts, theming via Wallust, scripts, pyprland |
+| **Tmux** | [tmux/TMUX_KEYBINDINGS.md](tmux/TMUX_KEYBINDINGS.md) · [tmux/TMUX_PLUGINS.md](tmux/TMUX_PLUGINS.md) | Colemak tmux keybindings + plugin setup (TPM) |
+| **Agent rules** | [CLAUDE.md](CLAUDE.md) · [AGENTS.md](AGENTS.md) | Repo architecture & rules for AI agents (Claude Code / OpenCode) |
+
+> The remaining config dirs (`kitty/`, `fish/`, `rofi/`, `waybar/`, `yazi/`, …) have no
+> standalone docs yet — they are plain config directories symlinked by `dotfiles.nix`.
 
 ---
 
@@ -40,45 +64,24 @@ All configuration is declarative, modular, and version-controlled.
 
 ```
 .
-├── flake.nix                 # Nix flake entry point (nixpkgs-unstable, home-manager)
-├── flake.lock               # Locked dependency versions
+├── flake.nix                # Flake entry — 3 nixosConfigurations + inputs
+├── flake.lock
 │
-├── nix/
-│   ├── hosts/
-│   │   └── notebook/        # NixOS system configuration (notebook target)
-│   │       ├── default.nix  # System configuration entry point
-│   │       ├── hardware-configuration.nix
-│   │       ├── audio.nix    # Audio (PipeWire, ALSA)
-│   │       └── services.nix # System services
-│   │
-│   ├── home/
-│   │   ├── main.nix         # Home Manager config for main (Arch)
-│   │   ├── notebook.nix     # Home Manager config for notebook (NixOS)
-│   │   ├── shared.nix       # Shared Home Manager configuration
-│   │   ├── dotfiles.nix     # Dotfile symlinks (nvim, hypr, kitty, etc.)
-│   │   ├── git.nix          # Git configuration
-│   │   ├── gtk.nix          # GTK theming
-│   │   ├── tmux.nix         # Tmux configuration
-│   │   └── activation.nix   # Activation scripts
-│   │
-│   └── packages/
-│       ├── cli.nix          # CLI tools (ripgrep, fzf, lazygit, yazi, etc.)
-│       ├── languages.nix    # Language runtimes (go, rust, python, node, etc.)
-│       ├── wayland.nix      # Wayland ecosystem (hyprland, waybar, hyprlock, etc.)
-│       └── appearance.nix   # Appearance (fonts, themes, icons, wallust)
+├── nix/                     # Nix definitions
+│   ├── hosts/               # Per-host system config: notebook/ main/ server/
+│   │                        #   each has default.nix, hardware-configuration.nix, home.nix
+│   ├── home/                # Shared Home Manager modules (dotfiles.nix, git, gtk, tmux, xdg, …)
+│   ├── packages/            # Categorical package lists → home.packages (cli, dev, languages, …)
+│   ├── overlays/            # nixpkgs overlays (zen-browser, opencode-nix, clingy, antigravity)
+│   └── modules/             # Reusable NixOS modules
 │
-├── nvim/                    # Neovim config (Lazy.nvim, LSP, Telescope, obsidian.nvim)
-├── hypr/                    # Hyprland + Hyprlock + Hypridle
-├── waybar/                  # Waybar status bar (multiple themes)
-├── kitty/                   # Kitty terminal emulator
-├── fish/                    # Fish shell config
-├── rofi/                    # Rofi launcher (multiple themes)
-├── tmux/                    # Tmux multiplexer
-├── yazi/                    # Yazi file manager
-├── starship/                # Starship prompt
-├── swaync/                  # Sway Notification Center
-├── wallust/                 # Wallust color generation
-└── lazygit/                 # Lazygit configuration
+├── nvim/                    # Neovim config        → nvim/README.md
+├── hypr/                    # Hyprland             → hypr/README.md
+├── tmux/                    # Tmux                 → tmux/TMUX_KEYBINDINGS.md · TMUX_PLUGINS.md
+├── kitty/ fish/ rofi/ waybar/ yazi/ starship/      # plain config dirs (symlinked by dotfiles.nix)
+├── swaync/ wallust/ lazygit/ wezterm/ posting/
+├── keyd/ hyprshade/ themes/ fonts/ cool-retro-term/
+└── docs/assets/             # showcase media
 ```
 
 ---
@@ -87,31 +90,26 @@ All configuration is declarative, modular, and version-controlled.
 
 ### Prerequisites
 
-- **For `notebook` (NixOS):** NixOS installed, Nix flakes enabled
-- **For `main` (Arch):** Arch Linux, Nix package manager installed, Home Manager
-- Git
+- **NixOS** with Nix **flakes** enabled (`experimental-features = nix-command flakes`).
+- Git.
+
+> All three targets are NixOS system configurations — there is no Arch /
+> Home-Manager-standalone path.
 
 ### Installation
 
-1. **Clone the repository:**
+1. **Clone:**
    ```bash
    git clone https://github.com/kasatto/the-tower ~/.the-grid/the-tower
    cd ~/.the-grid/the-tower
    ```
 
-2. **Deploy to your target:**
-
-   **For NixOS (notebook):**
+2. **Deploy your host** (`notebook` / `main` / `server`):
    ```bash
    sudo nixos-rebuild switch --flake .#notebook
    ```
 
-   **For Arch Linux with Home Manager (main):**
-   ```bash
-   nix run home-manager/master -- switch --flake .#main
-   ```
-
-3. **Reboot or restart your session** to activate Hyprland and all services.
+3. **Reboot or restart the session** to activate Hyprland and services.
 
 ---
 
@@ -119,62 +117,30 @@ All configuration is declarative, modular, and version-controlled.
 
 ### Deployment Targets
 
-The flake defines two outputs:
+`flake.nix` defines three `nixosConfigurations`:
 
-| Target | Type | Command |
+| Target | Role | Command |
 |--------|------|---------|
-| **`notebook`** | NixOS system | `sudo nixos-rebuild switch --flake .#notebook` |
-| **`main`** | Home Manager (Arch) | `nix run home-manager/master -- switch --flake .#main` |
+| **`notebook`** | Portable workstation | `sudo nixos-rebuild switch --flake .#notebook` |
+| **`main`** | Primary workstation | `sudo nixos-rebuild switch --flake .#main` |
+| **`server`** | Headless infra node (DNS + VPN) | `sudo nixos-rebuild switch --flake .#server` |
+
+Test a host build without switching: `nixos-rebuild build --flake .#<target>`.
 
 ### Modular Structure
 
-**Home Manager Configuration** (`nix/home/`):
-- `shared.nix` — Common configuration for both targets
-- `main.nix` — Arch-specific Home Manager config
-- `notebook.nix` — NixOS-specific Home Manager config
-- `dotfiles.nix` — Symlinks for all application configs (nvim, hypr, kitty, etc.)
-- `git.nix` — Git configuration
-- `gtk.nix` — GTK theming and appearance
-- `tmux.nix` — Tmux configuration
-- `activation.nix` — Post-activation scripts
+- **System** (`nix/hosts/<target>/`): `default.nix` (entry), `hardware-configuration.nix`,
+  `home.nix` (per-host Home Manager), plus host modules (`audio.nix`, `services.nix`,
+  `secrets/`).
+- **Home Manager** (`nix/home/`): shared modules imported by each host's `home.nix` —
+  `dotfiles.nix` (the symlink table), `git.nix`, `gtk.nix`, `tmux.nix`, `xdg.nix`,
+  `sioyek.nix`, `polkit.nix`, `activation.nix`, `secrets.nix`.
+- **Packages** (`nix/packages/`): categorical lists merged into `home.packages` —
+  `cli.nix`, `dev.nix`, `languages.nix`, `latex.nix`, `nvim.nix`, `wayland.nix`,
+  `appearance.nix`, `audio.nix`, `utilities.nix`, `cursor-theme.nix`, `gentle-ai.nix`,
+  plus `custom/` for derivations not in nixpkgs.
 
-**Packages** (`nix/packages/`):
-- `cli.nix` — CLI tools (ripgrep, fzf, lazygit, yazi, tmux, starship, etc.)
-- `languages.nix` — Language runtimes (Go, Rust, Python, Node.js, etc.)
-- `wayland.nix` — Wayland ecosystem (Hyprland, Waybar, Hyprlock, Hypridle, Sway Notification Center)
-- `appearance.nix` — Fonts, themes, icons, Wallust
-
-**System Configuration** (`nix/hosts/notebook/`):
-- `default.nix` — NixOS system entry point
-- `hardware-configuration.nix` — Hardware-specific settings
-- `audio.nix` — PipeWire and ALSA configuration
-- `services.nix` — System services and daemons
-
-### Adding New Packages
-
-Edit the appropriate file in `nix/packages/`:
-```nix
-# nix/packages/cli.nix
-{ pkgs, ... }:
-{
-  home.packages = with pkgs; [
-    # ... existing packages
-    newpackage
-  ];
-}
-```
-
-Then apply: `sudo nixos-rebuild switch --flake .#notebook` or `nix run home-manager/master -- switch --flake .#main`
-
-### Linking New Dotfiles
-
-Edit `nix/home/dotfiles.nix`:
-```nix
-home.file = {
-  ".config/appname".source = ../../appname;
-  # ... other dotfiles
-};
-```
+> For the full architecture and agent workflow rules, see [CLAUDE.md](CLAUDE.md).
 
 ### Theming
 
@@ -189,116 +155,93 @@ Edit `nix/packages/appearance.nix` to change themes or fonts.
 
 ## Key Components
 
-### Neovim
-- **Plugin Manager:** Lazy.nvim
-- **LSP:** Native LSP with multiple language servers
-- **Fuzzy Finder:** Telescope
-- **Treesitter:** Syntax highlighting and text objects
-- **Knowledge Base:** obsidian.nvim for Zettelkasten integration
-- **UI Enhancements:** Snacks.nvim
+Each component links to its module doc, which is the source of truth.
 
-### Hyprland
-- **Window Manager:** Hyprland (Wayland compositor)
-- **Lock Screen:** Hyprlock
-- **Idle Management:** Hypridle
-- **Wallpaper:** Hyprpaper
-- **Daemon:** Pyprland (for additional functionality)
+### Neovim — [nvim/README.md](nvim/README.md)
+lazy.nvim, native LSP across 13 languages, Treesitter, Snacks UI, **Colemak** navigation,
+and an Obsidian/TaskNotes writing workflow.
 
-### Terminal & Shell
-- **Terminal:** Kitty (GPU-accelerated, 3270 Nerd Font Mono)
-- **Shell:** Fish (interactive, user-friendly)
-- **Prompt:** Starship (fast, customizable)
-- **Multiplexer:** Tmux
+### Hyprland — [hypr/README.md](hypr/README.md)
+Wayland compositor with a modular config, Hyprlock (lock), Hypridle (idle), Hyprpaper
+(wallpaper), and pyprland.
+
+### Terminal & Shell — [tmux/TMUX_KEYBINDINGS.md](tmux/TMUX_KEYBINDINGS.md)
+Kitty (GPU-accelerated, 3270 Nerd Font Mono), Fish, Starship prompt, and Tmux with
+Colemak bindings ([plugins](tmux/TMUX_PLUGINS.md)).
 
 ### Utilities
-- **File Manager:** Yazi (fast, keyboard-driven)
-- **Launcher:** Rofi (with multiple themes)
-- **Git Client:** Lazygit (TUI)
-- **Search:** Ripgrep (rg), FZF
-- **Clipboard:** wl-clipboard (Wayland)
+Yazi (file manager), Rofi (launcher), Lazygit (git TUI), Ripgrep + FZF (search),
+wl-clipboard (Wayland clipboard).
 
 ---
 
 ## Development
 
-### Updating Dependencies
-
-To update Nix flake inputs:
+### Validating & building
 ```bash
-nix flake update
+nix flake check                         # validate flake syntax / evaluation
+nixos-rebuild build --flake .#<target>  # build a host without switching
 ```
 
-Then apply to your target:
+### Updating dependencies
 ```bash
-# For NixOS (notebook)
-sudo nixos-rebuild switch --flake .#notebook
-
-# For Arch (main)
-nix run home-manager/master -- switch --flake .#main
+nix flake update                        # bump all inputs
+sudo nixos-rebuild switch --flake .#<target>
 ```
 
-### Validating Configuration
+### Adding a package
+1. Pick the category in `nix/packages/` (CLI → `cli.nix`, Wayland → `wayland.nix`,
+   dev tool → `dev.nix`, etc.).
+2. Append to `home.packages = with pkgs; [ ... ]`.
+3. Rebuild the target.
 
-Check flake syntax:
-```bash
-nix flake check
-```
-
-### Adding New Packages
-
-1. Determine the category (CLI, language, Wayland, appearance)
-2. Edit the appropriate file in `nix/packages/`:
+### Adding a new app config
+1. Create the config directory at the repo root (e.g. `appname/`).
+2. Add a symlink entry in `nix/home/dotfiles.nix`:
    ```nix
-   # nix/packages/cli.nix
-   { pkgs, ... }:
-   {
-     home.packages = with pkgs; [
-       # ... existing packages
-       newpackage
-     ];
-   }
+   home.file.".config/appname".source = ../../appname;
    ```
-3. Apply the configuration
+3. **`git add`** the new directory, then rebuild.
 
-### Adding New Application Configurations
+> **Why `git add`?** `dotfiles.nix` maps each dir with `source = ../../<dir>; recursive = true`,
+> which is a **flake store copy** — not a live symlink. Edits take effect only after a
+> rebuild, and the flake copies **only git-tracked files**, so an untracked config is
+> invisible until staged.
 
-1. Create a new directory (e.g., `appname/`) with config files
-2. Edit `nix/home/dotfiles.nix` and add:
-   ```nix
-   home.file = {
-     ".config/appname".source = ../../appname;
-   };
-   ```
-3. Apply the configuration
+### Custom derivations
+Place new derivations under `nix/packages/custom/` and reference them from a category
+file (via the overlay where applicable).
 
 ---
 
 ## Troubleshooting
 
 ### Configuration won't apply
-- Ensure `flake.nix` syntax is valid: `nix flake check`
-- Review Home Manager logs: `journalctl --user -u home-manager-*`
-- For NixOS: `journalctl -u nixos-rebuild`
+- Validate the flake: `nix flake check`
+- Inspect the build in isolation: `nixos-rebuild build --flake .#<target>`
+- System logs: `journalctl -xe`
 
-### Wayland issues
-- Verify Hyprland is installed: `hyprland --version`
-- Check Hyprland logs: `~/.cache/hyprland/`
-- Ensure GPU drivers are installed (AMD/NVIDIA)
+### Wayland / Hyprland issues
+- Verify Hyprland: `hyprctl version`
+- Logs: `~/.cache/hyprland/` (or `journalctl --user`)
+- Ensure the host's GPU drivers (AMD/NVIDIA) are configured.
 
 ### Font rendering issues
-- Rebuild font cache: `fc-cache -fv`
-- Verify fonts are installed: `fc-list | grep "JetBrains\|3270"`
+- Rebuild the font cache: `fc-cache -fv`
+- Verify fonts: `fc-list | grep -i "jetbrains\|3270"`
 
-### Home Manager conflicts on Arch
-- Ensure no conflicting packages are installed system-wide
-- Check for stale Home Manager generations: `home-manager generations`
-- Remove conflicting packages: `home-manager remove-generations old`
+### Rolling back a bad generation
+- List system generations:
+  `sudo nix-env --list-generations --profile /nix/var/nix/profiles/system`
+- Roll back: `sudo nixos-rebuild switch --rollback` (or pick a previous generation from
+  the boot menu).
 
 ---
 
 ## Credits & Attributions
 
-This configuration incorporates code, scripts, and inspiration from the following open-source projects:
+This configuration incorporates code, scripts, and inspiration from the following
+open-source projects:
 
 - **[Arch-Hyprland](https://github.com/JaKooLit/Arch-Hyprland)** by **JaKooLit**: Several Hyprland scripts, configuration patterns, and theming logic.
 - **[LazyVim](https://github.com/LazyVim/LazyVim)**: Inspiration for modular Neovim structure.
@@ -313,5 +256,5 @@ This project is licensed under the **GNU General Public License v3.0**. See the 
 ---
 
 **Maintained by:** Nico (Kasatto)  
-**Targets:** NixOS (notebook) + Arch Linux (main) + Hyprland + Nix Flakes  
-**Last Updated:** 2026-03-30
+**Targets:** NixOS — `notebook` · `main` · `server` · Hyprland · Nix flakes  
+**Last Updated:** 2026-06-19

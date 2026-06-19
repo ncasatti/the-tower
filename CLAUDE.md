@@ -44,7 +44,9 @@ The repo splits into two layers — **Nix definitions** under `nix/`, and **raw 
 
 ### Dotfile layer (repo root)
 
-Each top-level dir (`nvim/`, `hypr/`, `waybar/`, `kitty/`, `fish/`, `rofi/`, `tmux/`, `yazi/`, `starship/`, `swaync/`, `wallust/`, `lazygit/`, `wezterm/`, `posting/`, `keyd/`, `hyprshade/`, `themes/`, `fonts/`, `cool-retro-term/`) is a plain config directory. They are **not Nix-managed internally** — Nix only symlinks the whole directory. Editing them does not require a rebuild unless `dotfiles.nix` itself changes.
+Each top-level dir (`nvim/`, `hypr/`, `waybar/`, `kitty/`, `fish/`, `rofi/`, `tmux/`, `yazi/`, `starship/`, `swaync/`, `wallust/`, `lazygit/`, `wezterm/`, `posting/`, `keyd/`, `hyprshade/`, `themes/`, `fonts/`, `cool-retro-term/`) is a plain config directory — **not Nix-managed internally**. `dotfiles.nix` maps each with `source = ../../<dir>; recursive = true`, which is a **flake store copy**, not a live symlink. Consequences: **editing any dotfile requires `sudo nixos-rebuild switch`** to take effect, and **new files must be `git add`-ed first** (the flake copies only git-tracked files, so an untracked file is invisible at runtime).
+
+Modules with their own docs: [`nvim/`](nvim/README.md), [`hypr/`](hypr/README.md), `tmux/` (`TMUX_KEYBINDINGS.md`, `TMUX_PLUGINS.md`). The root [`README.md`](README.md) indexes them under **Documentation Map**.
 
 ### Flake inputs of note
 
@@ -68,5 +70,5 @@ Place new derivations under `nix/packages/custom/` and reference them from a cat
 
 ## Source-of-truth conflicts
 
-- **`README.md` is stale on the deployment model** — it describes `main` as Home Manager on Arch. The flake says otherwise. Trust `flake.nix`.
-- **`AGENTS.md`** mirrors the OpenCode agent's instructions and is correct on the three-target model.
+- **`flake.nix` is authoritative** on the deployment model — three `nixosConfigurations` (`notebook`, `main`, `server`), each pulling Home Manager via `nix/hosts/<target>/home.nix`. `README.md` and `AGENTS.md` are now aligned to this; if any doc drifts again, trust `flake.nix`.
+- **Module docs are the source of truth for their tool** — `nvim/README.md`, `hypr/README.md`, `tmux/TMUX_*.md`. When a module doc and the code disagree, the code wins: fix the doc and cite `file:line`.

@@ -24,7 +24,10 @@ or docs, account for the remaps — full table in
 - **Plugins are modular** — one file per plugin under
   `lua/plugins/<category>/`. A new plugin → a new file in the right category, and
   (if the category isn't already imported) an `{ import = ... }` entry in
-  `lua/config/lazy.lua`.
+  `lua/config/lazy.lua`. A plugin that outgrows one file (e.g. **TaskNotes**) gets
+  its own `lua/<name>/` module tree, with only a thin lazy spec left under
+  `lua/plugins/<category>/` — keep the tree out of `plugins/` so lazy's directory
+  import doesn't try to load the modules as plugin specs.
 - **LSP** uses the native `vim.lsp.config`/`enable` API with per-server modules in
   `lua/plugins/lsp/servers/`. To add a server, follow
   [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#lsp-architecture).
@@ -35,9 +38,11 @@ or docs, account for the remaps — full table in
 
 - `lua/plugins/android/` exists but is **not wired into the lazy spec** (its import
   is commented out in `lua/config/lazy.lua`).
-- Editing files here takes effect on the next `nvim` launch — this directory is
-  symlinked by Home Manager. **No rebuild needed** unless `nix/home/dotfiles.nix`
-  changes.
+- This directory is **copied into the Nix store** by Home Manager
+  (`nix/home/dotfiles.nix`, `source = ../../nvim; recursive = true`) — not a live
+  symlink. **Edits require `sudo nixos-rebuild switch` to take effect**, and **new
+  files must be `git add`-ed first**: the flake copies only git-tracked files, so an
+  untracked module is invisible at runtime (`module '…' not found`).
 
 ## Verify — don't trust docs blindly
 

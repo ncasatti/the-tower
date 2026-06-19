@@ -2,18 +2,23 @@
 
 # TaskNotes — Neovim client for the TaskNotes API
 
-A Neovim front-end for task management, implemented as a single Lua module
-(`lua/plugins/writing/tasknotes.lua`). It is an **HTTP client** for the
-[TaskNotes](https://github.com/callumalpass/tasknotes) Obsidian plugin's REST API
-at `http://localhost:8080/api` — **not** a filesystem indexer. Obsidian (with the
-TaskNotes plugin and its API server) must be running for any of this to work.
+A Neovim front-end for task management, implemented as a modular Lua tree under
+`lua/tasknotes/` (the lazy spec at `lua/plugins/writing/tasknotes.lua` is just an
+18-line loader that calls `require("tasknotes").setup()`). It is an **HTTP client**
+for the [TaskNotes](https://github.com/callumalpass/tasknotes) Obsidian plugin's
+REST API at `http://localhost:8080/api` — **not** a filesystem indexer. Obsidian
+(with the TaskNotes plugin and its API server) must be running for any of this to
+work.
 
 ## Table of contents
 
 - [How it works](#how-it-works)
+- [Module structure](#module-structure)
 - [Prerequisites](#prerequisites)
 - [Keybindings](#keybindings)
 - [Workflows](#workflows)
+- [Configuration](#configuration)
+- [Row rendering](#row-rendering)
 - [Data model](#data-model)
 - [API endpoints used](#api-endpoints-used)
 - [Troubleshooting](#troubleshooting)
@@ -45,6 +50,28 @@ Snacks pickers from the index.
 - **Live filter options.** Statuses, priorities, contexts, projects and tags —
   plus their colors, icons and display order — come live from
   `GET /api/filter-options`. Nothing is hardcoded.
+
+## Module structure
+
+The implementation is a strict dependency tree (a `require` DAG) under
+`lua/tasknotes/`, with `config` at the root and `init` as the only public entry
+point. The lazy spec under `lua/plugins/writing/` does nothing but `require` it.
+
+| Module | Responsibility |
+|---|---|
+| `config` | Tunables — the single source of truth (paths, API URL, TTLs, row glyphs) |
+| `api` | HTTP client for the REST API + the TTL'd API caches (filter-options, task paths) |
+| `util` | Pure helpers (date math, due/scheduled formatting, path↔id) — no Snacks/API at load |
+| `cache` | Task index (API-sourced, TTL-gated) + the whole-vault notes index (FS-scanned, `owt`) |
+| `ui` | Shared Snacks picker view, the live-color engine, status/priority rank tables, row formatter |
+| `pickers` | The `Key → Value → File` drill-down + status/tag shortcuts + the vault tag browser |
+| `query` | Filter builder, the API-backed task finder, and the interactive query builder |
+| `task_ops` | NLP task creation (`own`) + the staged multi-field editor (`owe`) |
+| `pomodoro` | The Pomodoro & time-tracking panel (`owp`) |
+| `init` | Public entry: `setup(opts)` merges config in place, gates on `/api/health`, registers keymaps |
+
+Adding a feature: put pure logic in `util`, API calls in `api`, shared rendering
+in `ui`, then wire the keymap in `init`.
 
 ## Prerequisites
 
@@ -116,6 +143,41 @@ write the open task buffer is auto-reloaded (with an unsaved-changes guard).
 
 ### Refresh — `owr`
 Invalidates the caches and forces a full rebuild on the next call.
+
+## Configuration
+
+Tunables live in **`lua/tasknotes/config.lua`** — the single source of truth.
+`setup(opts)` merges overrides into that table *in place*, so every module holding
+a `require("tasknotes.config")` reference sees them. The lazy spec calls `setup()`
+with no args; to override, pass a table from the spec's `config` function.
+
+| Key | Default | Purpose |
+|---|---|---|
+| `vault_path` | `~/.the-grid/zettelkasten` | Vault root (used by the `owt` FS scan and path↔id) |
+| `tasks_folder` | `TaskNotes/Tasks` | Task subfolder |
+| `api_url` | `http://localhost:8080/api` | REST API base |
+| `cache_ttl` | `30` | Local task-index TTL (seconds) |
+| `default_status` / `default_priority` | `inbox` / `normal` | Fallbacks for NLP create |
+| `pomodoro_minutes` | `nil` | Optional WORK-length override (breaks stay server-managed) |
+| `status_icons` | per-status glyphs | **User-tunable** status glyph map (see [Row rendering](#row-rendering)) |
+| `default_icon` | `●` | Fallback glyph for unmapped statuses |
+| `priority_icon` | `●` | The priority-dot glyph |
+
+## Row rendering
+
+Search rows (`owk` file stage, `ows`/`owo`, `owq` results) render as four segments
+— **status glyph · priority dot · title · dimmed date** — instead of the old
+`[status][priority]` text badges:
+
+- **Glyphs are local and tunable.** `config.status_icons` maps each status `value`
+  to a glyph (keys: `inbox`, `in-progress`, `on-hold`, `waiting`, `done`); unmapped
+  statuses fall back to `default_icon`. Edit these in `config.lua` to use your own
+  Nerd Font glyphs. (The API's own `icon` field is a *Lucide name*, not a terminal
+  glyph, so it can't be rendered directly.)
+- **Colors are live, not local.** Status-glyph and priority-dot colors come from
+  `GET /api/filter-options` at runtime (`ui.get_color_tables` →
+  `ui.ensure_color_hl`); they are never hardcoded.
+- The date suffix (`util.due_info`) keeps the **OVERDUE / DUE TODAY** emphasis.
 
 ## Data model
 

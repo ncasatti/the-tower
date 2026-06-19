@@ -1,13 +1,15 @@
 # OpenCode Agent Instructions
 
-This repository ("The Tower") is a declarative, modular Nix configuration for a dual-target deployment: NixOS (`notebook` and `main`).
+This repository ("The Tower") is a declarative, modular Nix configuration for a three-target NixOS deployment: `notebook`, `main`, and `server`. All three are `nixosConfigurations` in `flake.nix` — there is no Home-Manager-standalone / Arch target.
 
 ## Architecture & Boundaries
 - **`notebook` target**: NixOS system configuration. Entry point: `nix/hosts/notebook/default.nix`.
 - **`main` target**: NixOS system configuration. Entry point: `nix/hosts/main/default.nix`.
-- **Shared Home Manager**: `nix/home/shared.nix` and `nix/home/dotfiles.nix` (symlinks for app configs).
-- **Packages**: Categorized in `nix/packages/` (`cli.nix`, `languages.nix`, `wayland.nix`, `appearance.nix`).
-- **Secrets**: Managed via `agenix` in `nix/hosts/notebook/secrets/`.
+- **`server` target**: NixOS system configuration (headless infra: DNS + VPN). Entry point: `nix/hosts/server/default.nix`.
+- **Per-host Home Manager**: each host imports `nix/hosts/<target>/home.nix`, which pulls in the shared modules under `nix/home/` (`dotfiles.nix` holds the app-config symlink table).
+- **Packages**: Categorized in `nix/packages/` (`cli.nix`, `dev.nix`, `languages.nix`, `wayland.nix`, `appearance.nix`, `audio.nix`, `utilities.nix`, `nvim.nix`, …) plus `custom/`.
+- **Secrets**: Managed via `agenix` in `nix/hosts/<target>/secrets/` (legacy — see below).
+- **Module docs**: `nvim/README.md`, `hypr/README.md`, `tmux/TMUX_*.md` are the source of truth for those tools; indexed from the root `README.md`.
 
 ## Deployment Commands
 **CRITICAL**: Do not guess deployment commands. Use these exact commands based on the target:
@@ -19,6 +21,10 @@ This repository ("The Tower") is a declarative, modular Nix configuration for a 
 - **Deploy to NixOS (`main`)**:
   ```bash
   sudo nixos-rebuild switch --flake .#main
+  ```
+- **Deploy to NixOS (`server`)**:
+  ```bash
+  sudo nixos-rebuild switch --flake .#server
   ```
 
 ## Common Workflows
