@@ -36,6 +36,7 @@ Colors = {
 	red = "#D26464",
 	blue_dark = "#334454", -- 253340
 	blue_dark2 = "#2b3b4d",
+	blue_dark3 = "#1C2733", -- darker selection box → more contrast for white text
 	-- Markdown colors
 	h1 = "#e65064",
 	h2 = "#C385FE",
@@ -49,7 +50,7 @@ Elements = {
 	code = Colors.blue1,
 	italic = Colors.gray4,
 	cursor = Colors.white1,
-	selection = Colors.blue_dark2, --344240
+	selection = Colors.blue_dark3, -- darker box → white selection text pops more
 	matched = Colors.red,
 	comments = Colors.gray,
 }
@@ -105,6 +106,10 @@ return {
 			-- Visual selection
 			Visual = { fg = Colors.white1, bg = Elements.selection, bold = true },
 			VisualNOS = { fg = Colors.white1, bg = Elements.selection, bold = true },
+			-- Snacks picker selected row: decoupled from Visual (Snacks links it to
+			-- Visual by default in core/list.lua). NO fg so colored task icons
+			-- keep their status/priority color when the row is selected.
+			SnacksPickerListCursorLine = { bg = Elements.selection },
 			-- Matched parens
 			MatchParen = { fg = Elements.matched, bold = true, underline = true },
 
@@ -269,6 +274,7 @@ return {
 		vim.api.nvim_set_hl(0, "Cursor", { fg = Colors.black, bg = Elements.cursor })
 		vim.api.nvim_set_hl(0, "Visual", { fg = Colors.white1, bg = Elements.selection, bold = true })
 		vim.api.nvim_set_hl(0, "VisualNOS", { fg = Colors.white1, bg = Elements.selection, bold = true })
+		vim.api.nvim_set_hl(0, "SnacksPickerListCursorLine", { bg = Elements.selection })
 		vim.api.nvim_set_hl(0, "MatchParen", { fg = Elements.matched, bold = true, underline = true })
 
 		-- Markdown bold - bright white
