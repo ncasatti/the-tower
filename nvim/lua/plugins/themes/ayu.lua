@@ -15,6 +15,7 @@ Colors = {
 	orange2 = "#FFB454",
 	orange3 = "#DBA55E", -- C79454
 	white1 = "#FFFFFF",
+	fg_bright = "#D9D7D0", -- common/body text (brighter than ayu's default #BFBDB6)
 	white2 = "#828282",
 	white3 = "#666666",
 	white4 = "#262626", --525252
@@ -37,17 +38,24 @@ Colors = {
 	blue_dark = "#334454", -- 253340
 	blue_dark2 = "#2b3b4d",
 	blue_dark3 = "#1C2733", -- darker selection box → more contrast for white text
-	-- Markdown colors
-	h1 = "#e65064",
-	h2 = "#C385FE",
-	h3 = "#FF8F40",
-	h4 = "#84CEB5",
-	h5 = "#70BF56",
-	h6 = "#17ACF2",
+	-- Inline markup (opaque, so headings dominate the page)
+	code_muted = "#73A0AE", -- inline `code` / code blocks (was blue1 #39BAE6)
+	bold_orange = "#E0803A", -- bold: ayu orange (#FF8F40) dimmed ~12% — orange, not gold/yellow
+	-- Markdown heading colors — distinct hues (inline now muted, so collisions are minor)
+	-- prior alts kept for quick revert:
+	--   mono-violet:  E0B3FF C892F2 B279DE 9C66C7 875AAD 714C90
+	--   ember:        FF6D7E FF8A5C FFB454 FFD580 E8CB8E C9B88A
+	--   vivid-teal:   63C1CE 51ABBA 4396A6 388193 2F6D80 29596D
+	h1 = "#e65064", -- ayu red (kept)
+	h2 = "#59C2FF", -- blue
+	h3 = "#7FD962", -- green
+	h4 = "#C385FE", -- violet
+	h5 = "#FFB454", -- amber
+	h6 = "#6FD0C0", -- teal-mint
 }
 Elements = {
-	bold = Colors.orange3,
-	code = Colors.blue1,
+	bold = Colors.bold_orange,
+	code = Colors.code_muted,
 	italic = Colors.gray4,
 	cursor = Colors.white1,
 	selection = Colors.blue_dark3, -- darker box → white selection text pops more
@@ -60,8 +68,8 @@ return {
 	priority = 1000,
 	config = function()
 		local darkvenom = {
-			-- Background transparent
-			Normal = { bg = "None" },
+			-- Background transparent + brighter body text (less gray)
+			Normal = { fg = Colors.fg_bright, bg = "None" },
 			ColorColumn = { bg = "None" },
 			SignColumn = { bg = "None" },
 			Folded = { bg = "None" },
@@ -145,10 +153,10 @@ return {
 			["@type.builtin"] = { fg = Colors.blue3 },
 
 			-- Variables (OK)
-			Identifier = { fg = "#BFBDB6" }, -- Light gray variables BFBDB6
-			["@variable"] = { fg = "#BFBDB6" },
-			["@variable.member"] = { fg = "#BFBDB6" },
-			["@variable.builtin"] = { fg = "#BFBDB6", italic = true },
+			Identifier = { fg = Colors.fg_bright }, -- common text (was #BFBDB6)
+			["@variable"] = { fg = Colors.fg_bright },
+			["@variable.member"] = { fg = Colors.fg_bright },
+			["@variable.builtin"] = { fg = Colors.fg_bright, italic = true },
 
 			-- Numbers (OK)
 			Number = { fg = "#D2A6FF" }, -- Purple numbers
