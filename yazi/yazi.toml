@@ -14,8 +14,10 @@ xdg = [
 
 [open]
 rules = [
-    # Text-like files → edit in nvim
-    { name = "*.{txt,md,json,yaml,yml,toml,fish,nix,lua,py,sh,js,ts,go,rs,cpp,c,h,hpp}", use = ["edit"] },
+    # Text-like files → edit in nvim. Match by filename (`url`), NOT mime:
+    # libmagic misclassifies .lua as application/javascript and .json as
+    # application/json, which would otherwise miss the `text/*` rule below.
+    { url = "*.{txt,md,json,yaml,yml,toml,fish,nix,lua,py,sh,js,ts,go,rs,cpp,c,h,hpp}", use = ["edit"] },
     { mime = "text/*", use = ["edit"] },
 
     # PDFs → xdg-open delegates to zathura per xdg.nix

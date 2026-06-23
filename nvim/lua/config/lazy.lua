@@ -15,7 +15,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Setup lazy.nvim
 require("lazy").setup({
 	spec = {
-		{ import = "plugins.ai" },
+		-- { import = "plugins.ai" },
 		-- Android and Gradle utilities auto-load from plugin/ directory
 		-- { import = "plugins.android" },
 		{ import = "plugins.debug" },

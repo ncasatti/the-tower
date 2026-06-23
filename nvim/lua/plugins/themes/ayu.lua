@@ -319,6 +319,11 @@ return {
 		vim.api.nvim_set_hl(0, "@punctuation.special.latex", { fg = Elements.code })
 		vim.api.nvim_set_hl(0, "@variable.parameter.latex", { fg = Elements.code })
 
+		-- snacks.image LaTeX math → white. Overrides snacks' default group
+		-- (linked to @markup.math.latex/Special = ayu gold). This fg is baked
+		-- into the generated .tex (\color), so changing it recompiles the image.
+		vim.api.nvim_set_hl(0, "SnacksImageMath", { fg = Colors.white1 })
+
 		-- Callout colors
 		vim.api.nvim_set_hl(0, "RenderMarkdownInfo", { fg = Colors.blue_note })
 		vim.api.nvim_set_hl(0, "RenderMarkdownHint", { fg = "#7FD962" })

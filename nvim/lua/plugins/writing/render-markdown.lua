@@ -6,10 +6,12 @@ return {
 	},
 	ft = { "markdown", "md" },
 	opts = {
-		-- anti_conceal disabled: its CursorMoved-driven re-render clobbered
-		-- nabla.nvim's inline virt_text. Editing markdown source on the
-		-- cursor line is slightly less convenient — acceptable trade for
-		-- stable math rendering.
+		-- anti_conceal stays DISABLED. Its CursorMoved-driven re-render cycle
+		-- desyncs inline math on every cursor move / scroll: it clobbered
+		-- nabla's virt_text (text terminals) AND garbles snacks.image's inline
+		-- placements (rendered image + raw LaTeX overlapping). Editing math
+		-- source on the cursor line still works — snacks.image reveals it via
+		-- its own conceal logic.
 		anti_conceal = {
 			enabled = false,
 		},

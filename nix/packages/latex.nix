@@ -28,10 +28,19 @@ let
 
       # Quality of life
       standalone  # compilable snippets / embedded figures
+      preview     # preview.sty — required by standalone's [preview] option,
+                  # used by snacks.image's LaTeX-math template to render inline
+                  # math as cropped images in markdown. Without it pdflatex
+                  # fails silently (convert.notify=false) and math never renders.
       enumitem    # configurable lists
       ;
   };
 in
 {
-  home.packages = [ tex ];
+  # tex: the LaTeX toolchain (above).
+  # ghostscript: ImageMagick's delegate for rasterizing PDF → PNG. Required by
+  # snacks.image's math pipeline (pdflatex → PDF → magick/gs → PNG). Without
+  # `gs`, math compiles to PDF but magick fails ("gs: command not found") and
+  # the equation never becomes a displayable image.
+  home.packages = [ tex pkgs.ghostscript ];
 }
