@@ -41,5 +41,9 @@
     # --- Misc ---
     ".config/hyprshade"           = { source = ../../hyprshade;        recursive = true; };
     ".local/share/fonts"          = { source = ../../fonts;            recursive = true; };
+
+    # Per-host Hyprland override include (sourced last by hypr/hyprland.conf).
+    # Empty default; hosts override with lib.mkForce (see hosts/server/home.nix).
+    ".config/hypr-host.conf".text = "# host-specific Hyprland overrides (none)\n";
   };
 }

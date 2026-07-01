@@ -40,6 +40,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # hypr-rdp: native RDP server for Hyprland (server/HTPC remote control).
+    # Requires Hyprland >= 0.54. Not in nixpkgs; ships its own flake.
+    hypr-rdp = {
+      url = "github:MuNeNICK/hypr-rdp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Claude Code (community flake, hourly updates from Anthropic npm release).
     # Intentionally NOT following nixpkgs — preserves cachix prebuilt cache hits
     # (claude-code.cachix.org). See nix/modules/nix.nix for the substituter.

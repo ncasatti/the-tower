@@ -1,7 +1,8 @@
 # nix/hosts/server/default.nix
-# Headless NixOS configuration for The Grid server (DNS + VPN node).
-# No GUI, no Hyprland, no Home Manager. Pure infrastructure.
-# TODO: Add hardware-configuration.nix after NixOS installation.
+# NixOS configuration for The Grid server — a rack notebook that wears three
+# hats: infra node (DNS + VPN), HTPC (video/music on TV + stereo), and audio
+# workstation (Carla + USB interface). Controlled remotely over Tailscale.
+# See docs/server-htpc-migration.md for the design.
 
 { pkgs, ... }:
 
@@ -15,9 +16,11 @@
     ../../modules/services.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
+    ../../modules/audio.nix     # PipeWire + JACK + rtkit (Carla, USB interface)
 
     # Server-specific
     ./adguard.nix
+    ./htpc.nix                  # Hyprland + greetd autologin + Intel VA-API
   ];
 
   # --- PLATFORM ---
@@ -43,7 +46,7 @@
   users.users.flyn = {
     isNormalUser = true;
     description  = "System Administrator";
-    extraGroups  = [ "networkmanager" "wheel" ];
+    extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
     shell        = pkgs.fish;
   };
 
