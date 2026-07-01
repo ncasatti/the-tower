@@ -14,6 +14,7 @@
     ../../home/gtk.nix
     ../../home/xdg.nix
     ../../home/polkit.nix
+    ../../home/activation.nix   # hy3 plugin load + wallust cache scaffold
 
     # --- Package sets ---
     ../../packages/nvim.nix
