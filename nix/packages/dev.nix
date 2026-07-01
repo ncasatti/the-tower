@@ -9,6 +9,8 @@
     clingy
     engram
     gemini-cli
+    nurl # Generate Nix fetcher expressions (src hash) from a URL
+
     postman
     postgresql
     dbeaver-bin
