@@ -16,6 +16,7 @@
     ../../modules/tailscale.nix
     ../../modules/security.nix
     ../../modules/docker.nix
+    ../../modules/fish.nix
   ];
 
   # --- PLATFORM ---
@@ -38,15 +39,7 @@
   services.xserver.xkb.variant = "colemak";
   console.keyMap       = "colemak";
 
-  # --- GLOBAL SHELL ---
-  programs.fish = {
-    enable = true;
-    shellAliases = {
-      l = null;
-      ll = null;
-      ls = null;
-    };
-  };
+  # --- GLOBAL SHELL --- (fish → modules/fish.nix)
   programs.dconf.enable = true;
 
   # --- WINDOW MANAGER ---

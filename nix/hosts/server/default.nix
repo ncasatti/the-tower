@@ -17,6 +17,7 @@
     ../../modules/tailscale.nix
     ../../modules/security.nix
     ../../modules/audio.nix     # PipeWire + JACK + rtkit (Carla, USB interface)
+    ../../modules/fish.nix
 
     # Server-specific
     ./adguard.nix
@@ -38,9 +39,6 @@
   time.timeZone      = "America/Argentina/Cordoba";
   i18n.defaultLocale = "en_US.UTF-8";
   console.keyMap     = "colemak";
-
-  # --- SHELL ---
-  programs.fish.enable = true;
 
   # --- USER IDENTITY ---
   users.users.flyn = {
