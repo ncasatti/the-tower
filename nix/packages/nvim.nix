@@ -19,6 +19,7 @@
         tree-sitter-css
         tree-sitter-go
         tree-sitter-bash
+        tree-sitter-fish
         tree-sitter-nix
         tree-sitter-python
         tree-sitter-java

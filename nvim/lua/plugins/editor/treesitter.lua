@@ -25,6 +25,7 @@ return {
 				"css",
 				"go",
 				"bash",
+				"fish",
 				"nix",
 				"python",
 				"java",
