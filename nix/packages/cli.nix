@@ -30,6 +30,7 @@
     speedtest-cli
     bind
     tcpdump
+    freerdp     # FreeRDP3 (xfreerdp) — RDP client for the HTPC (see rdp-htpc.sh)
     posting
     translate-shell
     btop
