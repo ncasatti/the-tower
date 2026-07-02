@@ -29,12 +29,15 @@ fi
 
 # /gfx:AVC420 matches the server's egfx_codec; audio stays local (server
 # audio_mode=off) so no /sound; /cert:ignore accepts hypr-rdp's self-signed cert.
+# NO /dynamic-resolution: hypr-rdp mirrors the physical eDP-1 output, and dynamic
+# resize against a physical output triggers an endless presentation-resize loop
+# (blank screen at fullscreen). Re-add it ONLY if config.toml switches to a
+# managed headless output (drop the `output` line there).
 if ! xfreerdp \
   /v:"$HOST:$PORT" \
   /u:"$RUSER" \
   /p:"$(< "$PASS_FILE")" \
   /gfx:AVC420 \
-  /dynamic-resolution \
   +clipboard \
   /cert:ignore \
   /log-level:WARN \
