@@ -25,3 +25,7 @@ nvim/lazy-lock.json
 nvim/plugin/packer_compiled.lua
 # Legacy tmux plugins (managed by Nix now)
 tmux/tmux/plugins/
+
+# Fish runtime state (mutable — fish writes set -U here; must NOT be a read-only store symlink)
+fish/fish_variables
+fish/fish_history
