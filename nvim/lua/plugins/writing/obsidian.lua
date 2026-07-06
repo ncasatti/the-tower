@@ -67,6 +67,13 @@ return {
 
       notes_subdir = "Fleeting",
 
+      -- Vault-relative attachment folder. The plugin default ("attachments")
+      -- doesn't match this vault; this path feeds both `Obsidian paste_img`
+      -- and snacks.image's resolve hook (wikilink image rendering).
+      attachments = {
+        folder = "Zettelkasten/references/attachments",
+      },
+
       -- Completion is deprecated, now provided via the built-in obsidian-ls
       -- completion = {
       --   nvim_cmp = true,

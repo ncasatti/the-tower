@@ -29,6 +29,16 @@ return {
 			-- Render math at body-text size; the default "Large" looked oversized
 			-- vs the surrounding text. LaTeX size command sans backslash.
 			math = { latex = { font_size = "normalsize" } },
+			-- Obsidian wikilink embeds (![[img.png]]) carry only the filename;
+			-- delegate resolution to obsidian.nvim's attachment folder. Returning
+			-- nil keeps snacks' default file-relative resolution for non-vault
+			-- markdown.
+			resolve = function(path, src)
+				local ok, api = pcall(require, "obsidian.api")
+				if ok and api.path_is_note(path) then
+					return api.resolve_image_path(src)
+				end
+			end,
 		},
 		quickfile = { enabled = true },
 		scope = { enabled = true },
