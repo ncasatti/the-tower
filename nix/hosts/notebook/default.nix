@@ -17,6 +17,7 @@
     ../../modules/security.nix
     ../../modules/docker.nix
     ../../modules/fish.nix
+    ../../modules/syncthing.nix
   ];
 
   # --- PLATFORM ---

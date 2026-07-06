@@ -18,6 +18,7 @@
     ../../modules/security.nix
     ../../modules/audio.nix     # PipeWire + JACK + rtkit (Carla, USB interface)
     ../../modules/fish.nix
+    ../../modules/syncthing.nix
 
     # Server-specific
     ./adguard.nix
@@ -34,6 +35,8 @@
   # --- NETWORKING ---
   networking.hostName            = "the-grid-server";
   networking.networkmanager.enable = true;
+  networking.networkmanager.wifi.backend = "iwd";
+  networking.wireless.iwd.enable = true;
 
   # --- LOCALIZATION & CLOCK ---
   time.timeZone      = "America/Argentina/Cordoba";
