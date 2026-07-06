@@ -21,6 +21,7 @@
     ../../modules/docker.nix
     ../../modules/fish.nix
     ../../modules/syncthing.nix
+    ../../modules/wifi-no-powersave.nix  # RDP client side; kill latency spikes
   ];
 
   # --- PLATFORM ---

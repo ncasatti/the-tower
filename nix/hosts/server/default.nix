@@ -19,6 +19,7 @@
     ../../modules/audio.nix     # PipeWire + JACK + rtkit (Carla, USB interface)
     ../../modules/fish.nix
     ../../modules/syncthing.nix
+    ../../modules/wifi-no-powersave.nix  # RDP streams over Wi-Fi; kill latency spikes
 
     # Server-specific
     ./adguard.nix
