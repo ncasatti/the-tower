@@ -19,7 +19,7 @@
 let
   grid = {
     the-grid = {
-      id = "G54WKJS-KVGODB6-ZWYQWMS-GD6RO3N-X3P5QRX-ZFC43OB-D26JBE2-ML2DPA4";
+      id = "XLIOOKU-IS5HNUH-VQJR3Z7-HC47AJA-KDUC6KO-RBTNNL3-EXBCV6Z-YUZ4MQB";
     };
     the-grid-server = {
       id = "EA3U4EI-ZNLSIX5-7UILELT-5LKJ4HK-PEAWSXX-V7T6Y5H-JZOCV5X-765SYAQ";
@@ -65,14 +65,6 @@ in
           versioning = {
             # Safety net: deletes/overwrites RECEIVED from a peer are kept for
             # 14 days under .stversions/ instead of vanishing immediately.
-            type = "trashcan";
-            params.cleanoutDays = "14";
-          };
-        };
-        codebaseMemory = {
-          path = "/home/flyn/.cache/codebase-memory-mcp";
-          devices = lib.attrNames peers;
-          versioning = {
             type = "trashcan";
             params.cleanoutDays = "14";
           };
