@@ -20,6 +20,7 @@
     # --- Package sets ---
     ../../packages/cli.nix
     ../../packages/dev.nix
+    ../../packages/ai.nix
     ../../packages/nvim.nix
     ../../packages/languages.nix
     ../../packages/wayland.nix
