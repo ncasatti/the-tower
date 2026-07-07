@@ -75,6 +75,7 @@ in
           versioning = {
             type = "trashcan";
             params.cleanoutDays = "14";
+          };
         };
       };
     };
