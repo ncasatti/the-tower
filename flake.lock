@@ -200,26 +200,6 @@
         "type": "github"
       }
     },
-    "hypr-rdp": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1782380177,
-        "narHash": "sha256-wRygc1coGCjIJEqLE75Wop+Rfapc4FwAL7Tp0giuklo=",
-        "owner": "MuNeNICK",
-        "repo": "hypr-rdp",
-        "rev": "afec3bd9af37bd9a49bedd3d8b80b37a8a52b809",
-        "type": "github"
-      },
-      "original": {
-        "owner": "MuNeNICK",
-        "repo": "hypr-rdp",
-        "type": "github"
-      }
-    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1780930886,
@@ -280,7 +260,6 @@
         "claude-code": "claude-code",
         "clingy": "clingy",
         "home-manager": "home-manager_2",
-        "hypr-rdp": "hypr-rdp",
         "nixpkgs": "nixpkgs_2",
         "opencode-nix": "opencode-nix",
         "zen-browser": "zen-browser"

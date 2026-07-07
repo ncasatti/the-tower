@@ -4,8 +4,7 @@
 # Notebook chipsets ship with power_save ON (kernel/driver default): the NIC
 # dozes between bursts and the AP buffers packets until the next beacon,
 # adding 100-200ms latency spikes on an otherwise <10ms link. That is fatal
-# for the hypr-rdp stream (max 3 unacknowledged frames in flight — every
-# spike freezes the video).
+# for the HTPC remote-control stream (Sunshine → Moonlight).
 #
 # NetworkManager's `wifi.powersave` knob does NOT apply with the iwd backend,
 # and iwd exposes no power-save setting of its own, so pin it at the nl80211

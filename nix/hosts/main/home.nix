@@ -38,6 +38,7 @@
     cool-retro-term
     kitty
     obsidian
+    moonlight-qt   # client for the HTPC's Sunshine (see htpc-remote.sh)
 
     # Screenshot & Multimedia dependencies
     grim

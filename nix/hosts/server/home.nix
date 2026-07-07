@@ -36,7 +36,6 @@
     kitty
     zen-browser
     tidal-hifi
-    hypr-rdp       # native RDP server (overlay → github:MuNeNICK/hypr-rdp)
   ];
 
   # --- Per-host Hyprland overrides (sourced last by hypr/hyprland.conf) ---
@@ -45,26 +44,18 @@
   home.file.".config/hypr-host.conf".text = lib.mkForce ''
     # === HTPC host overrides (server) — sourced LAST by hypr/hyprland.conf ===
 
-    # Force Intel VA-API for hypr-rdp's H.264 encode. The shared
-    # hypr/configs/env.conf sets LIBVA_DRIVER_NAME=nvidia (that box has an NVIDIA
-    # GPU); it leaks here and makes VA-API init fail → software H.264 (high CPU,
-    # low fps). This box is Intel-only. Re-assert iHD; sourced after env.conf and
-    # before the exec-once below, so hypr-rdp inherits it.
+    # Re-assert Intel VA-API for anything spawned inside the session (mpv,
+    # browsers, Sunshine's encoder). The shared hypr/configs/env.conf sets
+    # LIBVA_DRIVER_NAME=nvidia for main's GPU; this box is Intel-only.
     env = LIBVA_DRIVER_NAME,iHD
 
-    # The notebook lid panel is the only real output (rack; nobody looks at it,
-    # but hypr-rdp mirrors it). Pin scale 1 — auto-detect landed on 0.67, whose
-    # aspect normalization fed the RDP presentation-resize loop. No TV yet; when
-    # HDMI is plugged in it appears as a second output, e.g.:
-    #   monitor = HDMI-A-1, preferred, 1366x0, 1
-    monitor = eDP-1, preferred, 0x0, 1
+    # The TV is THE monitor. The notebook lid panel stays disabled: nobody
+    # looks at it in the rack, and a second output creates focus/input
+    # ambiguity for remote control (windows opening on the unseen screen).
+    monitor = HDMI-A-1, 1920x1080@60, 0x0, 1
+    monitor = eDP-1, disable
 
-    # === Remote control: hypr-rdp ===
-    # Reads bind/output/credentials from ~/.config/hypr-rdp/config.toml (created
-    # manually, chmod 600 — NEVER commit credentials to the flake/store). With
-    # output = "eDP-1" it MIRRORS the panel above; omit `output` there instead
-    # for a managed 1920x1080 headless desktop. Port 7777 is reachable ONLY over
-    # Tailscale (tailscale0 trusted; 7777 not in allowedTCPPorts).
-    exec-once = hypr-rdp
+    # Remote control is Sunshine (services.sunshine in htpc.nix) — a systemd
+    # user service tied to the graphical session; no exec-once needed here.
   '';
 }
