@@ -18,19 +18,25 @@
 
 let
   grid = {
-    the-grid          = { id = "G54WKJS-KVGODB6-ZWYQWMS-GD6RO3N-X3P5QRX-ZFC43OB-D26JBE2-ML2DPA4"; };
-    the-grid-notebook = { id = null; };
-    the-grid-server   = { id = null; };
+    the-grid = {
+      id = "G54WKJS-KVGODB6-ZWYQWMS-GD6RO3N-X3P5QRX-ZFC43OB-D26JBE2-ML2DPA4";
+    };
+    the-grid-server = {
+      id = "EA3U4EI-ZNLSIX5-7UILELT-5LKJ4HK-PEAWSXX-V7T6Y5H-JZOCV5X-765SYAQ";
+    };
+    the-grid-notebook = {
+      id = null;
+    };
   };
 
-  self  = config.networking.hostName;
+  self = config.networking.hostName;
   peers = lib.filterAttrs (name: dev: name != self && dev.id != null) grid;
 in
 {
   services.syncthing = {
     enable = true;
-    user   = "flyn";
-    group  = "users";
+    user = "flyn";
+    group = "users";
 
     # Keep state in the user's home; default /var/lib/syncthing is root-owned.
     dataDir = "/home/flyn/.local/state/syncthing";
@@ -46,7 +52,10 @@ in
       devices = lib.mapAttrs (name: dev: {
         id = dev.id;
         # Tailscale MagicDNS name first, discovery as fallback.
-        addresses = [ "tcp://${name}:22000" "dynamic" ];
+        addresses = [
+          "tcp://${name}:22000"
+          "dynamic"
+        ];
       }) peers;
 
       folders = {
