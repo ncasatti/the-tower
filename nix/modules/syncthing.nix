@@ -69,6 +69,13 @@ in
             params.cleanoutDays = "14";
           };
         };
+        codebaseMemory = {
+          path = "/home/flyn/.cache/codebase-memory-mcp";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "14";
+        };
       };
     };
   };
