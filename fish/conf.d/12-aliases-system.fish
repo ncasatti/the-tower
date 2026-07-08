@@ -8,7 +8,6 @@ alias free='free -mt'
 alias df='df -h'
 abbr -a hw 'hwinfo --short'
 abbr -a userlist 'cut -d: -f1 /etc/passwd'
-abbr -a probe 'sudo -E hw-probe -all -upload'
 abbr -a ctl 'sudo systemctl'
 
 # System control

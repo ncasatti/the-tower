@@ -15,6 +15,7 @@
     ../../home/xdg.nix
     ../../home/sioyek.nix
     ../../home/polkit.nix
+    ../../home/session.nix        # session env vars + PATH (migrated from fish)
     # ../../home/secrets.nix  # agenix — disabled for now
 
     # --- Package sets ---

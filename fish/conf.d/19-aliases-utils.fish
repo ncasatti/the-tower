@@ -25,11 +25,9 @@ abbr -a whs 'wormhole send'
 abbr -a whr 'wormhole receive'
 
 # Miscellaneous utilities
-abbr -a br 'xrandr --output eDP --brightness'
 abbr -a mx 'cmatrix -s -C cyan'
 alias wget='wget -c'
 abbr -a pingme 'ping -c64 github.com'
-abbr -a cls 'clear && neofetch'
 abbr -a traceme 'traceroute github.com'
 abbr -a x exit
 abbr -a myip 'curl -s https://api.ipify.org'
