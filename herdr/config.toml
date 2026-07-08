@@ -33,7 +33,7 @@ last_pane = "prefix+a"
 previous_tab = "prefix+ctrl+n"
 next_tab     = "prefix+ctrl+i"
 new_tab      = "prefix+c"         # tmux: new window
-rename_tab   = "prefix+comma"     # tmux: rename window (,)
+rename_tab   = "prefix+r"         # tmux: rename window (,)
 close_tab    = "prefix+ampersand" # tmux: kill window (&)
 
 # Splits — herdr's action names are inverted vs the nvim mental model
@@ -46,7 +46,7 @@ close_pane       = "prefix+x"     # tmux: kill pane
 
 # Session/UI actions mirrored from tmux.
 detach        = "prefix+d"        # tmux: detach (default was prefix+q)
-reload_config = "prefix+r"        # tmux: reload (default was prefix+shift+r)
+reload_config = "prefix+ctrl+r"   # ctrl-r convention; prefix+R ≡ shift+r collides with resize_mode default
 resize_mode   = "prefix+shift+r"  # moved off prefix+r to free reload
 zoom          = "prefix+z"
 help          = "prefix+?"
