@@ -16,7 +16,7 @@
 
   home.packages = with pkgs; [
     # --- DAWs & Hosts ---
-    ardour          # Professional DAW
+    # ardour          # Professional DAW
     carla           # Plugin host (LV2, VST, SF2, SFZ)
     qjackctl        # JACK control GUI
     qpwgraph        # PipeWire graph GUI

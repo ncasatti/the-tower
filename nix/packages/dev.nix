@@ -5,11 +5,10 @@
 {
   home.packages = with pkgs; [
     nurl # Generate Nix fetcher expressions (src hash) from a URL
-
     postman
-    postgresql
+    # postgresql
     dbeaver-bin
-    mariadb.client
+    # mariadb.client
     # beekeeper-studio
   ];
 }

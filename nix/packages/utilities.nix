@@ -25,10 +25,10 @@ in
     # yt-dlp
     thunderbird
     # sioyek
-    zoom-us
-    onlyoffice-desktopeditors
+    # zoom-us
+    # onlyoffice-desktopeditors
     ntfs3g
-    qcad
+    # qcad
   ];
 
   programs.zathura = {
