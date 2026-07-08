@@ -1,22 +1,27 @@
 gui:
- # Use the mocha catppuccin theme
- theme:
-   activeBorderColor:
-     - '#89b4fa'
-     - bold
-   inactiveBorderColor:
-     - '#a6adc8'
-   optionsTextColor:
-     - '#89b4fa'
-   selectedLineBgColor:
-     - '#313244'
-   cherryPickedCommitBgColor:
-     - '#45475a'
-   cherryPickedCommitFgColor:
-     - '#89b4fa'
-   unstagedChangesColor:
-     - '#f38ba8'
-   defaultFgColor:
-     - '#cdd6f4'
-   searchingActiveBorderColor:
-     - '#f9e2af'
+  # Stack the two main panels (Unstaged on top, Staged below) instead of
+  # side-by-side. Default is "flexible", which flips based on window width —
+  # that's why native and the snacks.nvim float disagreed.
+  mainPanelSplitMode: horizontal
+  # Ayu theme (mirrors nvim/lua/plugins/themes/ayu.lua). Inside nvim, snacks
+  # regenerates this from the live colorscheme; here it makes native match.
+  theme:
+    activeBorderColor:
+      - '#FF8F40'
+      - bold
+    inactiveBorderColor:
+      - '#4F6166'
+    optionsTextColor:
+      - '#39BAE6'
+    selectedLineBgColor:
+      - '#1C2733'
+    cherryPickedCommitBgColor:
+      - '#334454'
+    cherryPickedCommitFgColor:
+      - '#39BAE6'
+    unstagedChangesColor:
+      - '#D26464'
+    defaultFgColor:
+      - '#BFBDB6'
+    searchingActiveBorderColor:
+      - '#FFB454'
