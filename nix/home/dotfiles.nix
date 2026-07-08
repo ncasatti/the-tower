@@ -22,6 +22,7 @@
     ".config/wezterm"             = { source = ../../wezterm;          recursive = true; };
     ".config/fish"                = { source = ../../fish;             recursive = true; };
     ".config/lazygit"             = { source = ../../lazygit;          recursive = true; };
+    ".config/herdr"               = { source = ../../herdr;            recursive = true; };
     ".config/posting"             = { source = ../../posting;          recursive = true; };
     ".local/share/posting/themes" = { source = ../../posting/themes;   recursive = true; };
 

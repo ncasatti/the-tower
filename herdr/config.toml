@@ -1,0 +1,73 @@
+# herdr configuration — The Tower
+# Mirrors the user's established Colemak tmux convention so muscle memory
+# transfers 1:1. See tmux/TMUX_KEYBINDINGS.md for the source-of-truth binds.
+#
+# Model mapping: herdr workspace ≈ tmux session, herdr tab ≈ tmux window,
+# herdr pane ≈ tmux pane. Only overrides are listed; everything else keeps
+# herdr's defaults (a partial config is merged over the built-in defaults).
+
+[theme]
+# Pinned declaratively so the choice survives nixos-rebuild. Picking a theme
+# from herdr's UI cannot persist: ~/.config/herdr/config.toml is a read-only
+# store symlink. Built-ins: catppuccin, terminal, tokyo-night, dracula, nord,
+# gruvbox, one-dark, solarized, kanagawa, rose-pine, vesper.
+name = "gruvbox"
+
+[keys]
+# Prefix: Ctrl-a (parity with tmux; NOT the default ctrl+b).
+# Caveat: collides if herdr is ever nested inside tmux — we don't nest.
+prefix = "ctrl+a"
+
+# --- Pane focus: Colemak inverted-T  n/e/u/i = left/down/up/right ---
+focus_pane_left  = "prefix+n"
+focus_pane_down  = "prefix+e"
+focus_pane_up    = "prefix+u"
+focus_pane_right = "prefix+i"
+
+# Tabs (tmux windows). prefix+n is now pane-left, so prev/next move to the
+# Ctrl-modified chords the user already uses in tmux (Prefix+Ctrl-n/Ctrl-i).
+previous_tab = "prefix+ctrl+n"
+next_tab     = "prefix+ctrl+i"
+new_tab      = "prefix+c"         # tmux: new window
+rename_tab   = "prefix+comma"     # tmux: rename window (,)
+close_tab    = "prefix+ampersand" # tmux: kill window (&)
+
+# Splits — herdr's action names are inverted vs the nvim mental model
+# (:split = top/bottom, :vsplit = left/right). We bind each KEY to the action
+# that yields the expected layout: prefix+h → horizontal (top/bottom split),
+# prefix+v → vertical (left/right split). Hence the crossed action↔key mapping.
+split_vertical   = "prefix+h"
+split_horizontal = "prefix+v"
+close_pane       = "prefix+x"     # tmux: kill pane
+
+# Session/UI actions mirrored from tmux.
+detach        = "prefix+d"        # tmux: detach (default was prefix+q)
+reload_config = "prefix+r"        # tmux: reload (default was prefix+shift+r)
+resize_mode   = "prefix+shift+r"  # moved off prefix+r to free reload
+zoom          = "prefix+z"
+help          = "prefix+?"
+
+# Jump + notifications — swapped to match tmux muscle memory:
+#   goto                     -> prefix+o (default was prefix+g)
+#   open_notification_target -> prefix+g (default was prefix+o)
+# Clean swap, so neither action is left unbound.
+goto                     = "prefix+o"
+open_notification_target = "prefix+g"
+
+# --- Navigate-mode movement: same Colemak inverted-T, no prefix ---
+# Do NOT add prefix+, esc, enter, tab, or 1..9 here (herdr constraint).
+navigate_pane_left  = "n"
+navigate_pane_down  = "e"
+navigate_pane_up    = "u"
+navigate_pane_right = "i"
+
+[ui]
+# Show the detected agent (claude, codex, gemini, ...) in a split pane's border
+# when the pane has no manual name. A manual rename_pane always wins.
+show_agent_labels_on_pane_borders = true
+
+[ui.toast]
+# In-app popup notifications (default was "off", hence nothing showed up).
+# "herdr" = toasts rendered inside the TUI. Other options: "terminal" (desktop
+# notification via the outer terminal) or "system" (OS notification service).
+delivery = "herdr"

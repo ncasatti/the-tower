@@ -46,6 +46,13 @@
     claude-code = {
       url = "github:sadjow/claude-code-nix";
     };
+
+    # Herdr: terminal workspace manager for AI coding agents (tmux-like,
+    # agent-aware). Not in nixpkgs; upstream flake exposes packages + overlay.
+    herdr = {
+      url = "github:ogulcancelik/herdr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:

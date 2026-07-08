@@ -35,6 +35,7 @@
     btop
     ncdu
     pdf2md
+    herdr   # tmux-like, agent-aware terminal workspace manager (builds from source)
   ];
 
   programs.direnv = {
