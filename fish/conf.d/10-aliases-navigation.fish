@@ -18,7 +18,7 @@ abbr -a sapps 'cd /usr/share/applications'
 abbr -a lapps 'cd ~/.local/share/applications'
 
 # File manager
-abbr -a y yazi
+# abbr -a y yazi
 
 # Development directories
 abbr -a dev 'cd ~/Documents/Development'
