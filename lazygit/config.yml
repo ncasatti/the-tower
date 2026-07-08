@@ -1,8 +1,10 @@
 gui:
   # Stack the two main panels (Unstaged on top, Staged below) instead of
   # side-by-side. Default is "flexible", which flips based on window width —
-  # that's why native and the snacks.nvim float disagreed.
-  mainPanelSplitMode: horizontal
+  # that's why native and the snacks.nvim float disagreed. NOTE: lazygit's
+  # naming is the inverse of tmux/vim — "vertical" = stacked top/bottom,
+  # "horizontal" = side by side.
+  mainPanelSplitMode: vertical
   # Ayu theme (mirrors nvim/lua/plugins/themes/ayu.lua). Inside nvim, snacks
   # regenerates this from the live colorscheme; here it makes native match.
   theme:
