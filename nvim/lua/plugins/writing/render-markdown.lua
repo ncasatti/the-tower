@@ -331,5 +331,9 @@ return {
 		vim.keymap.set("n", "<leader>mP", function()
 			require("util.md-preview").stop()
 		end, vim.tbl_extend("force", md_opts, { desc = "󰈙 Stop PDF preview" }))
+
+		vim.keymap.set("n", "<leader>mE", function()
+			require("util.md-preview").export()
+		end, vim.tbl_extend("force", md_opts, { desc = "󰈙 Export PDF (next to .md)" }))
 	end,
 }

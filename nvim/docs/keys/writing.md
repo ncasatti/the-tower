@@ -47,4 +47,7 @@ Mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses, priorities, 
 - `<leader>mh` — Cycle heading level (`#` → `##` → ... → restart)
 - `<leader>mx` — Toggle checkbox
 - `<leader>ml` — Open link in browser
+- `<leader>mp` — Preview PDF (pandoc → pdflatex → zathura, recompiles on save)
+- `<leader>mP` — Stop PDF preview
+- `<leader>mE` — Export PDF next to the `.md` (one-shot, no viewer)
 - `]]` / `[[` — Next / previous heading or callout
