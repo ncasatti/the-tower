@@ -24,8 +24,9 @@ focus_pane_down  = "prefix+e"
 focus_pane_up    = "prefix+u"
 focus_pane_right = "prefix+i"
 
-# Pane back-and-forth toggle (tmux last-pane). prefix+l is otherwise free.
-last_pane = "prefix+l"
+# Pane back-and-forth toggle (tmux last-pane). On prefix+a so prefix+l is
+# free for previous_workspace below.
+last_pane = "prefix+a"
 
 # Tabs (tmux windows). prefix+n is now pane-left, so prev/next move to the
 # Ctrl-modified chords the user already uses in tmux (Prefix+Ctrl-n/Ctrl-i).
@@ -57,11 +58,15 @@ help          = "prefix+?"
 goto                     = "prefix+o"
 open_notification_target = "prefix+g"
 
-# Workspace cycling. prefix+tab / prefix+shift+tab are repurposed from the
-# defaults cycle_pane_next / cycle_pane_previous, which become unbound. Pane
-# cycling is now covered by last_pane (prefix+l) + directional focus (n/e/u/i).
-next_workspace     = "prefix+tab"
-previous_workspace = "prefix+shift+tab"
+# Workspace cycling on prefix+y / prefix+l.
+next_workspace     = "prefix+y"
+previous_workspace = "prefix+l"
+
+# Agent navigation — mirrors the workspace binds one level up (shift). Jumps
+# focus to the next/previous detected agent; with agent_panel_sort = "priority"
+# next lands on whoever needs attention first.
+next_agent     = "prefix+shift+y"
+previous_agent = "prefix+shift+l"
 
 # --- Navigate-mode movement: same Colemak inverted-T, no prefix ---
 # Do NOT add prefix+, esc, enter, tab, or 1..9 here (herdr constraint).
