@@ -12,5 +12,7 @@
     codebase-memory-mcp # code intelligence MCP (knowledge graph + UI)
     gemini-cli
     antigravity-nix
+    ollama    # local embedding server CLI (gbrain backend)
+    litellm   # proxy for MiniMax-M3 / M2.7-highspeed
   ];
 }

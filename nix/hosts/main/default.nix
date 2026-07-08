@@ -73,6 +73,14 @@
     iw
   ];
 
+  # --- OLLAMA (local embedding server for gbrain) ---
+  services.ollama = {
+    enable = true;
+    host = "127.0.0.1";
+    port = 11434;
+    openFirewall = false;
+  };
+
   # Do NOT change this value.
   system.stateVersion = "23.11";
 }
