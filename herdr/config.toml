@@ -6,6 +6,10 @@
 # herdr pane ≈ tmux pane. Only overrides are listed; everything else keeps
 # herdr's defaults (a partial config is merged over the built-in defaults).
 
+# Skip the first-run setup wizard on startup (top-level key: TOML requires it
+# before any [table] header). We've already chosen our config declaratively.
+onboarding = false
+
 [theme]
 # Pinned declaratively so the choice survives nixos-rebuild. Picking a theme
 # from herdr's UI cannot persist: ~/.config/herdr/config.toml is a read-only
@@ -61,6 +65,11 @@ open_notification_target = "prefix+g"
 # Workspace cycling on prefix+y / prefix+l.
 next_workspace     = "prefix+y"
 previous_workspace = "prefix+l"
+
+# New workspace on prefix+shift+c — pairs with new_tab (prefix+c) as the
+# "create" family; shift = one level up (workspace vs tab). Default was
+# prefix+shift+n, which herdr auto-unsets when we rebind here.
+new_workspace = "prefix+shift+c"
 
 # Agent navigation — mirrors the workspace binds one level up (shift). Jumps
 # focus to the next/previous detected agent; with agent_panel_sort = "priority"
