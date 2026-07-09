@@ -15,7 +15,6 @@
     ../../home/xdg.nix
     ../../home/polkit.nix
     ../../home/activation.nix   # hy3 plugin load + wallust cache scaffold
-    ../../home/session.nix      # session env vars + PATH (migrated from fish)
 
     # --- Package sets ---
     ../../packages/nvim.nix
