@@ -13,9 +13,10 @@ abbr -a ta 'tmux attach-session'
 abbr -a tl 'tmux list-sessions'
 
 # --- herdr (mirrors the tmux verbs) ---
-abbr -a h   herdr                    # launch/attach the default session
-abbr -a ha  'herdr session attach '  # attach a named session
+abbr -a h   'herdr'                  # launch/attach the default session
+abbr -a ha  'herdr session attach'   # attach a named session
 abbr -a hl  'herdr session list'     # list sessions
-abbr -a hn  'herdr --session '       # new / enter a named session
-abbr -a hs  'herdr session stop '    # stop a session
+abbr -a hr  'herdr --remote'         # remote session
+abbr -a hn  'herdr --session'        # new / enter a named session
+abbr -a hs  'herdr session stop'     # stop a session
 abbr -a hst 'herdr status'           # server/client status
