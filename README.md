@@ -53,6 +53,7 @@ The root README orients; each module's own docs are the **source of truth** for 
 | **Neovim** | [nvim/README.md](nvim/README.md) | Colemak layout, native LSP (13 langs), Snacks UI, keybindings, TaskNotes, Python/Android — full doc index |
 | **Hyprland** | [hypr/README.md](hypr/README.md) | Modular Hyprland config, layouts, theming via Wallust, scripts, pyprland |
 | **Tmux** | [tmux/TMUX_KEYBINDINGS.md](tmux/TMUX_KEYBINDINGS.md) · [tmux/TMUX_PLUGINS.md](tmux/TMUX_PLUGINS.md) | Colemak tmux keybindings + plugin setup (TPM) |
+| **Kanata** (WIP) | [docs/kanata-remapper.md](docs/kanata-remapper.md) | Cross-platform keyboard remapper — opt-in scaffold, not yet active. `keyd` remains the live remapper. |
 | **Agent rules** | [CLAUDE.md](CLAUDE.md) · [AGENTS.md](AGENTS.md) | Repo architecture & rules for AI agents (Claude Code / OpenCode) |
 
 > The remaining config dirs (`kitty/`, `fish/`, `rofi/`, `waybar/`, `yazi/`, …) have no
@@ -80,7 +81,9 @@ The root README orients; each module's own docs are the **source of truth** for 
 ├── tmux/                    # Tmux                 → tmux/TMUX_KEYBINDINGS.md · TMUX_PLUGINS.md
 ├── kitty/ fish/ rofi/ waybar/ yazi/ starship/      # plain config dirs (symlinked by dotfiles.nix)
 ├── swaync/ wallust/ lazygit/ wezterm/ posting/
-├── keyd/ hyprshade/ themes/ fonts/ cool-retro-term/
+├── keyd/                    # keyd remapper (current) → see nix/modules/services.nix
+├── kanata/                  # kanata remapper (WIP)  → docs/kanata-remapper.md
+├── hyprshade/ themes/ fonts/ cool-retro-term/
 └── docs/assets/             # showcase media
 ```
 
