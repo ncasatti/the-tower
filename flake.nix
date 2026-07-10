@@ -49,8 +49,12 @@
 
     # Herdr: terminal workspace manager for AI coding agents (tmux-like,
     # agent-aware). Not in nixpkgs; upstream flake exposes packages + overlay.
+    # Pinned to tag v0.7.3 — update flow:
+    #   1) bump ?ref= below to the new tag
+    #   2) nix flake lock --update-input herdr
+    #   3) sudo nixos-rebuild switch --flake .#<host>
     herdr = {
-      url = "github:ogulcancelik/herdr";
+      url = "github:ogulcancelik/herdr?ref=v0.7.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };

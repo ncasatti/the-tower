@@ -166,15 +166,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1783513377,
-        "narHash": "sha256-Ek7rsMb5VvWrHSQumAProAiiJYoveqTDQ4vWqO+X9YI=",
+        "lastModified": 1783464789,
+        "narHash": "sha256-Q2yvMs/N6oAF8xnRIrMxEOOV6Aj8aAXQzuvcaux2enA=",
         "owner": "ogulcancelik",
         "repo": "herdr",
-        "rev": "552aa8ca223908a2ee3b1058587d4b5a84828e71",
+        "rev": "299dd4163a96381ec2d8e5bde13d7ba6d6432373",
         "type": "github"
       },
       "original": {
         "owner": "ogulcancelik",
+        "ref": "v0.7.3",
         "repo": "herdr",
         "type": "github"
       }
