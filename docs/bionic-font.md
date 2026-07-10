@@ -22,11 +22,11 @@ Bionic`, derived from `3270 Nerd Font Mono`:
    icon range) a `.bold` alternate is merged in from the synthesized Bold
    outlines. Latin accents (`áéíóúüñ …`) are included so Spanish words shape
    correctly instead of breaking at the accent.
-2. `calt` bolds the first **N = 3** letters of each word using the
+2. `calt` bolds the first **N = 2** letters of each word using the
    "not-preceded-by-a-letter" idiom, robust to shaper run-splitting at spaces:
    - `pos1`: a letter not preceded by any letter → bold (word start).
    - `pos2`: a letter preceded by exactly 1 bold → bold.
-   - `pos3`: a letter preceded by exactly 2 bolds → bold.
+   - (generalises to `posK`: a letter preceded by exactly K-1 bolds → bold.)
    - `ignore` guards cap the run at N.
    Each position is a separate lookup (separate pass) so later passes see the
    bolds produced by earlier ones.
@@ -76,7 +76,7 @@ so flipping the line is the whole toggle.
 - **Code** gets bionic too (unavoidable — the font is below the app). It is
   mild: code tokens have no spaces, so only the first letters of each token bold
   (`getUserById` → **get**UserById).
-- **Fixed N=3**, not classic length-aware ~50%. Short words bold fully. Tunable
+- **Fixed N=2**, not classic length-aware ~50%. Short words bold fully. Tunable
   via `build_calt.py`'s last argument; length-aware would need lookahead rules.
 - The nvim `bionic-reading.nvim` plugin is now **redundant** for prose and uses a
-  different rule (first ~half vs first 3). Candidate for removal in a follow-up.
+  different rule (first ~half vs first 2). Candidate for removal in a follow-up.

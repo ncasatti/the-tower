@@ -1,7 +1,7 @@
 # bionic-font — regeneration tooling
 
 Generates the `3270 Bionic` font family: 3270 Nerd Font with Bionic Reading
-baked in via OpenType `calt` (the first 3 letters of every word render as a
+baked in via OpenType `calt` (the first 2 letters of every word render as a
 `.bold` alternate). Applies below the application layer, so it works in every
 terminal app — kitty, herdr, nvim, opencode, logs, TUIs — with no per-app
 config.
@@ -27,10 +27,10 @@ nix shell nixpkgs#fontforge --command fontforge -script merge_prod.py \
   ../../fonts/IBM-3270NerdMono.ttf ../../fonts/IBM-3270NerdMono-Bold.ttf \
   /tmp/base.ttf /tmp/pairs.txt "$FAM"
 
-# 2) compile the bionic `calt` (N=3) and verify shaping with HarfBuzz
+# 2) compile the bionic `calt` (N=2) and verify shaping with HarfBuzz
 nix shell --impure --expr 'with import <nixpkgs> {}; python3.withPackages(ps:[ps.fonttools ps.uharfbuzz])' \
   --command python3 build_calt.py /tmp/base.ttf /tmp/pairs.txt \
-  ../../fonts/IBM-3270NerdMono-Bionic.ttf 3
+  ../../fonts/IBM-3270NerdMono-Bionic.ttf 2
 
 # 3) refamily the synth Bold as the bionic Bold face
 nix shell nixpkgs#fontforge --command fontforge -script rename_bold.py \
@@ -44,5 +44,5 @@ Then `git add fonts/*.ttf && sudo nixos-rebuild switch --flake .#main && fc-cach
 
 - **Bold weight:** `FACTOR` in step 0. History: 0.04 (too thick) → 0.03 → 0.025
   → **0.028** (current). Higher = heavier fixation letters.
-- **Letters bolded per word:** last arg of `build_calt.py` (the `3`). Higher =
+- **Letters bolded per word:** last arg of `build_calt.py` (the `2`). Higher =
   more of each word bold.
