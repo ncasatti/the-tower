@@ -15,7 +15,7 @@ onboarding = false
 # from herdr's UI cannot persist: ~/.config/herdr/config.toml is a read-only
 # store symlink. Built-ins: catppuccin, terminal, tokyo-night, dracula, nord,
 # gruvbox, one-dark, solarized, kanagawa, rose-pine, vesper.
-name = "gruvbox"
+name = "terminal"
 
 [keys]
 # Prefix: Ctrl-a (parity with tmux; NOT the default ctrl+b).
