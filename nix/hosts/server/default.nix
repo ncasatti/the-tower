@@ -14,6 +14,7 @@
     # Shared system modules
     ../../modules/nix.nix
     ../../modules/services.nix
+    ../../modules/kanata.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
     ../../modules/audio.nix     # PipeWire + JACK + rtkit (Carla, USB interface)
@@ -48,7 +49,7 @@
   users.users.flyn = {
     isNormalUser = true;
     description  = "System Administrator";
-    extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
+    extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" "uinput" ];
     shell        = pkgs.fish;
   };
 

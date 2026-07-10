@@ -13,6 +13,7 @@
     ../../modules/nix.nix
     ../../modules/audio.nix
     ../../modules/services.nix
+    ../../modules/kanata.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
     ../../modules/docker.nix
@@ -60,6 +61,11 @@
     extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
     shell        = pkgs.fish;
   };
+
+  # --- KANATA KEYBOARD REMAPPER ---
+  # Module imported above; enable on the host where you're testing kanata.
+  # Set to `true` on the active host, leave `false` on the others.
+  the-grid.kanata.enable = false;
 
   # --- CORE SYSTEM PACKAGES ---
   # Only absolute necessities. UI and dev tools go to home modules.

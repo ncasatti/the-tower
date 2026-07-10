@@ -1,0 +1,205 @@
+;; kanata/kanata.kbd
+;;
+;; Cross-platform kanata configuration (Linux + Windows).
+;;
+;; Architecture:
+;;   - menu-fast:    space + hold (tap-hold-release, ergonomic)
+;;   - menu-command: capslock + one-shot (command palette)
+;;   - Sub-menus: f=file, b=buffer, w=window, s=symbols, t=tmux,
+;;                l=launchers, n=num, o=obsidian, ?=help
+;;
+;; QWERTY key names throughout (Linux keycodes). Home row mods and
+;; layer navigation use QWERTY physical positions; normal typing
+;; stays on Colemak via the OS layout.
+
+(defcfg
+  process-unmapped-keys yes
+  linux-continue-if-no-devs-found yes
+)
+
+;; ---------------------------------------------------------------------------
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+(defalias
+  ;; Leader keys
+  ;; NOTE: kanata doesn't have a "hold-while-pressed" layer action like
+  ;; keyd's overload. Using layer-toggle instead: hold spc toggles
+  ;; menu-fast ON; tap spc again to toggle it OFF. Quick tap = spc.
+  spc (tap-hold-release 200 200 spc (layer-toggle menu-fast))
+  cap (one-shot 500 (layer-toggle menu-command))
+
+  ;; Sub-menu one-shots (entered from menu-command)
+  mfile (one-shot 500 (layer-toggle menu-file))
+  mbuf  (one-shot 500 (layer-toggle menu-buffer))
+  mwin  (one-shot 500 (layer-toggle menu-window))
+  msym  (one-shot 500 (layer-toggle menu-symbols))
+  mtmx  (one-shot 500 (layer-toggle menu-tmux))
+  mlaun (one-shot 500 (layer-toggle menu-launchers))
+  mnum  (one-shot 500 (layer-toggle menu-num))
+  mobs  (one-shot 500 (layer-toggle menu-obsidian))
+  mhelp (one-shot 500 (layer-toggle menu-help))
+
+  ;; Home row mods (one-shots inside menu-fast)
+  mctl (one-shot 500 lctl)
+  msft (one-shot 500 lsft)
+  malt (one-shot 500 lalt)
+  mmet (one-shot 500 lmet)
+)
+
+;; ---------------------------------------------------------------------------
+(deflayer default
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @cap a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-fast: space + hold
+;;   - home row mods: a/s/d/f → one-shots of ctrl/shift/alt/rightalt
+;;   - arrows: h/j/k/l/i
+;;   - edit: h (bspc), g (del), ; (enter), u (home), o (end)
+;;   - esc/tab: q/w
+;;   - meta: z (one-shot)
+;;   - tmux fast: x (C-a), c (C-S-c), v (new window)
+;; ---------------------------------------------------------------------------
+(deflayer menu-fast
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  esc  tab  e    r    t    y    home up   end  p    [    ]    \
+  @cap @mctl @msft @malt ralt del  bspc left down right enter '  ret
+  lsft @mmet C-a  C-S-c (macro C-a c) b  n  m  ,  .  /  rsft
+  lctl lmet lalt _    ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-command: capslock + one-shot → sub-menus
+;; ---------------------------------------------------------------------------
+(deflayer menu-command
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    @mwin e    @mtmx y    u    i    @mobs p    [    ]    \
+  @cap a    @msym d    @mfile g    h    j    k    @mlaun ;   '    ret
+  lsft z    x    c    v    @mbuf @mnum m    ,    .    @mhelp rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-file (f): file operations
+;;   f = find (C-S-p), s = save (C-s), o = open (C-o),
+;;   r = recent (C-S-r), n = new (C-n)
+;; ---------------------------------------------------------------------------
+(deflayer menu-file
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    C-S-r t    y    u    i    C-o  p    [    ]    \
+  @cap a    C-s  d    C-S-p g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    C-n  m    ,    .    /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-buffer (b): editor buffer management
+;;   n = next (C-S-tab), p = prev (C-tab),
+;;   d = delete (C-w), c = close (C-S-w)
+;; ---------------------------------------------------------------------------
+(deflayer menu-buffer
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    C-tab [    ]    \
+  @cap a    s    C-w  f    g    h    j    k    l    ;    '    ret
+  lsft z    x    C-S-w v    b    C-S-tab m ,  .  /  rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-window (w): Hyprland window management
+;;   1-0 = workspaces (A-1 to A-0)
+;;   h/j/k/l = focus left/down/up/right (A-h/j/k/l)
+;;   n = next window (A-tab), p = prev (A-S-tab)
+;;   . = fullscreen (A-.), , = pseudo (A-,)
+;;   v = floating (A-v), t = tile (A-t)
+;; ---------------------------------------------------------------------------
+(deflayer menu-window
+  grv  A-1  A-2  A-3  A-4  A-5  A-6  A-7  A-8  A-9  A-0  -  =  bspc
+  tab  q    w    e    r    A-t  y    u    i    o    A-S-tab [    ]    \
+  @cap a    s    d    f    g    A-h  A-j  A-k  A-l  ;    '    ret
+  lsft z    x    c    A-v  b    A-tab n    A-,  A-.  /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-symbols (s): the full symbol set (same keys as old [symbols] layer)
+;;   Shifted chars use S-<base-key> notation, e.g. ( = S-9, _ = S--
+;; ---------------------------------------------------------------------------
+(deflayer menu-symbols
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  S--  -    S-9  S-0  =    S-2  S-1  S-/  S-4  S-3  S-7  ]    \
+  @cap /    \    [    ]    S-\ S-8  .    S-p  ,    p    '    ret
+  lsft S-,  S-.  S-[  S-]  S-grv S-6 S-=  S-5  grv  /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-tmux (t): extended tmux commands
+;;   c = new, n/p = next/prev, x = kill pane, d = detach,
+;;   s/v = split H/V, r = rename, [ ] = copy/paste
+;; ---------------------------------------------------------------------------
+(deflayer menu-tmux
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    (macro C-a r) t    y    u    i    o    (macro C-a p) (macro C-a [) (macro C-a ])  \
+  @cap a    (macro C-a s) (macro C-a d) f    g    h    j    k    l    ;    '    ret
+  lsft z    (macro C-a x) (macro C-a c) (macro C-a v) b    (macro C-a n) m ,  .  /  rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-launchers (l): app launchers
+;;   b = browser (M-b), j = terminal (M-f),
+;;   k = code (M-c), o = obsidian (M-;)
+;; ---------------------------------------------------------------------------
+(deflayer menu-launchers
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    M-;  p    [    ]    \
+  @cap a    s    d    f    g    h    M-f  M-c  l    ;    '    ret
+  lsft z    x    c    v    M-b  n    m    ,    .    /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-num (n): f-keys, numbers, operators (port from [num] layer)
+;;   Shifted chars use S-<base-key>: * = S-8, + = S-=
+;; ---------------------------------------------------------------------------
+(deflayer menu-num
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  f1   f2   f3   f4   -    S-=  7    8    9    ,    [    ]    \
+  @cap f5   f6   f7   f8   /    S-8  4    5    6    0    '    ret
+  lsft f9   f10  f11  f12  \    =    1    2    3    .    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-obsidian (o): obsidian shortcuts (preserved for testing)
+;; ---------------------------------------------------------------------------
+(deflayer menu-obsidian
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    C-S--  i    C-S-=  p    [    ]    \
+  @cap a    s    d    f    g    h    C-; C-k C-r C-e '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)
+
+;; ---------------------------------------------------------------------------
+;; menu-help (?): layer info placeholder (use OverKeys on Windows for visual)
+;; ---------------------------------------------------------------------------
+(deflayer menu-help
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @cap a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt @spc ralt rmet rctl
+)

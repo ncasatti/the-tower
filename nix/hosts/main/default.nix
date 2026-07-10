@@ -16,6 +16,7 @@
     ../../modules/nix.nix
     ../../modules/audio.nix
     ../../modules/services.nix
+    ../../modules/kanata.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
     ../../modules/docker.nix
@@ -80,6 +81,10 @@
     port = 11434;
     openFirewall = false;
   };
+
+  # --- KANATA KEYBOARD REMAPPER ---
+  # Opt-in enabled: this is the host where kanata is being tested.
+  the-grid.kanata.enable = false;
 
   # Do NOT change this value.
   system.stateVersion = "23.11";
