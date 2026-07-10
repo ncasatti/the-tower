@@ -9,6 +9,6 @@ alias vim=nvim
 abbr -a v nvim
 abbr -a sv 'sudo -E nvim'
 abbr -a sn 'sudo nano -T 2'
-abbr -a c claude
+abbr -a c claude --dangerously-skip-permissions
 abbr -a gem gemini
 abbr -a o opencode
