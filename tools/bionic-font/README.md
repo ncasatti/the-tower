@@ -6,16 +6,21 @@ baked in via OpenType `calt` (the first 3 letters of every word render as a
 terminal app — kitty, herdr, nvim, opencode, logs, TUIs — with no per-app
 config.
 
-## Inputs (already in the repo, untouched)
+## Input (the only real source)
 
-- `../../fonts/IBM-3270NerdMono.ttf` — pristine Regular (build source).
-- `../../fonts/IBM-3270NerdMono-Bold.ttf` — synthesized Bold (outline source).
+- `../../fonts/IBM-3270NerdMono.ttf` — pristine Regular. Everything else
+  (the Bold, the bionic faces) is derived from it below.
 
 ## Regenerate
 
 ```bash
 cd tools/bionic-font
 FAM="3270 Bionic"
+FACTOR=0.028   # current bold weight (stroke = em * factor). Bump for bolder.
+
+# 0) synthesize the Bold face from the pristine Regular (3270 ships Regular-only)
+nix shell nixpkgs#fontforge --command fontforge -script embolden.py \
+  ../../fonts/IBM-3270NerdMono.ttf ../../fonts/IBM-3270NerdMono-Bold.ttf $FACTOR
 
 # 1) merge bold outlines as `.bold` alternates for every word glyph (Latin + digits)
 nix shell nixpkgs#fontforge --command fontforge -script merge_prod.py \
@@ -37,7 +42,7 @@ Then `git add fonts/*.ttf && sudo nixos-rebuild switch --flake .#main && fc-cach
 
 ## Tuning
 
+- **Bold weight:** `FACTOR` in step 0. History: 0.04 (too thick) → 0.03 → 0.025
+  → **0.028** (current). Higher = heavier fixation letters.
 - **Letters bolded per word:** last arg of `build_calt.py` (the `3`). Higher =
   more of each word bold.
-- **Bold weight:** re-synthesize the Bold source first (see the embolden step in
-  `docs/bionic-font.md`), then regenerate.

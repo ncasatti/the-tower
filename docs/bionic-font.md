@@ -14,6 +14,10 @@ any TUI).
 OpenType `calt` (contextual alternates) inside a **new font family**, `3270
 Bionic`, derived from `3270 Nerd Font Mono`:
 
+0. The Bold face is synthesized from the pristine Regular with FontForge
+   `changeWeight` (3270 ships Regular-only). Weight is `em * FACTOR`, currently
+   **FACTOR = 0.028** (`tools/bionic-font/embolden.py`); advance width is
+   restored so the monospace grid stays aligned.
 1. For every word-forming glyph (Unicode category `L*` or `Nd`, below the PUA
    icon range) a `.bold` alternate is merged in from the synthesized Bold
    outlines. Latin accents (`áéíóúüñ …`) are included so Spanish words shape
@@ -50,7 +54,7 @@ auto` resolves within the family and real-bold keeps working.
 | File | Role |
 |------|------|
 | `fonts/IBM-3270NerdMono.ttf` | pristine Regular — **untouched**, the fallback |
-| `fonts/IBM-3270NerdMono-Bold.ttf` | synth Bold of the original family — untouched |
+| `fonts/IBM-3270NerdMono-Bold.ttf` | synth Bold of the original family (`embolden.py`, factor 0.028) |
 | `fonts/IBM-3270NerdMono-Bionic.ttf` | **new** — `3270 Bionic` Regular + calt |
 | `fonts/IBM-3270NerdMono-BionicBold.ttf` | **new** — `3270 Bionic` Bold |
 | `tools/bionic-font/` | regeneration scripts + README |
