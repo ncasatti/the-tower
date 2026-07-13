@@ -69,6 +69,18 @@ in
             params.cleanoutDays = "14";
           };
         };
+
+        # Obsidian vault. Replaces Obsidian Sync. Per-device ignore patterns
+        # (Obsidian layout/cache, trash, versions) live in the folder's
+        # .stignore — NOT synced by Syncthing, so it must exist on every peer.
+        zettelkasten = {
+          path = "/home/flyn/.the-grid/zettelkasten";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "14";
+          };
+        };
       };
     };
   };
