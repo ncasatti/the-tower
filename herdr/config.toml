@@ -36,8 +36,8 @@ last_pane = "prefix+a"
 # Colemak home-row chords (prefix+shift+n/i). Browser-style alt bindings
 # added (prefix+ctrl+tab / prefix+ctrl+shift+tab) to mirror the keyd navbar
 # convention (navbar.1/2 = C-S-tab / C-tab).
-previous_tab = ["prefix+shift+n", "prefix+ctrl+shift+tab"]
-next_tab     = ["prefix+shift+i", "prefix+ctrl+tab"]
+previous_tab = "prefix+ctrl+n"
+next_tab     = "prefix+ctrl+i"
 new_tab      = "prefix+c"
 rename_tab   = "prefix+r"
 close_tab    = "prefix+ampersand"
@@ -74,13 +74,13 @@ switch_workspace   = "prefix+ctrl+1..9"
 # New workspace on prefix+shift+c — pairs with new_tab (prefix+c) as the
 # "create" family; shift = one level up (workspace vs tab). Default was
 # prefix+shift+n, which herdr auto-unsets when we rebind here.
-new_workspace = "prefix+shift+c"
+new_workspace = "prefix+ctrl+c"
 
 # Agent navigation — mirrors the workspace binds one level up (shift). Jumps
 # focus to the next/previous detected agent; with agent_panel_sort = "priority"
 # next lands on whoever needs attention first.
-next_agent     = "prefix+shift+y"
-previous_agent = "prefix+shift+l"
+next_agent     = "prefix+ctrl+y"
+previous_agent = "prefix+ctrl+l"
 focus_agent    = "prefix+shift+1..9"
 
 # --- Navigate-mode movement: same Colemak inverted-T, no prefix ---
