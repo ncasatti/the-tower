@@ -27,6 +27,11 @@ let
     the-grid-notebook = {
       id = "XXGQNZT-YYMWDPU-7WFQO5I-7RKA5FZ-PQYCT6C-ADEXIU4-GSZWJMG-G4CLTQ2";
     };
+    # Mobile peer (Syncthing-Fork). Key matches its Tailscale MagicDNS name so
+    # the tcp:// address resolves. Only accepts `zettelkasten` on the phone.
+    motorola-edge-70-fusion = {
+      id = "ZT6QWVS-KOJ2XGL-MEB2ALF-VT6ASTI-PFAID2M-UITRIEW-6ZBOTFS-WHF7IQG";
+    };
   };
 
   self = config.networking.hostName;
