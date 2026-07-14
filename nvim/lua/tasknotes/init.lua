@@ -19,6 +19,7 @@ local pickers = require("tasknotes.pickers")
 local task_ops = require("tasknotes.task_ops")
 local query = require("tasknotes.query")
 local pomodoro = require("tasknotes.pomodoro")
+local templates = require("zettelkasten.templates")
 
 local M = {}
 
@@ -27,7 +28,10 @@ local M = {}
 local function register_keymaps()
 	-- Zettelkasten search + filtering
 	vim.keymap.set("n", "<leader>owk", pickers.pick_key, { desc = "Search by frontmatter key" })
-	vim.keymap.set("n", "<leader>owr", cache.force_refresh, { desc = "Force cache rebuild" })
+	vim.keymap.set("n", "<leader>owr", function()
+		cache.force_refresh()
+		templates.reload()
+	end, { desc = "Force cache rebuild + reload templates" })
 	vim.keymap.set("n", "<leader>ows", pickers.pick_file_by_status, { desc = "Filter by status" })
 	vim.keymap.set("n", "<leader>owo", pickers.pick_file_by_tag, { desc = "Filter by tag/project" })
 	vim.keymap.set("n", "<leader>owt", pickers.note_search, { desc = "Search notes by tag (vault)" })
