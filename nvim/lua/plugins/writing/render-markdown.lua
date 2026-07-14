@@ -83,7 +83,7 @@ return {
 			custom = {
 				todo = { raw = "[-]", rendered = "", highlight = "RenderMarkdownInfo" },
 				cancel = { raw = "[~]", rendered = "󰗎", highlight = "RenderMarkdownCalloutFaq" },
-				urgent = { raw = "[!]", rendered = "", highlight = "RenderMarkdownCalloutFaq" },
+				urgent = { raw = "[!]", rendered = "", highlight = "RenderMarkdownCheckboxUrgent" },
 				forward = { raw = "[>]", rendered = "", highlight = "RenderMarkdownCalloutImportant" },
 			},
 		},
@@ -174,6 +174,16 @@ return {
 			vim.api.nvim_set_hl(0, "RenderMarkdownQuote", { fg = normal_fg })
 			vim.api.nvim_set_hl(0, "@markup.quote", { fg = normal_fg })
 		end
+
+		-- Custom highlight for the [!] (important) checkbox state. Defined here
+		-- so render-markdown's checkbox.custom.urgent picks it up. Re-applied
+		-- on ColorScheme so it survives theme switches.
+		vim.api.nvim_set_hl(0, "RenderMarkdownCheckboxUrgent", { fg = "#f07178", bold = true })
+		vim.api.nvim_create_autocmd("ColorScheme", {
+			callback = function()
+				vim.api.nvim_set_hl(0, "RenderMarkdownCheckboxUrgent", { fg = "#f07178", bold = true })
+			end,
+		})
 
 		-- Enable treesitter folds for markdown (foldenable=false so it starts expanded)
 		vim.api.nvim_create_autocmd("FileType", {

@@ -84,6 +84,15 @@ return {
         date_format = "%Y-%m-%d-%a",
         time_format = "%H:%M",
       },
+
+      -- Inline task checkbox cycle: todo → working → pause → waiting → important → done.
+      -- Order drives the <CR> smart_action in actions.lua:215 which reads
+      -- `Obsidian.opts.checkbox.order`. The visual mapping (icon + color) is
+      -- owned by render-markdown.nvim (see `checkbox.custom` there).
+      checkbox = {
+        order = { " ", "-", "~", ">", "!", "x" },
+        create_new = true,
+      },
     })
 
     -- Patch Note.save_to_buffer to honour `frontmatter.enabled = false` in ALL
