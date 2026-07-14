@@ -14,12 +14,6 @@ abbr -a rl1 'rclone ls --max-depth=1'
 abbr -a rl2 'rclone ls --max-depth=2'
 abbr -a rl3 'rclone ls --max-depth=3'
 
-# Obsidian sync
-abbr -a obsidian-push 'rclone sync ~/Documents/ObsidianVault gd:Docs/ObsidianVault -P'
-abbr -a obsidian-get 'rclone sync gd:Docs/ObsidianVault ~/Documents/ObsidianVault -P'
-abbr -a obsidian-sync 'rclone bisync ~/Documents/ObsidianVault gd:Docs/ObsidianVault -P'
-abbr -a obsidian-resync 'rclone bisync ~/Documents/ObsidianVault gd:Docs/ObsidianVault -P --resync'
-
 # Wormhole
 abbr -a whs 'wormhole send'
 abbr -a whr 'wormhole receive'

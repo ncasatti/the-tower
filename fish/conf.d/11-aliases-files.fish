@@ -12,13 +12,13 @@ alias l1='eza -T -L 2 --icons --color=always --group-directories-first'
 alias l2='eza -T -L 3 --icons --color=always --group-directories-first'
 
 # File management
-alias rmd='rm -r'
-alias srm='sudo rm'
-alias srmd='sudo rm -r'
-alias cpd='cp -R'
-alias scp='sudo cp'
-alias scpd='sudo cp -R'
-alias rm='rm -rf'
+abbr rmd='rm -r'
+abbr srm='sudo rm'
+abbr srmd='sudo rm -r'
+abbr cpd='cp -R'
+abbr scp='sudo cp'
+abbr scpd='sudo cp -R'
+abbr rm='rm -rf'
 abbr -a mkfile touch
 abbr -a md 'mkdir -p'
 

@@ -12,7 +12,7 @@ abbr -a conf 'cd ~/.config'
 abbr -a temp 'cd ~/Temp'
 abbr -a desk 'cd ~/Desktop'
 abbr -a pics 'cd ~/Pictures'
-abbr -a dldz 'cd ~/Downloads'
+abbr -a down 'cd ~/Downloads'
 abbr -a docs 'cd ~/Documents'
 abbr -a lapps 'cd ~/.local/share/applications'
 
