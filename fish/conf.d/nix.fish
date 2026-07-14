@@ -1,10 +1,10 @@
 
 # NixOS
-alias -a rebuild-note   'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#notebook'
-alias -a rebuild-main   'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#main'
-alias -a rebuild-server 'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#server'
+alias rebuild-note   'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#notebook'
+alias rebuild-main   'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#main'
+alias rebuild-server 'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#server'
 
-alias -a use-flake 'echo "use flake" > .envrc'
+alias use-flake 'echo "use flake" > .envrc'
 
 abbr -a nd     'nix develop'
 abbr -a nd-gev 'nix develop ~/.the-grid/systems/flakes/gev/'
