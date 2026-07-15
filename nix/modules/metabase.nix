@@ -29,4 +29,7 @@
   # On-demand: declared but dormant. No boot autostart.
   # Launch manually with `systemctl start metabase`.
   systemd.services.metabase.wantedBy = lib.mkForce [ ];
+
+  # Force te service to use main user
+  systemd.services.metabase.serviceConfig.User = "flyn";
 }
