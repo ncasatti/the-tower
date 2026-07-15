@@ -20,6 +20,7 @@
     ../../modules/tailscale.nix
     ../../modules/security.nix
     ../../modules/docker.nix
+    ../../modules/metabase.nix  # BI, on-demand (systemctl start metabase)
     ../../modules/fish.nix
     ../../modules/syncthing.nix
     ../../modules/wifi-no-powersave.nix  # RDP client side; kill latency spikes
