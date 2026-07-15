@@ -42,8 +42,9 @@ function M.request(method, endpoint, params)
 	end
 
 	local ok, res = pcall(fn, url, options)
-	if not ok or not res or res.status ~= 200 or not res.body or res.body == "" then
-		local code = (ok and res and res.status) or "no-response"
+	local status = ok and res and res.status or nil
+	if not ok or not res or status == nil or status < 200 or status >= 300 or not res.body or res.body == "" then
+		local code = status or "no-response"
 		vim.notify(
 			string.format("TaskNotes API error (%s %s): %s", method, endpoint, tostring(code)),
 			vim.log.levels.ERROR
