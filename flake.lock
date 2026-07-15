@@ -105,6 +105,22 @@
         "type": "github"
       }
     },
+    "flake-compat": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1767039857,
+        "narHash": "sha256-vNpUSpF5Nuw8xvDLj2KCwwksIbjua2LZCqhV1LNRDns=",
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "rev": "5edf11c44bc78a0d334f6334cdaf7d60d732daab",
+        "type": "github"
+      },
+      "original": {
+        "owner": "edolstra",
+        "repo": "flake-compat",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems_2"
@@ -221,6 +237,28 @@
         "type": "github"
       }
     },
+    "nixos-wsl": {
+      "inputs": {
+        "flake-compat": "flake-compat",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780705040,
+        "narHash": "sha256-pVadZqLm8RJcwLuDzJm7d2KO6e+RHPpIa/2qdqtn+B4=",
+        "owner": "nix-community",
+        "repo": "NixOS-WSL",
+        "rev": "add6b01c7ca72240046b5d541a74845423f1ee35",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "NixOS-WSL",
+        "rev": "add6b01c7ca72240046b5d541a74845423f1ee35",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1783915482,
@@ -282,6 +320,7 @@
         "clingy": "clingy",
         "herdr": "herdr",
         "home-manager": "home-manager_2",
+        "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_2",
         "opencode-nix": "opencode-nix",
         "zen-browser": "zen-browser"

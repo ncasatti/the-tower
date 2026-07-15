@@ -57,6 +57,16 @@
       url = "github:ogulcancelik/herdr?ref=v0.7.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # NixOS-WSL: run full NixOS as a WSL2 distribution (the `wsl` host).
+    # Pinned to the full commit SHA of release tag 2605.7.2 — fetches the
+    # tarball directly from codeload (bypasses the rate-limited GitHub API).
+    # Update flow: git ls-remote https://github.com/nix-community/NixOS-WSL
+    #   → pick the newest release tag's SHA → replace below → nix flake lock.
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL/add6b01c7ca72240046b5d541a74845423f1ee35";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
@@ -120,6 +130,29 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
             home-manager.users.flyn = import ./nix/hosts/server/home.nix;
+            home-manager.extraSpecialArgs = { inherit inputs; };
+          }
+        ];
+      };
+
+      # =======================================================================
+      # 4. WSL (NixOS-WSL — headless host inside a Windows box)
+      # Deployment (inside the distro): sudo nixos-rebuild switch --flake .#wsl
+      # See docs/nixos-wsl.md
+      # =======================================================================
+      nixosConfigurations."wsl" = nixpkgs.lib.nixosSystem {
+        specialArgs = { inherit inputs; };
+
+        modules = [
+          { nixpkgs.overlays = [ (import ./nix/overlays/default.nix { inherit inputs; }).additions ]; }
+          inputs.nixos-wsl.nixosModules.default
+          ./nix/hosts/wsl
+
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.users.flyn = import ./nix/hosts/wsl/home.nix;
             home-manager.extraSpecialArgs = { inherit inputs; };
           }
         ];

@@ -27,6 +27,12 @@ let
     the-grid-notebook = {
       id = "XXGQNZT-YYMWDPU-7WFQO5I-7RKA5FZ-PQYCT6C-ADEXIU4-GSZWJMG-G4CLTQ2";
     };
+    # NixOS-WSL peer. id is generated on the first `nixos-rebuild` INSIDE the
+    # distro (null until then → skipped by the `peers` filter). Then paste it
+    # here and rebuild all hosts. See docs/nixos-wsl.md.
+    the-grid-wsl = {
+      id = null;
+    };
     # Mobile peer (Syncthing-Fork). Key matches its Tailscale MagicDNS name so
     # the tcp:// address resolves. Only accepts `zettelkasten` on the phone.
     motorola-edge-70-fusion = {
