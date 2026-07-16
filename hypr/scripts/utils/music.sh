@@ -10,23 +10,23 @@ iDIR="$HOME/.config/swaync/icons"
 
 # Online Stations. Edit as required
 declare -A online_music=(
-  ["Radio 📻 | Easy Rock 96.3"]="https://radio-stations-philippines.com/easy-rock"
-  ["Radio 📻 | Shopping Classics 96.1"]="https://stream4.suenas.net/shoppingclassics"
-  ["Radio 📻 | Aspen 93.7"]="https://sslstream.online:7001/stream"
-  ["Radio 📻 | Rock And Pop 95.9"]="https://playerservices.streamtheworld.com/api/livestream-redirect/ROCKANDPOPAAC_SC"
-  ["YB Playlist 🎶 | RetroWave"]="https://youtube.com/playlist?list=PLL3BWakT7rqX86diD3PgBkY1cBncKFfnT&si=scxgSiiUk-DJsvRa"
-  ["YB Playlist 🎶 | Remixes Playlist"]="https://youtube.com/playlist?list=PLeqTkIUlrZXlSNn3tcXAa-zbo95j0iN-0"
-  ["YB Playlist 🎶 | Lo-Fi Rock"]="https://youtube.com/playlist?list=PLL3BWakT7rqX3at7Sot-9ZynNqK9LBThu&si=hRm9XKdjl3BwsjuY"
-  ["YB Playlist 🎶 | StarWars Epic Music"]="https://youtube.com/playlist?list=PL9PLUrw0CbcTK97xwPGVLs8EcZUIap54v&si=X87C_h0dCubTYLeG"
-  ["YB Playlist 🎶 | Gaming Music"]="https://youtube.com/playlist?list=PLL3BWakT7rqXF3T_LYfLBn0tyQcpeARzb&si=f_I7QftTzS8EL7KG"
-  ["YB Playlist 🎶 | Back To The 80s - Thanatos Mixes"]="https://youtube.com/playlist?list=PL_MHjKxnHz1vGIan1NvtfR1NLMk3qkG8j&si=_Pif0WAu6oGP3Tn-"
-  ["YB Playlist 🎶 | Symphonic Metal"]="https://youtube.com/playlist?list=PLL3BWakT7rqVs8s3ojHtxSzV_ZNFnBgIA&si=hy-4w4yk2S9-ZaO_"
-  ["YB Playlist 🎶 | Powerfull Score"]="https://youtube.com/playlist?list=PLL3BWakT7rqUlPBUUKzbHIMdCx5X7g76G&si=xHxRWZbYkB2p5Xkt"
-  ["YB Playlist 🎶 | Pirates of the Caribbean Score"]="https://youtube.com/playlist?list=PL263677A4D1B673E4&si=Inunh1JatIqQlwI-"
-  ["YB Radio 🎧 | RetroWave Radio - ThePrimeThanatos"]="https://youtu.be/h-aqn3Lpur8"
-  ["YB Radio 🎧 | Synthwave and Chillwave Radio"]="https://youtu.be/W-1azuktk9U"
-  ["YB Radio 🎧 | Synthwave Radio - Lofi Girl"]="https://youtu.be/4xDzrJKXOOY"
-  ["YB Radio 🎧 | RetroTape - RetroRoom"]="https://youtu.be/C6cIkhd3IuE"
+  ["Radio 󰐹 - Easy Rock 96.3"]="https://radio-stations-philippines.com/easy-rock"
+  ["Radio 󰐹 - Shopping Classics 96.1"]="https://stream4.suenas.net/shoppingclassics"
+  ["Radio 󰐹 - Aspen 93.7"]="https://sslstream.online:7001/stream"
+  ["Radio 󰐹 - Rock And Pop 95.9"]="https://playerservices.streamtheworld.com/api/livestream-redirect/ROCKANDPOPAAC_SC"
+  ["Playlist 󰲹 - RetroWave"]="https://youtube.com/playlist?list=PLL3BWakT7rqX86diD3PgBkY1cBncKFfnT&si=scxgSiiUk-DJsvRa"
+  ["Playlist 󰲹 - Remixes Playlist"]="https://youtube.com/playlist?list=PLeqTkIUlrZXlSNn3tcXAa-zbo95j0iN-0"
+  ["Playlist 󰲹 - Lo-Fi Rock"]="https://youtube.com/playlist?list=PLL3BWakT7rqX3at7Sot-9ZynNqK9LBThu&si=hRm9XKdjl3BwsjuY"
+  ["Playlist 󰲹 - StarWars Epic Music"]="https://youtube.com/playlist?list=PL9PLUrw0CbcTK97xwPGVLs8EcZUIap54v&si=X87C_h0dCubTYLeG"
+  ["Playlist 󰲹 - Gaming Music"]="https://youtube.com/playlist?list=PLL3BWakT7rqXF3T_LYfLBn0tyQcpeARzb&si=f_I7QftTzS8EL7KG"
+  ["Playlist 󰲹 - Back To The 80s - Thanatos Mixes"]="https://youtube.com/playlist?list=PL_MHjKxnHz1vGIan1NvtfR1NLMk3qkG8j&si=_Pif0WAu6oGP3Tn-"
+  ["Playlist 󰲹 - Symphonic Metal"]="https://youtube.com/playlist?list=PLL3BWakT7rqVs8s3ojHtxSzV_ZNFnBgIA&si=hy-4w4yk2S9-ZaO_"
+  ["Playlist 󰲹 - Powerfull Score"]="https://youtube.com/playlist?list=PLL3BWakT7rqUlPBUUKzbHIMdCx5X7g76G&si=xHxRWZbYkB2p5Xkt"
+  ["Playlist 󰲹 - Pirates of the Caribbean Score"]="https://youtube.com/playlist?list=PL263677A4D1B673E4&si=Inunh1JatIqQlwI-"
+  ["Radio  | RetroWave Radio - ThePrimeThanatos"]="https://youtu.be/h-aqn3Lpur8"
+  ["Radio  | Synthwave and Chillwave Radio"]="https://youtu.be/W-1azuktk9U"
+  ["Radio  | Synthwave Radio - Lofi Girl"]="https://youtu.be/4xDzrJKXOOY"
+  ["Radio  | RetroTape - RetroRoom"]="https://youtu.be/C6cIkhd3IuE"
 )
 
 # Populate local_music array with files from music directory and subdirectories
@@ -90,7 +90,11 @@ play_online_music() {
   notification "$choice"
 
   # Play the selected online music using mpv with audio-only format
-  mpv --shuffle --vid=no --ytdl-format="bestaudio/best" --script-opts=ytdl_hook-ytdl_path=yt-dlp "$link"
+  # cookies-from-browser: authenticate against YouTube's bot check via Zen (firefox-based) session cookies
+  mpv --shuffle --vid=no --ytdl-format="bestaudio/best" \
+    --script-opts=ytdl_hook-ytdl_path=yt-dlp \
+    --ytdl-raw-options=cookies-from-browser="firefox:$HOME/.config/zen/x62pecz6.Default Profile" \
+    "$link"
 }
 
 # Check if an online music process is running and send a notification, otherwise run the main function
