@@ -31,7 +31,7 @@ let
     # distro (null until then → skipped by the `peers` filter). Then paste it
     # here and rebuild all hosts. See docs/nixos-wsl.md.
     the-grid-wsl = {
-      id = null;
+      id = "CRZHJQ2-LZNOM4F-ZIEPHWJ-BAQVTUF-GC2KSHA-62TPS42-NL25SRM-BVJR3AW";
     };
     # Mobile peer (Syncthing-Fork). Key matches its Tailscale MagicDNS name so
     # the tcp:// address resolves. Only accepts `zettelkasten` on the phone.
