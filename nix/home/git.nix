@@ -7,11 +7,19 @@
   programs.git = {
     enable = true;
     settings = {
-      user.name  = "Nicolas Casatti";
+      user.name = "Nicolas Casatti";
       user.email = "ncasatti@gmail.com";
       core.editor = "nvim";
       credential.helper = "store";
     };
     signing.format = null;
+    extraConfig = {
+      pull = {
+        rebase = true;
+      };
+      rebase = {
+        autoStash = true;
+      };
+    };
   };
 }
