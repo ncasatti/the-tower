@@ -30,6 +30,11 @@
     # --- System Reference (keyd config for reference) ---
     ".config/keyd"                = { source = ../../keyd;             recursive = true; };
 
+    # --- Streaming & HTPC client (Moonlight) ---
+    # versioned WITHOUT the client cert/key pair (regenerated on first launch in
+    # each host); see moonlight/Moonlight.conf for the redacted shape.
+    ".config/Moonlight Game Streaming Project" = { source = ../../moonlight; recursive = true; };
+
     # --- Package Managers ---
     ".bunfig.toml".text = ''
       [install]
