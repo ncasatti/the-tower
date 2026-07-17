@@ -15,7 +15,7 @@
 	"on-scroll-up": "hyprctl dispatch workspace e+1",
 	"on-scroll-down": "hyprctl dispatch workspace e-1",
     "persistent-workspaces": {
-      "*": 5
+      "*": 10
 	},
 	"format-icons": {
 		"active": "",
@@ -32,7 +32,7 @@
 	"on-scroll-up": "hyprctl dispatch workspace e+1",
 	"on-scroll-down": "hyprctl dispatch workspace e-1",
     "persistent-workspaces": {
-      "*": 5
+      "*": 10
 	},
 	"format-icons": {
 		"1": "I",
@@ -57,7 +57,7 @@
 	"on-scroll-down": "hyprctl dispatch workspace e-1",
 	"show-special": false,
     "persistent-workspaces": {
-      "*": 5
+      "*": 10
 	},
 	// "format": "{icon}",
 	"format-icons": {
@@ -73,7 +73,7 @@
 	"all-outputs": true,
 	"format": "{icon}",
     "persistent-workspaces": {
-      "*": 5
+      "*": 10
 	},
 	"format-icons": {
 		"1": "一",
@@ -98,7 +98,7 @@
 	"on-scroll-up": "hyprctl dispatch workspace e+1",
 	"on-scroll-down": "hyprctl dispatch workspace e-1",
     "persistent-workspaces": {
-      "*": 5
+      "*": 10
 	},
 		"format-icons": {
 		"1": "Uno",
@@ -150,7 +150,7 @@
 	"on-scroll-up": "hyprctl dispatch workspace e+1",
 	"on-scroll-down": "hyprctl dispatch workspace e-1",
     "persistent-workspaces": {
-      "*": 5
+      "*": 10
 	},
 	"format-icons": {
 		"1": "1",
@@ -177,7 +177,7 @@
 	"on-scroll-up": "hyprctl dispatch workspace e+1",
 	"on-scroll-down": "hyprctl dispatch workspace e-1",
 	"persistent-workspaces": {
-		"*": 5
+		"*": 10
 		},
 	"format": "{icon} {windows}",
 	"format-window-separator": " ",
