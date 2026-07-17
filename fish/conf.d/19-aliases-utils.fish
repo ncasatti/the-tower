@@ -13,6 +13,8 @@ abbr -a rl 'rclone ls'
 abbr -a rl1 'rclone ls --max-depth=1'
 abbr -a rl2 'rclone ls --max-depth=2'
 abbr -a rl3 'rclone ls --max-depth=3'
+# Mounts
+alias mount-books 'mkdir -pv ~/.the-grid/.mounts/books/ && rclone mount gd:/Docs/Books ~/.the-grid/.mounts/books/'
 
 # Wormhole
 abbr -a whs 'wormhole send'
