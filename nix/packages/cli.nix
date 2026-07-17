@@ -36,12 +36,6 @@
     ncdu
     pdf2md
     herdr   # tmux-like, agent-aware terminal workspace manager (builds from source)
-
-    # bionic-kindle pipeline (books/clingy — see docs/feats/bionic-kindle)
-    python3Packages.lxml      # EPUB DOM transforms (bold injection)
-    python3Packages.ebooklib  # EPUB metadata extraction (Dublin Core in OPF)
-    python3Packages.mobi      # MOBI metadata extraction (EXTH header)
-    calibre                   # ebook-convert CLI for EPUB -> AZW3
   ];
 
   programs.direnv = {
