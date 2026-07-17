@@ -41,6 +41,7 @@
     python3Packages.lxml      # EPUB DOM transforms (bold injection)
     python3Packages.ebooklib  # EPUB metadata extraction (Dublin Core in OPF)
     python3Packages.mobi      # MOBI metadata extraction (EXTH header)
+    python3Packages.pytest    # test runner for books/tests/
     calibre                   # ebook-convert CLI for EPUB -> AZW3
   ];
 
