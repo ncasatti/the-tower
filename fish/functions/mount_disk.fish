@@ -45,9 +45,20 @@ function mount_disk --description 'Mounts a disk selected with fzf and adjusts p
     # 3. Execute operations
     echo "Mounting $device at $mount_path..."
 
-    if sudo mkdir -p $mount_path && sudo mount $device $mount_path
-        echo "Mount successful. Adjusting permissions..."
-        sudo chown -R $USER:users $mount_path
+    if sudo mkdir -p $mount_path
+        # Detect FS type to choose the right ownership strategy
+        set -l fstype (lsblk -no FSTYPE $device)
+
+        if string match -q -r '^(vfat|exfat|ntfs|msdos)$' $fstype
+            # Non-POSIX FS: kernel VFS simulates uid/gid at mount time
+            echo "Mounting $fstype with uid=$(id -u),gid=$(id -g)..."
+            sudo mount -o "uid=$(id -u),gid=$(id -g),umask=022" $device $mount_path
+        else
+            # POSIX FS: standard mount + recursive chown
+            echo "Mount successful. Adjusting permissions..."
+            sudo mount $device $mount_path && sudo chown -R $USER:users $mount_path
+        end
+
         echo "Operation completed."
     else
         echo "Error during mount process."
