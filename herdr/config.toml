@@ -100,3 +100,11 @@ show_agent_labels_on_pane_borders = true
 # "herdr" = toasts rendered inside the TUI. Other options: "terminal" (desktop
 # notification via the outer terminal) or "system" (OS notification service).
 delivery = "herdr"
+
+[experimental]
+# Propagate the kitty graphics protocol through herdr so attached apps
+# (nvim + snacks.image, lazygit diffs, ...) can render inline images and
+# LaTeX math at the host terminal. Off by default in herdr; safe to turn
+# on when the outer terminal is kitty or any other graphics-protocol
+# capable emulator. See https://herdr.dev/docs/configuration#kitty-graphics
+kitty_graphics = true
