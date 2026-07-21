@@ -24,5 +24,5 @@ abbr -a md 'mkdir -p'
 
 # Archive operations
 abbr -a tarc 'tar -cavf'
-abbr -a tarx 'tar -xvf'
+abbr -a untar 'tar -xvf'
 abbr -a tarv 'tar -tvf'
