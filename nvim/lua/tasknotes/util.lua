@@ -48,6 +48,44 @@ function M.due_info(due, scheduled)
 	return "", "Comment"
 end
 
+-- Returns the date used to order a task. A valid due date takes precedence;
+-- scheduled is the fallback. Dates are normalized to YYYY-MM-DD so ISO
+-- timestamps remain lexicographically sortable.
+function M.effective_date(due, scheduled)
+	local due_date = type(due) == "string" and due:match("^(%d%d%d%d%-%d%d%-%d%d)")
+	if due_date and M.get_days_until(due_date) then
+		return due_date
+	end
+
+	local scheduled_date = type(scheduled) == "string" and scheduled:match("^(%d%d%d%d%-%d%d%-%d%d)")
+	if scheduled_date and M.get_days_until(scheduled_date) then
+		return scheduled_date
+	end
+
+	return nil
+end
+
+-- Orders dates from most urgent (oldest/overdue) to least urgent (furthest away).
+-- Undated tasks are placed last; equal dates use the existing item ordering.
+function M.compare_task_items(a, b)
+	if a.sort_date ~= b.sort_date then
+		if not a.sort_date then
+			return false
+		end
+		if not b.sort_date then
+			return true
+		end
+		return a.sort_date < b.sort_date
+	end
+	if a.status_rank ~= b.status_rank then
+		return a.status_rank < b.status_rank
+	end
+	if a.priority_rank ~= b.priority_rank then
+		return a.priority_rank < b.priority_rank
+	end
+	return a.title < b.title
+end
+
 -- Converts the current buffer's absolute path to a vault-relative id.
 -- Returns (id, abs, vault) on success, (nil, abs, vault) when outside.
 function M.buffer_to_id()

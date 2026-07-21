@@ -45,6 +45,7 @@ function M.pick_file(key, value, from_shortcut)
 			status_rank = status_ranks[status_val] or 99,
 			priority_rank = priority_ranks[priority_val] or 99,
 			title = title,
+			sort_date = util.effective_date(fm.due, fm.scheduled),
 			icon = ui.icon_for_status(status_val),
 			status_hl = ui.ensure_color_hl("TaskNotesRow_status", status_val or "none", status_colors[status_val]),
 			priority_hl = ui.ensure_color_hl(
@@ -57,15 +58,7 @@ function M.pick_file(key, value, from_shortcut)
 		})
 	end
 
-	table.sort(items, function(a, b)
-		if a.status_rank ~= b.status_rank then
-			return a.status_rank < b.status_rank
-		end
-		if a.priority_rank ~= b.priority_rank then
-			return a.priority_rank < b.priority_rank
-		end
-		return a.title < b.title
-	end)
+	table.sort(items, util.compare_task_items)
 	for i, item in ipairs(items) do
 		item.idx = i
 	end
