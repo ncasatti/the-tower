@@ -55,6 +55,13 @@ in
     # 22000/tcp+udp (transfers) and 21027/udp (local discovery).
     openDefaultPorts = true;
 
+    # Tolerate a config schema newer than the pinned binary. Syncthing writes
+    # a bumped schema when a newer nixpkgs build runs; a later downgrade (flake
+    # update rollback / GC) would otherwise crash-loop `initialize config`
+    # (start-limit-hit). Vendor-sanctioned post-downgrade flag; the declarative
+    # devices/folders are re-asserted via the init API on every boot regardless.
+    extraFlags = [ "--allow-newer-config" ];
+
     # settings.devices/folders are authoritative: GUI edits to them are
     # reverted on rebuild (overrideDevices/overrideFolders default to true).
     settings = {
