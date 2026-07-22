@@ -16,10 +16,14 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   # --- ENVIRONMENT: Wayland + NVIDIA ---
+  # This is the single source of truth for this host's GPU env (ADR-001).
+  # Note: LIBVA_DRIVER_NAME is deliberately NOT set — there is no working
+  # NVIDIA VA-API here, and forcing it stalls Electron/Chromium (ADR-002).
   environment.sessionVariables = {
     # Force GBM backend for Wayland (required for NVIDIA on Hyprland)
     GBM_BACKEND             = "nvidia-drm";
     __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    EGL_PLATFORM            = "wayland";
     WLR_NO_HARDWARE_CURSORS = "1";
   };
 }

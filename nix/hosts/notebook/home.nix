@@ -40,6 +40,7 @@
     cool-retro-term
     kitty
     obsidian
+    tidal-hifi   # stock: AMD/radeonsi VA-API works (no wrapper needed)
 
     # Screenshot & Multimedia dependencies
     grim

@@ -20,7 +20,8 @@ in
     # brave
     # google-chrome
     zen-browser
-    tidal-hifi
+    # tidal-hifi: declared per-host now — wrapped (no VA-API) on main, stock
+    # elsewhere. GPU env is host-specific, so is this. See ADR-002.
     mpv
     # yt-dlp
     thunderbird

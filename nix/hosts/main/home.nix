@@ -4,6 +4,22 @@
 
 { pkgs, ... }:
 
+let
+  # tidal-hifi (Electron/Chromium) has no working VA-API on this NVIDIA host
+  # (no nvidia-vaapi-driver). Its video-decode path stalls the shared GPU and
+  # freezes the compositor + other GPU clients (e.g. Zen). Disable VA-API
+  # decode/encode; GPU compositing/rasterization is kept. See ADR-002.
+  # (let-bound name shadows pkgs.tidal-hifi inside `with pkgs` below.)
+  tidal-hifi = pkgs.symlinkJoin {
+    name = "tidal-hifi-no-vaapi";
+    paths = [ pkgs.tidal-hifi ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/tidal-hifi \
+        --add-flags "--disable-features=VaapiVideoDecoder,VaapiVideoEncoder"
+    '';
+  };
+in
 {
   imports = [
     # --- Home modules ---
@@ -43,6 +59,7 @@
     cool-retro-term
     kitty
     obsidian
+    tidal-hifi   # wrapped above: VA-API decode disabled (ADR-002)
 
     # Screenshot & Multimedia dependencies
     grim
