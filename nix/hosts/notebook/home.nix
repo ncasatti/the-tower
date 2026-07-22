@@ -15,6 +15,7 @@
     ../../home/xdg.nix
     ../../home/sioyek.nix
     ../../home/polkit.nix
+    ../../home/moonlight.nix    # Moonlight client + paired config
     # ../../home/secrets.nix  # agenix — disabled for now
 
     # --- Package sets ---
