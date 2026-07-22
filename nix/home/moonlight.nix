@@ -21,8 +21,4 @@
   home.packages = [
     pkgs.moonlight-qt
   ];
-
-  home.file = {
-    ".config/Moonlight Game Streaming Project".source = ../../moonlight;
-  };
 }
