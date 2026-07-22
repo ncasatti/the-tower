@@ -22,3 +22,6 @@ abbr -a aws-ecr-describe 'aws ecr describe-images --repository-name'
 
 abbr -a transes 'trans :es'
 abbr -a transen 'trans :en'
+
+alias play 'playerctl play-pause'
+alias playing 'playerctl metadata -F --format "{{ artist }} - {{ title }}"'
