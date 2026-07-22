@@ -15,6 +15,7 @@
     ../../home/xdg.nix
     ../../home/sioyek.nix
     ../../home/polkit.nix
+    ../../home/moonlight.nix    # Moonlight client + paired config
     # ../../home/secrets.nix  # agenix — disabled for now
 
     # --- AI module (LiteLLM proxy + gbrain bootstrap) ---
@@ -42,7 +43,6 @@
     cool-retro-term
     kitty
     obsidian
-    moonlight-qt   # client for the HTPC's Sunshine (see htpc-remote.sh)
 
     # Screenshot & Multimedia dependencies
     grim
