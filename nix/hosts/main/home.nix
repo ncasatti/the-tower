@@ -54,6 +54,12 @@ in
   home.homeDirectory = "/home/flyn";
   home.stateVersion  = "23.11";
 
+  # --- Hyprland monitor layout (host-scoped, ADR-003) ---
+  # hyprland.conf sources configs/monitors.local.conf; we point it at this
+  # host's file. The shared configs/monitors.conf is no longer sourced.
+  home.file.".config/hypr/configs/monitors.local.conf".source =
+    ../../../hypr/configs/hosts/main.conf;
+
   # Extra packages specific to main
   home.packages = with pkgs; [
     cool-retro-term
