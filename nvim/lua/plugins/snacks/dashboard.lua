@@ -18,7 +18,13 @@ return {
 			-- 	desc = "Config",
 			-- 	action = ":lua Snacks.picker.files({ cwd = vim.fn.stdpath('config') })",
 			-- },
-			{ icon = "󰒲", key = "s", desc = "Restore Session", section = "session" },
+			{
+				icon = "󰒲",
+				key = "s",
+				desc = "Restore Session",
+				section = "session",
+				action = ":lua require('persistence').load()",
+			},
 			{ icon = " ", key = "l", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
 			{ icon = "", key = "q", desc = "Quit", action = ":qa" },
 		},
@@ -34,5 +40,6 @@ return {
 		{ section = "header" },
 		{ section = "keys", gap = 1, padding = 1 },
 		{ section = "startup" },
+		{ section = "session" },
 	},
 }
