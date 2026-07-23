@@ -126,15 +126,22 @@ return {
 			position = "left",
 			language_pad = 0,
 			border = "none",
-			-- left_pad = 0.2,
-			-- left_margin = 1.5,
-			-- right_pad = 0.2,
+			-- render-markdown derives `code.data.padding` from `code.left_pad`
+			-- (render/markdown/code.lua:53). When background is on, every inner
+			-- row gets `line:pad(padding, RenderMarkdownCode)` injected as
+			-- virt_text — `RenderMarkdownCode` defaults to `ColorColumn`, so the
+			-- padding shows up on screen as a single-character vertical bar on
+			-- the left of each fenced block. Force `left_pad` (and its sibling
+			-- `right_pad`) to zero so the block visually hugs the source text.
+			left_pad = 0,
+			right_pad = 0,
+			left_margin = 0,
 			width = "full",
 			min_width = 0,
 			language_name = false,
 			language_icon = true,
-			above = "",
-			below = "",
+			above = "",
+			below = "",
 		},
 
 		-- Checkbox rendering for task lists

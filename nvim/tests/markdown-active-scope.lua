@@ -123,4 +123,16 @@ assert_equal(config.pipe_table.border_virtual, false, "vault attach must NOT tou
 assert_equal(vim.b[indent_buf].snacks_indent, nil, "indent-only mode leaves snacks_indent alone")
 assert(not active_scope.is_attached(indent_buf), "active scope stays off by default")
 
+-- Lock the code-block padding contract. The fenced-code renderer derives
+-- `data.padding` and `data.margin` from `config.left_pad` and `config.left_margin`
+-- (render/markdown/code.lua:53-55). At non-zero defaults each interior row gets
+-- `line:pad(padding, RenderMarkdownCode)` injected as virt_text, and because
+-- `RenderMarkdownCode → ColorColumn` by default that padding shows up as a
+-- single-character vertical bar on the left of every fenced block. We keep all
+-- three at zero so fenced code blocks visually hug the source text.
+local global_config = require("render-markdown.state").get(0)
+assert_equal(global_config.code.left_pad, 0, "code left_pad must stay zero to avoid phantom ColorColumn")
+assert_equal(global_config.code.right_pad, 0, "code right_pad must stay zero to avoid phantom ColorColumn")
+assert_equal(global_config.code.left_margin, 0, "code left_margin must stay zero to avoid phantom ColorColumn")
+
 print("markdown active scope: ok")
