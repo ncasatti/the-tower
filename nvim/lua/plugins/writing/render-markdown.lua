@@ -1,3 +1,10 @@
+-- Vault heading-body indentation is on. Source stays canonical; layout is virtual
+-- (two columns per level) and mdformat-compatible.
+local vault_indent_enabled = true
+-- Active-scope vertical guides remain disabled until the upward-navigation bug
+-- tracked in docs/feats/markdown-active-scope/design.md is resolved.
+local active_scope_enabled = false
+
 return {
 	"MeanderingProgrammer/render-markdown.nvim",
 	dependencies = {
@@ -54,6 +61,61 @@ return {
 				"RenderMarkdownH5",
 				"RenderMarkdownH6",
 			},
+		},
+
+		-- Org-style body indentation is visual only: source Markdown remains
+		-- canonical and can still be formatted by mdformat. Keep the component
+		-- disabled globally; the attach hook enables it only for vault buffers.
+		indent = {
+			enabled = false,
+			render_modes = vault_indent_enabled,
+			per_level = 2,
+			skip_level = 0,
+			skip_heading = true,
+			icon = "",
+		},
+
+		on = {
+			attach = function(ctx)
+				if not vault_indent_enabled then
+					return
+				end
+
+				local vault = vim.fs.normalize(vim.fn.expand("~/.the-grid/zettelkasten"))
+				local path = vim.fs.normalize(vim.api.nvim_buf_get_name(ctx.buf))
+				local in_vault = path == vault or vim.startswith(path, vault .. "/")
+				if not in_vault then
+					return
+				end
+
+				-- render-markdown resolves one independent config per buffer before
+				-- this hook runs. Mutating that instance keeps every other Markdown
+				-- buffer unchanged while enabling indentation for vault notes.
+				local config = require("render-markdown.state").get(ctx.buf)
+				config.indent.enabled = true
+				-- NOTE: do not enable `pipe_table.border_virtual` here. Force-enabling
+				-- it for vault buffers caused render-markdown to switch fenced code
+				-- blocks from overlay `virt_text` to full-line `virt_lines`, which
+				-- produced a phantom vertical bar on the left of every code block in
+				-- the vault. Tables inherit the per-buffer global default instead.
+
+				if not active_scope_enabled then
+					return
+				end
+
+				-- Snacks' indent filter reads this buffer variable. render-markdown
+				-- owns invisible layout; the custom decoration provider owns the
+				-- single active scope guide, so physical and virtual guides cannot
+				-- overlap inside the vault.
+				vim.b[ctx.buf].snacks_indent = false
+				require("markdown.active-scope").attach(ctx.buf, {
+					per_level = config.indent.per_level,
+					skip_level = config.indent.skip_level,
+					enabled = function()
+						return config.enabled and config.indent.enabled
+					end,
+				})
+			end,
 		},
 
 		-- Code block styling
@@ -179,9 +241,11 @@ return {
 		-- so render-markdown's checkbox.custom.urgent picks it up. Re-applied
 		-- on ColorScheme so it survives theme switches.
 		vim.api.nvim_set_hl(0, "RenderMarkdownCheckboxUrgent", { fg = "#f07178", bold = true })
+		vim.api.nvim_set_hl(0, "RenderMarkdownIndentActive", { fg = "#4F6166" })
 		vim.api.nvim_create_autocmd("ColorScheme", {
 			callback = function()
 				vim.api.nvim_set_hl(0, "RenderMarkdownCheckboxUrgent", { fg = "#f07178", bold = true })
+				vim.api.nvim_set_hl(0, "RenderMarkdownIndentActive", { fg = "#4F6166" })
 			end,
 		})
 
@@ -271,7 +335,9 @@ return {
 			local start_idx = 1
 			while true do
 				local s, e = line:find("%[%[.-%]%]", start_idx)
-				if not s then break end
+				if not s then
+					break
+				end
 				if col >= s - 1 and col < e then
 					vim.cmd("Obsidian follow_link")
 					return

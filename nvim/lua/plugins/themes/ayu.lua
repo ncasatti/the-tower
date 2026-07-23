@@ -208,6 +208,7 @@ return {
 			RenderMarkdownH5Bg = { bg = "None" },
 			RenderMarkdownH6 = { fg = Colors.h6 },
 			RenderMarkdownH6Bg = { bg = "None" },
+			RenderMarkdownIndentActive = { fg = Colors.gray },
 
 			-- Markdown Math and Code blocks
 			RenderMarkdownMath = { fg = Elements.code },
