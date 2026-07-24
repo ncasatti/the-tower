@@ -122,7 +122,7 @@ return {
 		code = {
 			enabled = true,
 			sign = true,
-			style = "normal",
+			style = "language",
 			position = "center",
 			language_pad = 2,
 			border = "none",
