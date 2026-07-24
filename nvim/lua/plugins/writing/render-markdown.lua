@@ -50,8 +50,8 @@ return {
 			-- icons = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " },
 			-- icons = { "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 " },
 			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
-			-- icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
-			icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
+			icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
+			-- icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
 			-- Use single line borders to match your theme
 			backgrounds = {
 				"RenderMarkdownH1",
@@ -121,10 +121,10 @@ return {
 		-- Code block styling
 		code = {
 			enabled = true,
-			sign = false,
-			style = "language",
-			position = "left",
-			language_pad = 0,
+			sign = true,
+			style = "normal",
+			position = "center",
+			language_pad = 2,
 			border = "none",
 			-- render-markdown derives `code.data.padding` from `code.left_pad`
 			-- (render/markdown/code.lua:53). When background is on, every inner
@@ -139,7 +139,7 @@ return {
 			width = "full",
 			min_width = 0,
 			language_name = false,
-			language_icon = true,
+			language_icon = false,
 			above = "",
 			below = "",
 		},
@@ -147,8 +147,8 @@ return {
 		-- Checkbox rendering for task lists
 		checkbox = {
 			enabled = true,
-			unchecked = { icon = "󰄱" },
-			checked = { icon = "󰄵" },
+			unchecked = { icon = "󰄰" }, -- 󰄱󰄱
+			checked = { icon = "󰄴" }, -- 󰄵󰡖󰘻󰄴
 			custom = {
 				todo = { raw = "[-]", rendered = "", highlight = "RenderMarkdownInfo" },
 				cancel = { raw = "[~]", rendered = "󰗎", highlight = "RenderMarkdownCalloutFaq" },
@@ -161,7 +161,7 @@ return {
 		bullet = {
 			enabled = true,
 			-- icons: ● ○ 󰸶 󱤙 󰌕 󰌖 󰫥 󰤲   󱦰 󱞩
-			icons = { "", "", "", "" },
+			icons = { "󱥸", "󱥸", "󱥸", "󱥸" },
 		},
 
 		-- Links
@@ -212,7 +212,7 @@ return {
 			abstract = { raw = "[!abstract]", rendered = "󰨝 Abstract", highlight = "RenderMarkdownCalloutAbstract" },
 			summary = { raw = "[!summary]", rendered = "󰨝 Summary", highlight = "RenderMarkdownCalloutAbstract" },
 			tldr = { raw = "[!tldr]", rendered = "󰨝 TL;DR", highlight = "RenderMarkdownCalloutAbstract" },
-			todo = { raw = "[!todo]", rendered = " Next", highlight = "RenderMarkdownCalloutTodo" },
+			todo = { raw = "[!todo]", rendered = " Next", highlight = "RenderMarkdownCalloutAbstract" },
 			success = { raw = "[!success]", rendered = "󰄬 Success", highlight = "RenderMarkdownSuccess" },
 			check = { raw = "[!check]", rendered = "󰄬 Check", highlight = "RenderMarkdownSuccess" },
 			done = { raw = "[!done]", rendered = "󰄬 Done", highlight = "RenderMarkdownSuccess" },

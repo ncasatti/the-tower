@@ -41,6 +41,7 @@ Colors = {
 	blue_dark3 = "#1C2733", -- darker selection box → more contrast for white text
 	-- Inline markup (opaque, so headings dominate the page)
 	code_muted = "#73A0AE", -- inline `code` / code blocks (was blue1 #39BAE6)
+	code_blue = "#209EC7", --2888A8
 	bold_orange = "#E0803A", -- bold: ayu orange (#FF8F40) dimmed ~12% — orange, not gold/yellow
 	-- Markdown heading colors — distinct hues (inline now muted, so collisions are minor)
 	-- prior alts kept for quick revert:
@@ -56,7 +57,7 @@ Colors = {
 }
 Elements = {
 	bold = Colors.bold_orange,
-	code = Colors.code_muted,
+	code = Colors.code_blue,
 	italic = Colors.gray4,
 	cursor = Colors.white1,
 	selection = Colors.blue_dark3, -- darker box → white selection text pops more
