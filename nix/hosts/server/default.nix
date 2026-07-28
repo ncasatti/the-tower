@@ -25,6 +25,7 @@
     # Server-specific
     ./adguard.nix
     ./htpc.nix                  # Hyprland + greetd autologin + Intel VA-API
+    ./swap.nix
   ];
 
   # --- PLATFORM ---
