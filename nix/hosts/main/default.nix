@@ -2,7 +2,7 @@
 # Main NixOS configuration for The Grid main host.
 # TODO: Add hardware-configuration.nix after NixOS installation.
 
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 
 {
   imports = [
@@ -18,6 +18,7 @@
     ../../modules/nix.nix
     ../../modules/audio.nix
     ../../modules/services.nix
+    ../../modules/journald.nix
     ../../modules/kanata.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
@@ -34,6 +35,20 @@
   # --- BOOTLOADER ---
   boot.loader.systemd-boot.enable      = true;
   boot.loader.efi.canTouchEfiVariables = true;
+
+  # --- KERNEL PARAMS ---
+  # amd_pstate driver fails to load on Ryzen 5 3600 (ACPI reports
+  # min/max/nominal_freq=0 → init fails with -19). Force passive mode so it
+  # reads ACPI CPPC tables directly; CPU can boost to 4.2 GHz instead of
+  # being capped at 3.6 GHz by the acpi-cpufreq fallback.
+  boot.kernelParams = [ "amd_pstate=passive" ];
+
+  # --- SSD TRIM (batched, replaces continuous discard) ---
+  # hardware-configuration.nix mounts root with 'discard' (continuous TRIM on
+  # every file delete = sync I/O). Override to drop discard and rely on
+  # fstrim.timer, which batches TRIM commands once per week.
+  fileSystems."/".options = lib.mkForce [ "noatime" "nodiratime" ];
+  services.fstrim.enable  = true;
 
   # --- NETWORKING ---
   networking.hostName            = "the-grid";

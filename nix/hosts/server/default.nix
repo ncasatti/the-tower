@@ -14,6 +14,7 @@
     # Shared system modules
     ../../modules/nix.nix
     ../../modules/services.nix
+    ../../modules/journald.nix
     ../../modules/kanata.nix
     ../../modules/tailscale.nix
     ../../modules/security.nix
