@@ -41,8 +41,8 @@ Colors = {
 	blue_dark3 = "#1C2733", -- darker selection box → more contrast for white text
 	-- Inline markup (opaque, so headings dominate the page)
 	code_muted = "#73A0AE", -- inline `code` / code blocks (was blue1 #39BAE6)
-	code_blue = "#209EC7", --2888A8
-	bold_orange = "#E0803A", -- bold: ayu orange (#FF8F40) dimmed ~12% — orange, not gold/yellow
+	code_blue = "#59C2FF", --2888A8 209EC7
+	bold_orange = "#E68C50", -- FF8F40 E0803A
 	-- Markdown heading colors — distinct hues (inline now muted, so collisions are minor)
 	-- prior alts kept for quick revert:
 	--   mono-violet:  E0B3FF C892F2 B279DE 9C66C7 875AAD 714C90
