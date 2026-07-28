@@ -11,6 +11,7 @@
 
     # Host-specific
     ./nvidia.nix
+    ./storage.nix
 
     # Shared system modules
     ../../modules/nix.nix
