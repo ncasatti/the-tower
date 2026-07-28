@@ -17,16 +17,19 @@ Hyprland (Wayland tiling compositor) configuration for Arch Linux, managed via N
 
 | File | Purpose |
 |------|---------|
-| `settings.conf` | Core settings: input, animations, decorations, hy3 plugin layout |
+| `settings.conf` | Core settings: input, animations, decorations, hy3 plugin layout (current layout = `hy3`) |
 | `keybinds.conf` | Active keyboard shortcuts (Colemak layout) |
 | `keybinds-old.conf` | Legacy keybinds (kept for reference) |
-| `monitors.conf` | Display configuration |
+| `monitors.local.conf` | Per-host display configuration, linked from `configs/hosts/<host>.conf` |
 | `workspaces.conf` | Workspace rules |
 | `windows.conf` | Window rules, opacity, floating behavior |
-| `env.conf` | Environment variables |
+| `env.conf` | GPU-agnostic environment variables (Qt/GDK/Wayland/ozone/cursor only) |
 | `startup.conf` | Auto-start applications |
+| `startup-clingy.conf` | Alternate startup sequence (clingy launcher variant) |
+| `keybinds-clingy.conf` | Alternate keybinds using the clingy launcher |
 | `laptop.conf` | Laptop-specific binds (brightness, touchpad, lid) |
 | `hy3.conf` | hy3 plugin configuration |
+| `hosts/` | Per-host monitor configs (`main.conf`, `notebook.conf`, `server.conf`) |
 
 ### Root-Level Configs
 
@@ -83,6 +86,7 @@ Theming, visuals, and wallpaper management.
 - `wallpaper-effects.sh` — Apply visual effects to wallpaper
 - `wallpaper-random.sh` — Set random wallpaper
 - `wallpaper-select.sh` — Interactive wallpaper selection
+- `wallpaper-set.sh` — Set a specific wallpaper explicitly
 - `waybar-cava.sh` — Waybar audio visualizer
 - `waybar-layout.sh` — Waybar layout switching
 - `waybar-styles.sh` — Waybar style management
@@ -90,6 +94,7 @@ Theming, visuals, and wallpaper management.
 ### `utils/`
 Utility scripts and miscellaneous tools.
 - `gamemode.sh` — Gaming mode toggle
+- `htpc-remote.sh` — HTPC remote control helper (used on `server`)
 - `music.sh` — Music player control
 - `screenshot.sh` — Screenshot capture
 - `sounds.sh` — Sound effects
@@ -114,8 +119,4 @@ swww, wallust, rofi, waybar, ags, swaync, hyprshade, cliphist, pyprland, hypridl
 
 - [ ] Merge three blur scripts (`change-blur.sh`, `change-blur-2.sh`, `change-blur-3.sh`) into one
 - [ ] Review and clean `keybinds-old.conf` (legacy from JaKooLit)
-- [ ] Review backup files in `configs/` (`keybinds.bak`, `windows.conf.bak`)
 - [ ] Audit `laptop.conf` for relevance
-- [ ] Review `.configs/` hidden directory (unknown purpose)
-- [ ] Review `wallpaper_effects/` directory
-- [ ] Review `wallust/` directory

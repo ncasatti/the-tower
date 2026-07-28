@@ -4,17 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Purpose
 
-**The Tower** — declarative Nix-flake configuration deploying a Hyprland/Wayland desktop across three NixOS hosts. There is no application code here; everything is configuration (Nix modules + dotfiles symlinked via Home Manager).
+**The Tower** — declarative Nix-flake configuration deploying a Hyprland/Wayland desktop across four NixOS hosts. There is no application code here; everything is configuration (Nix modules + dotfiles symlinked via Home Manager).
 
 ## Deployment Targets (defined in `flake.nix`)
 
-All three targets are `nixosConfigurations` — `main` is **NOT** Home-Manager-standalone despite what `README.md` claims. The README is partially stale; `AGENTS.md` and `flake.nix` are authoritative.
+All four targets are `nixosConfigurations` — `main` is **NOT** Home-Manager-standalone despite what `README.md` claims. The README is partially stale; `AGENTS.md` and `flake.nix` are authoritative.
 
 | Target     | Role                              | Rebuild command                                 |
 |------------|-----------------------------------|-------------------------------------------------|
 | `notebook` | Portable workstation              | `sudo nixos-rebuild switch --flake .#notebook`  |
-| `main`     | Primary workstation               | `sudo nixos-rebuild switch --flake .#main`      |
-| `server`   | Headless infra node (DNS + VPN)   | `sudo nixos-rebuild switch --flake .#server`    |
+| `main`     | Primary workstation (NVIDIA, secondary HDD on `/mnt/data`) | `sudo nixos-rebuild switch --flake .#main`      |
+| `server`   | Headless infra node (DNS + VPN + HTPC) | `sudo nixos-rebuild switch --flake .#server` |
+| `wsl`      | NixOS-WSL target for Windows-side dev | `sudo nixos-rebuild switch --flake .#wsl`   |
 
 Entry points: `nix/hosts/<target>/default.nix` (system) and `nix/hosts/<target>/home.nix` (per-host Home Manager).
 
@@ -34,13 +35,13 @@ The repo splits into two layers — **Nix definitions** under `nix/`, and **raw 
 
 ### Nix layer (`nix/`)
 
-- **`hosts/<target>/`** — per-host system config. Each host has `default.nix`, `hardware-configuration.nix`, `home.nix`, and host-specific modules (`audio.nix`, `services.nix`, `secrets/`).
+- **`hosts/<target>/`** — per-host system config. Each host has `default.nix`, `hardware-configuration.nix`, `home.nix`, and host-specific modules (`audio.nix`, `services.nix`, etc.). Examples in the tree: `main/nvidia.nix`, `main/storage.nix`, `server/htpc.nix`, `server/adguard.nix`.
 - **`home/`** — shared Home Manager modules imported by each host's `home.nix`. Key files:
   - `dotfiles.nix` — the symlink table mapping repo dirs → `~/.config/*`. **Adding a new app config requires editing this file.**
-  - `git.nix`, `gtk.nix`, `tmux.nix`, `xdg.nix`, `sioyek.nix`, `activation.nix`, `secrets.nix`.
-- **`packages/`** — categorical package lists merged into `home.packages`. Categories: `cli.nix`, `dev.nix`, `languages.nix`, `wayland.nix`, `appearance.nix`, `audio.nix`, `utilities.nix`, `nvim.nix`, `cursor-theme.nix`, `gentle-ai.nix`, plus `custom/` for derivations not in nixpkgs.
-- **`overlays/default.nix`** — applied to every host via `nixpkgs.overlays`. Pulls in `inputs` (zen-browser, opencode-nix, clingy, antigravity-nix).
-- **`modules/`** — reusable NixOS modules (non-host-specific).
+  - `git.nix`, `gtk.nix`, `tmux.nix`, `xdg.nix`, `sioyek.nix`, `activation.nix`, `secrets.nix`. Encrypted secrets live here (`.age` files), not under per-host `secrets/` dirs.
+- **`packages/`** — categorical package lists merged into `home.packages`. Categories: `cli.nix`, `dev.nix`, `languages.nix`, `wayland.nix`, `appearance.nix`, `audio.nix`, `utilities.nix`, `nvim.nix`, `cursor-theme.nix`, `ai.nix`, plus `custom/` for derivations not in nixpkgs.
+- **`overlays/default.nix`** — applied to every host via `nixpkgs.overlays`. Pulls in `inputs` (`zen-browser`, `opencode`, `clingy`, `antigravity-nix`, `claude-code`, `herdr`) plus `nix/packages/custom/` derivations (`engram`, `codebase-memory-mcp`, `gemini-cli`, `pdf2md`).
+- **`modules/`** — reusable NixOS modules (non-host-specific). Each per-host `default.nix` imports both `nix/modules/*` (system services) **and** `nix/home/*` (Home Manager modules). The two layers are complementary: `modules/` for system-wide services, `home/` for user-level config.
 
 ### Dotfile layer (repo root)
 
@@ -50,8 +51,8 @@ Modules with their own docs: [`nvim/`](nvim/README.md), [`hypr/`](hypr/README.md
 
 ### Flake inputs of note
 
-- `agenix` — encrypted secrets. Secrets live under `nix/hosts/<target>/secrets/` and are referenced via `config.age.secrets.<name>.path`. Currently marked legacy in AGENTS.md.
-- `zen-browser`, `opencode-nix`, `clingy`, `antigravity-nix` — third-party flakes wired through the overlay.
+- `agenix` — encrypted secrets. `.age` files live under `nix/home/secrets/` and are imported via `nix/home/secrets.nix` (commented out — currently legacy/dormant in every host's `home.nix`).
+- `zen-browser`, `opencode-nix`, `clingy`, `antigravity-nix`, `claude-code`, `herdr` — third-party flakes wired through the overlay.
 
 ## Workflow Rules
 
@@ -70,5 +71,5 @@ Place new derivations under `nix/packages/custom/` and reference them from a cat
 
 ## Source-of-truth conflicts
 
-- **`flake.nix` is authoritative** on the deployment model — three `nixosConfigurations` (`notebook`, `main`, `server`), each pulling Home Manager via `nix/hosts/<target>/home.nix`. `README.md` and `AGENTS.md` are now aligned to this; if any doc drifts again, trust `flake.nix`.
+- **`flake.nix` is authoritative** on the deployment model — four `nixosConfigurations` (`notebook`, `main`, `server`, `wsl`), each pulling Home Manager via `nix/hosts/<target>/home.nix`. `README.md` and `AGENTS.md` are aligned to this; if any doc drifts again, trust `flake.nix`.
 - **Module docs are the source of truth for their tool** — `nvim/README.md`, `hypr/README.md`, `tmux/TMUX_*.md`. When a module doc and the code disagree, the code wins: fix the doc and cite `file:line`.

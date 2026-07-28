@@ -275,7 +275,7 @@ Cuando usás `<leader>Td` (debug test):
 
 - `lua/plugins/python/iron.lua` - Configuración de REPL
 - `lua/plugins/python/pyworks.lua` - Configuración de Jupyter/Molten
-- `docs/PYTHON-KEYBINDINGS.md` - Referencia completa de keybindings
+- `docs/python-keybindings.md` - Referencia completa de keybindings
 
 ### Prerequisites:
 
@@ -330,7 +330,7 @@ Luego en nvim:
 ✅ **Parte 2: Neotest** - COMPLETADA
 ✅ **Parte 3: REPL/Jupyter** - COMPLETADA
 
-**Referencia rápida:** Ver `docs/PYTHON-KEYBINDINGS.md` para todos los shortcuts.
+**Referencia rápida:** Ver `docs/python-keybindings.md` para todos los shortcuts.
 
 **Próximas mejoras opcionales:**
 - Formatters (black, isort) - Ya instalados con Mason

@@ -38,11 +38,12 @@ All commands below are prefixed with `Ctrl-a` unless stated otherwise.
 ### Navigation
 | Key | Action |
 |-----|--------|
-| `Prefix + Ctrl-n` | Previous window |
-| `Prefix + Ctrl-i` | Next window |
-| `Prefix + Tab` | Last active window |
 | `Prefix + 0-9` | Jump to window by number |
 | `Prefix + w` | Quick window picker (FZF) |
+
+> Previous/next/last-window bindings (`Ctrl-n`, `Ctrl-i`, `l`) are intentionally
+> commented out in `tmux.conf:75-78`. Use the picker (`Prefix + w`) or numbered
+> windows (`Prefix + 0-9`) instead.
 
 ### Management
 | Key | Action |
@@ -75,7 +76,7 @@ All commands below are prefixed with `Ctrl-a` unless stated otherwise.
 | `Prefix + Ctrl-n` | Resize pane left |
 | `Prefix + Ctrl-e` | Resize pane down |
 | `Prefix + Ctrl-u` | Resize pane up |
-| `Prefix + Ctrl-i` | Resize pane right |
+| `Prefix + Tab` | Resize pane right |
 
 ### Layouts
 | Key | Action |
@@ -183,7 +184,7 @@ Mouse mode is **ENABLED**. You can:
 Ctrl-a r          Reload config
 Ctrl-a v/h        Split panes
 Ctrl-a n/e/u/i    Navigate panes (Colemak)
-Ctrl-a Tab        Last window
+Ctrl-a Tab        Resize pane right
 Ctrl-a [          Copy mode
 Ctrl-a o          Session picker (with Zoxide)
 Ctrl-a t          FZF menu

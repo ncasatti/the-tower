@@ -1,7 +1,7 @@
 # The Tower
 
 A declarative, modular Nix-flake configuration deploying a **Hyprland/Wayland desktop**
-across **three NixOS hosts** (`notebook`, `main`, `server`).
+across **four NixOS hosts** (`notebook`, `main`, `server`, `wsl`).
 
 Part of **The Grid** — a cohesive system architecture managed through Nix flakes.
 
@@ -19,14 +19,15 @@ Part of **The Grid** — a cohesive system architecture managed through Nix flak
 
 ## Overview
 
-The Tower is a complete, reproducible desktop environment deployed across three NixOS
+The Tower is a complete, reproducible desktop environment deployed across four NixOS
 hosts that share a common Home Manager configuration and modular package definitions:
 
 1. **`notebook`** — portable workstation
 2. **`main`** — primary workstation
-3. **`server`** — headless infra node (DNS + VPN)
+3. **`server`** — headless infra node (DNS + VPN, plus HTPC role)
+4. **`wsl`** — NixOS-WSL target for Windows-side dev (see [docs/nixos-wsl.md](docs/nixos-wsl.md))
 
-> **Deployment model:** all three are `nixosConfigurations` in `flake.nix` — there is
+> **Deployment model:** all four are `nixosConfigurations` in `flake.nix` — there is
 > **no** Home-Manager-standalone / Arch target. Each host pulls in Home Manager via
 > `nix/hosts/<target>/home.nix`.
 
@@ -69,11 +70,13 @@ The root README orients; each module's own docs are the **source of truth** for 
 ├── flake.lock
 │
 ├── nix/                     # Nix definitions
-│   ├── hosts/               # Per-host system config: notebook/ main/ server/
+│   ├── hosts/               # Per-host system config: notebook/ main/ server/ wsl/
 │   │                        #   each has default.nix, hardware-configuration.nix, home.nix
+│   │                        #   plus host-specific modules (e.g. main/nvidia.nix, main/storage.nix, server/htpc.nix, server/adguard.nix)
 │   ├── home/                # Shared Home Manager modules (dotfiles.nix, git, gtk, tmux, xdg, …)
 │   ├── packages/            # Categorical package lists → home.packages (cli, dev, languages, …)
-│   ├── overlays/            # nixpkgs overlays (zen-browser, opencode-nix, clingy, antigravity)
+│   ├── overlays/            # nixpkgs overlays (zen-browser, opencode, clingy, antigravity,
+│   │                        #   claude-code, herdr, engram, codebase-memory-mcp, gemini-cli, pdf2md)
 │   └── modules/             # Reusable NixOS modules
 │
 ├── nvim/                    # Neovim config        → nvim/README.md
@@ -125,8 +128,9 @@ The root README orients; each module's own docs are the **source of truth** for 
 | Target | Role | Command |
 |--------|------|---------|
 | **`notebook`** | Portable workstation | `sudo nixos-rebuild switch --flake .#notebook` |
-| **`main`** | Primary workstation | `sudo nixos-rebuild switch --flake .#main` |
-| **`server`** | Headless infra node (DNS + VPN) | `sudo nixos-rebuild switch --flake .#server` |
+| **`main`** | Primary workstation (NVIDIA GPU, secondary HDD on `/mnt/data`) | `sudo nixos-rebuild switch --flake .#main` |
+| **`server`** | Headless infra node (DNS + VPN + HTPC) | `sudo nixos-rebuild switch --flake .#server` |
+| **`wsl`** | NixOS-WSL target for Windows-side dev | `sudo nixos-rebuild switch --flake .#wsl` |
 
 Test a host build without switching: `nixos-rebuild build --flake .#<target>`.
 
@@ -140,10 +144,22 @@ Test a host build without switching: `nixos-rebuild build --flake .#<target>`.
   `sioyek.nix`, `polkit.nix`, `activation.nix`, `secrets.nix`.
 - **Packages** (`nix/packages/`): categorical lists merged into `home.packages` —
   `cli.nix`, `dev.nix`, `languages.nix`, `latex.nix`, `nvim.nix`, `wayland.nix`,
-  `appearance.nix`, `audio.nix`, `utilities.nix`, `cursor-theme.nix`, `gentle-ai.nix`,
+  `appearance.nix`, `audio.nix`, `utilities.nix`, `cursor-theme.nix`, `ai.nix`,
   plus `custom/` for derivations not in nixpkgs.
 
 > For the full architecture and agent workflow rules, see [CLAUDE.md](CLAUDE.md).
+
+### Storage
+
+- **Secondary HDD on `main`** — 1 TB WDC WD10SPZX (SMR, 5400 RPM) is mounted at
+  `/mnt/data` via `nix/hosts/main/storage.nix` using a hardware-stable
+  `/dev/disk/by-id/ata-WDC_WD10SPZX-...` reference. Used for photos, videos, static
+  files, occasional Android SDK, and old projects. **Not for** build outputs,
+  Nix store, or any random-write-heavy workload (SMR write-amplification penalty).
+  See mount options in `storage.nix` (`noatime`, `lazytime`, `commit=60`,
+  `errors=remount-ro`).
+- **NVIDIA on `main`** — host-scoped env vars (GBM, EGL, GLX) live in
+  `nix/hosts/main/nvidia.nix`. Shared `hypr/configs/env.conf` is GPU-agnostic.
 
 ### Theming
 
@@ -259,5 +275,5 @@ This project is licensed under the **GNU General Public License v3.0**. See the 
 ---
 
 **Maintained by:** Nico (Kasatto)  
-**Targets:** NixOS — `notebook` · `main` · `server` · Hyprland · Nix flakes  
-**Last Updated:** 2026-06-19
+**Targets:** NixOS — `notebook` · `main` · `server` · `wsl` · Hyprland · Nix flakes  
+**Last Updated:** 2026-07-28

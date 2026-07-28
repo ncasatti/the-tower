@@ -22,9 +22,11 @@ involved; data lives only on the peers.
 
 ## Folders
 
-| Folder ID      | Path                             | Devices | Versioning        |
-|----------------|----------------------------------|---------|-------------------|
-| `zettelkasten` | `~/.the-grid/zettelkasten`       | all     | trashcan, 14 days |
+| Folder ID        | Path                                | Devices | Versioning        |
+|------------------|-------------------------------------|---------|-------------------|
+| `privateConfig`  | `/home/flyn/.the-grid/.private`     | all     | trashcan, 14 days |
+| `zettelkasten`   | `/home/flyn/.the-grid/zettelkasten`  | all     | trashcan, 14 days |
+| `books`          | `/home/flyn/.the-grid/books`        | all     | trashcan, 14 days |
 
 Add new folders by extending `settings.folders` in the module. Per-folder
 ignore patterns go in `<folder>/.stignore` (gitignore-like syntax).

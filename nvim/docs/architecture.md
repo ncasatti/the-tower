@@ -26,12 +26,13 @@ How this Neovim configuration is wired. This is the **Explanation** doc — for 
 5. `pcall(require, "local.databases")` — if present, sets `vim.g.dbs` (gitignored
    local DB connections).
 
-`lazy.lua` imports plugin categories by directory: `ai`, `debug`, `editor`, `git`,
+`lazy.lua` imports plugin categories by directory: `debug`, `editor`, `git`,
 `lsp`, `navigation`, `python`, `snacks`, `testing`, `themes`, `ui`, `writing`,
 `database`. Plugin updates are checked automatically (`checker.enabled = true`).
 
-> **`android/` is not wired into the lazy spec** — its import is commented out in
-> `lazy.lua`. The directory exists but is not auto-loaded.
+> **`ai/` and `android/` are not wired into the lazy spec** — both imports are
+> commented out in `lazy.lua` (lines 18 and 20). The directories exist but are
+> not auto-loaded. To enable either, uncomment the corresponding `{ import = "plugins.<x>" }` line.
 
 ## Directory layout
 
@@ -54,7 +55,7 @@ nvim/
 
 | Category | Contents |
 |---|---|
-| `ai/` | Codeium completion, OpenCode |
+| `ai/` | Codeium completion, OpenCode (**not wired into lazy spec**) |
 | `android/` | adb, build, logcat, gradle (**not wired into lazy spec**) |
 | `database/` | vim-dadbod (DB UI) |
 | `debug/` | nvim-dap + dap-python |
@@ -67,7 +68,7 @@ nvim/
 | `testing/` | Neotest |
 | `themes/` | Ayu |
 | `ui/` | Lualine, Noice, which-key, twilight, colorizer, toggleterm |
-| `writing/` | Obsidian, TaskNotes (spec only — impl in `lua/tasknotes/`, see [TASKNOTES.md](TASKNOTES.md)), render-markdown, markdown-nav, nabla (LaTeX), vimtex |
+| `writing/` | Obsidian, TaskNotes (spec only — impl in `lua/tasknotes/`, see [tasknotes.md](tasknotes.md)), render-markdown, markdown-nav, nabla (LaTeX), vimtex |
 
 ## LSP architecture
 

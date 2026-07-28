@@ -4,7 +4,7 @@ Rules for AI agents editing this Neovim config. This file is **rules only** — 
 the map and reference, see:
 
 - **[README.md](README.md)** — documentation index.
-- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** — how it's wired (bootstrap,
+- **[docs/architecture.md](docs/architecture.md)** — how it's wired (bootstrap,
   modules, LSP, keymaps, settings).
 
 > `AGENTS.md` and `GEMINI.md` are symlinks to this file — edit only `CLAUDE.md`.
@@ -19,7 +19,7 @@ or docs, account for the remaps — full table in
 ## Conventions
 
 - **Leader namespace** is allocated by domain — respect it (table in
-  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#keymap-system)). New maps go under the
+  [docs/architecture.md](docs/architecture.md#keymap-system)). New maps go under the
   correct prefix; plugin-specific maps live in the plugin spec's `keys = {}`.
 - **Plugins are modular** — one file per plugin under
   `lua/plugins/<category>/`. A new plugin → a new file in the right category, and
@@ -30,7 +30,7 @@ or docs, account for the remaps — full table in
   import doesn't try to load the modules as plugin specs.
 - **LSP** uses the native `vim.lsp.config`/`enable` API with per-server modules in
   `lua/plugins/lsp/servers/`. To add a server, follow
-  [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#lsp-architecture).
+  [docs/architecture.md](docs/architecture.md#lsp-architecture).
 - **`conceallevel=2`** is required by Obsidian markdown — do not lower it.
 - **Match surrounding style** — 2-space indent, `stylua` formatting.
 
@@ -53,6 +53,4 @@ disagree, **the code wins** — fix the doc and cite `file:line`.
 
 The doc system: `README.md` = index, `docs/` = per-feature, this file = agent
 rules. Follow the conventions already in use (Diátaxis, Minimum Viable
-Documentation, no duplication, back-link every sub-doc to the README). The
-documentation plan/ROM lives in
-[docs/doc-refactor-plan.md](docs/doc-refactor-plan.md).
+Documentation, no duplication, back-link every sub-doc to the README).

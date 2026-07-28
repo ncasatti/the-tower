@@ -28,10 +28,12 @@ The configuration follows a modular design where `hyprland.conf` sources all oth
 - `$mod_shift = ALT SHIFT` - Window manipulation
 
 ### Layout Manager
-Currently configured to use **master** layout (see `configs/settings.conf:34`). The system also supports dwindle layout and has hy3 plugin available:
-- Master layout: Maintains one main window with others stacked
-- Can switch layouts using `scripts/settings/change-layout.sh`
-- Movement: `movefocus` and `movewindow` for navigation
+Currently configured to use **hy3** layout (see `configs/settings.conf:37`, inside the `general` block). The system also supports `master` and `dwindle` layouts (the `master { … }` block in `settings.conf` configures master; the `dwindle { … }` block configures dwindle):
+- **hy3** — dynamic tiling with splits (current default)
+- **master** — one main window with others stacked
+- **dwindle** — binary split tiling
+- Switch layouts with `scripts/settings/change-layout.sh`.
+- Movement via `movefocus` and `movewindow` (Colemak-mapped).
 
 ### Theming System
 Dynamic theming powered by **wallust**:
@@ -73,12 +75,12 @@ Scripts in `scripts/` are organized by function:
 - `screenshot.sh` - Screenshot tool with area selection
 - `music.sh` - Online music launcher
 
-**Hardware Controls** (root level):
-- `Brightness.sh` - Screen brightness
-- `BrightnessKbd.sh` - Keyboard backlight
-- `Volume.sh` - Audio volume
-- `TouchPad.sh` - Touchpad toggle
-- `MediaCtrl.sh` - Media playback controls
+**Hardware Controls** (`scripts/hardware/`, lowercase kebab-case):
+- `brightness.sh` — screen brightness
+- `brightness-kbd.sh` — keyboard backlight
+- `volume.sh` — audio volume
+- `touchpad.sh` — touchpad toggle
+- `media-ctrl.sh` — media playback controls
 
 ## Essential Commands
 

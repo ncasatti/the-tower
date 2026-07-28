@@ -436,7 +436,7 @@ Remember: This config uses **Colemak navigation** (see CLAUDE.md)!
 1. **Learn the keybindings** - Print the quick reference above
 2. **Be patient on first launch** - Indexing takes time
 3. **Check `:LspInfo` regularly** - Verify LSP is attached
-4. **Read TASKNOTES.md** - If you want task management in nvim
+4. **Read tasknotes.md** - If you want task management in nvim
 5. **Explore Snacks.picker** - Modern fuzzy finder (better than Telescope)
 
 ## Getting Help

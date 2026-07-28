@@ -148,8 +148,8 @@ nvim notebook.ipynb    # Debería verse como .py con # %%
 ## 🎯 KEYBINDINGS COMPLETOS
 
 Ver documentación detallada en:
-- **`docs/PYTHON-KEYBINDINGS.md`** - Referencia completa
-- **`docs/PYWORKS-GUIDE.md`** - Guía de Molten/Jupyter
+- **`docs/python-keybindings.md`** - Referencia completa
+- **`docs/pyworks-guide.md`** - Guía de Molten/Jupyter
 
 ### Quick Reference:
 
@@ -204,10 +204,10 @@ Si manejás múltiples entornos virtuales, instalamos `venv-selector.nvim`.
 
 ## 📚 DOCUMENTACIÓN CREADA
 
-1. **`PYTHON-DEBUG-SETUP.md`** - Guía paso a paso del setup inicial
-2. **`PYTHON-KEYBINDINGS.md`** - Referencia completa de shortcuts
-3. **`PYWORKS-GUIDE.md`** - Guía de Jupyter/Molten
-4. **`PYTHON-SETUP-COMPLETE.md`** - Este archivo (estado actual)
+1. **`python-debug-setup.md`** - Guía paso a paso del setup inicial
+2. **`python-keybindings.md`** - Referencia completa de shortcuts
+3. **`pyworks-guide.md`** - Guía de Jupyter/Molten
+4. **`python-setup-complete.md`** - Este archivo (estado actual)
 
 ---
 

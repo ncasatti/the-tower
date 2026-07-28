@@ -52,8 +52,8 @@ Complete guide to all installed plugins, their purpose, and how to use them.
 - **Features:**
   - Auto-saves every 15 minutes
   - Auto-restores last session on tmux start (if enabled)
-- **Status:** Currently ENABLED (`@continuum-restore 'on'`)
-- **No manual keybindings** - works automatically
+- **Status:** Auto-restore currently **DISABLED** (`@continuum-restore 'off'` in `tmux.conf:151`); manual save/restore still works via tmux-resurrect below.
+- **No manual keybindings** - works automatically when enabled
 
 ---
 
@@ -92,7 +92,7 @@ Complete guide to all installed plugins, their purpose, and how to use them.
   - Create sessions from any directory
   - Preview session contents
 - **Configuration:**
-  - Custom paths: `/home/ncasatti/projects`
+  - Custom paths: `/home/flyn/projects`
   - Zoxide mode: ON
   - Window size: 75%x85%
 

@@ -7,7 +7,7 @@ Snacks-based UI, and an Obsidian/TaskNotes writing workflow. Part of the
 `~/.config/nvim` by Home Manager (`nix/home/dotfiles.nix`, a store copy — see
 [Quick start](#quick-start)).
 
-> **New here? Read [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) first** for how it's
+> **New here? Read [docs/architecture.md](docs/architecture.md) first** for how it's
 > wired, then [docs/keys/keys.md](docs/keys/keys.md) for the keybindings — navigation
 > is Colemak, so `hjkl` will *not* behave as you expect.
 
@@ -40,7 +40,7 @@ git-tracked files).
 ### Overview
 | Doc | What it covers |
 |---|---|
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Bootstrap, directory layout, plugin modules, LSP, keymaps, settings |
+| [architecture.md](docs/architecture.md) | Bootstrap, directory layout, plugin modules, LSP, keymaps, settings |
 | [CLAUDE.md](CLAUDE.md) | Rules for AI agents working in this config |
 
 ### Keybindings
@@ -54,16 +54,10 @@ git-tracked files).
 ### Features & setup
 | Doc | What it covers |
 |---|---|
-| [TASKNOTES.md](docs/TASKNOTES.md) | TaskNotes — Neovim client for the TaskNotes API |
+| [tasknotes.md](docs/tasknotes.md) | TaskNotes — Neovim client for the TaskNotes API |
 | [android-setup.md](docs/android-setup.md) | Android/Java development setup |
 | [android-debugging-guide.md](docs/android-debugging-guide.md) | Android debugging |
-| [PYTHON-SETUP-COMPLETE.md](docs/PYTHON-SETUP-COMPLETE.md) · [PYTHON-DEBUG-SETUP.md](docs/PYTHON-DEBUG-SETUP.md) · [PYTHON-KEYBINDINGS.md](docs/PYTHON-KEYBINDINGS.md) · [PYWORKS-GUIDE.md](docs/PYWORKS-GUIDE.md) | Python: setup, debugging, keys, Jupyter/Pyworks |
-
-### Meta
-| Doc | What it covers |
-|---|---|
-| [doc-refactor-plan.md](docs/doc-refactor-plan.md) | Documentation architecture & refactor plan (ROM) |
-| [tasknotes-refactor-plan.md](docs/tasknotes-refactor-plan.md) | TaskNotes plugin modularization plan (ROM) |
+| [python-setup-complete.md](docs/python-setup-complete.md) · [python-debug-setup.md](docs/python-debug-setup.md) · [python-keybindings.md](docs/python-keybindings.md) · [pyworks-guide.md](docs/pyworks-guide.md) | Python: setup, debugging, keys, Jupyter/Pyworks |
 
 ## For contributors & agents
 
