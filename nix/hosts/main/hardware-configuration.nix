@@ -18,8 +18,11 @@
       fsType = "ext4";
       # Performance optimizations for DRAM-less SSD:
       # noatime/nodiratime: Disable access time updates to reduce write amplification
-      # discard: Enable continuous TRIM to inform the SSD about free blocks
-      options = [ "noatime" "nodiratime" "discard" ];
+      # No 'discard': continuous TRIM means sync I/O on every delete. Batched
+      # TRIM via fstrim.timer instead (services.fstrim.enable in default.nix).
+      # Edit this list HERE. Never override it with lib.mkForce from another
+      # module -- see the warning in default.nix.
+      options = [ "noatime" "nodiratime" ];
     };
 
   boot.initrd.luks.devices."luks-94ba8d4d-69c2-4e02-bbcf-b3e026a2f520" = {

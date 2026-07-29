@@ -36,6 +36,13 @@
   boot.loader.systemd-boot.enable      = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # --- STAGE 1 RESCUE ACCESS ---
+  # Unauthenticated root shell when the initrd drops to emergency.target.
+  # See the long note in nix/hosts/main/default.nix for why this costs no
+  # security. Doubly justified here: headless host, so a stage 1 failure has no
+  # console session to authenticate into anyway.
+  boot.initrd.systemd.emergencyAccess = true;
+
   # --- NETWORKING ---
   networking.hostName            = "the-grid-server";
   networking.networkmanager.enable = true;

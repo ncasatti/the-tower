@@ -2,7 +2,7 @@
 # Main NixOS configuration for The Grid main host.
 # TODO: Add hardware-configuration.nix after NixOS installation.
 
-{ config, pkgs, inputs, lib, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   imports = [
@@ -36,6 +36,15 @@
   boot.loader.systemd-boot.enable      = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # --- STAGE 1 RESCUE ACCESS ---
+  # Unauthenticated root shell when the initrd drops to emergency.target.
+  # This is not a security regression: systemd-boot's cmdline editor is enabled,
+  # so anyone with physical access can already obtain an initrd root shell with
+  # rd.systemd.debug_shell (debug-shell.service is ExecStart=/bin/sh, no
+  # sulogin). Leaving this false locks out nobody but us -- the data is
+  # protected by LUKS either way, not by the initrd shadow file.
+  boot.initrd.systemd.emergencyAccess = true;
+
   # --- KERNEL PARAMS ---
   # amd_pstate driver fails to load on Ryzen 5 3600 (ACPI reports
   # min/max/nominal_freq=0 → init fails with -19). Force passive mode so it
@@ -44,11 +53,18 @@
   boot.kernelParams = [ "amd_pstate=passive" ];
 
   # --- SSD TRIM (batched, replaces continuous discard) ---
-  # hardware-configuration.nix mounts root with 'discard' (continuous TRIM on
-  # every file delete = sync I/O). Override to drop discard and rely on
-  # fstrim.timer, which batches TRIM commands once per week.
-  fileSystems."/".options = lib.mkForce [ "noatime" "nodiratime" ];
-  services.fstrim.enable  = true;
+  # 'discard' is dropped directly in hardware-configuration.nix, NOT overridden
+  # from here.
+  #
+  # NEVER write `fileSystems."/".options = lib.mkForce [ ... ]`.
+  # nixos/modules/tasks/filesystems.nix:229-244 builds that list with mkMerge
+  # and injects "x-initrd.mount" for every boot-critical filesystem. mkForce
+  # (priority 50) replaces the entire merge and silently drops that flag.
+  # Without it systemd-fstab-generator never creates sysroot.mount, the root is
+  # never mounted in stage 1, and initrd-find-nixos-closure resolves init=
+  # against an empty /sysroot and fails -> emergency.target with a poisoned
+  # transaction that not even the correct passphrase can rescue.
+  services.fstrim.enable = true;
 
   # --- NETWORKING ---
   networking.hostName            = "the-grid";
