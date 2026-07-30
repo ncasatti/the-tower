@@ -28,6 +28,10 @@
   # --- BOOTLOADER ---
   boot.loader.systemd-boot.enable      = true;
   boot.loader.efi.canTouchEfiVariables = true;
+  # Retain at least 5 bootable generations. On hosts with encrypted root this
+  # is the difference between a 30-second rollback and a rescue USB. See
+  # boot-lockout-postmortem.md §10.4.
+  boot.loader.systemd-boot.configurationLimit = 5;
 
   # --- NETWORKING ---
   networking.hostName            = "the-grid-notebook";
