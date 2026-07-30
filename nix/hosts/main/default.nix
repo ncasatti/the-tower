@@ -10,7 +10,6 @@
     # Host-specific
     ./nvidia.nix
     ./storage.nix
-    ./swap.nix
 
     # Shared system modules
     ../../modules/nix.nix
@@ -47,6 +46,14 @@
   # sulogin). Leaving this false locks out nobody but us -- the data is
   # protected by LUKS either way, not by the initrd shadow file.
   boot.initrd.systemd.emergencyAccess = true;
+
+  # --- SWAP (zram + randomEncryption on the swap partition) ---
+  # zramSwap: compressed RAM-backed swap, ~50% of RAM, zstd ~3x.
+  # Replaces the static LUKS swap and removes the initrd dependency.
+  zramSwap = {
+    enable   = true;
+    algorithm = "zstd";
+  };
 
   # --- SSD TRIM (batched, replaces continuous discard) ---
   # 'discard' is dropped directly in hardware-configuration.nix, NOT overridden

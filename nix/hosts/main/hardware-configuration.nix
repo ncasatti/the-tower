@@ -39,9 +39,19 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  swapDevices =
-    [ { device = "/dev/mapper/luks-005a1c08-56f9-4c42-a517-d075adc11615"; }
-    ];
+  swapDevices = lib.mkForce [
+    {
+      device  = "/dev/disk/by-partuuid/4dd5ab30-e6ef-4e72-bcde-2f65714cd242";
+      # randomEncryption: NixOS re-keys the LUKS header with a random key
+      # at every boot. No passphrase prompt, no key material at rest,
+      # forward secrecy for swap contents. See boot-lockout-postmortem.md
+      # §10.1 Option 1.
+      randomEncryption = {
+        enable         = true;
+        allowDiscards  = true;
+      };
+    }
+  ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.amd.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
