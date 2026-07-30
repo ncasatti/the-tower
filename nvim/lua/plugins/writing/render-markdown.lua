@@ -5,6 +5,13 @@ local vault_indent_enabled = true
 -- tracked in docs/feats/markdown-active-scope/design.md is resolved.
 local active_scope_enabled = false
 
+-- Custom dash icon. render-markdown's built-in dash handler uses
+-- virt_text_pos = 'overlay' at buffer col 0, which gets shifted by the
+-- indent component's inline virt_text. We disable the built-in handler
+-- and render dashes ourselves (see config below) with virt_text_win_col = 0
+-- so the line draws from visual col 0 regardless of the indent.
+local dash_icon = "" -- ─
+
 return {
 	"MeanderingProgrammer/render-markdown.nvim",
 	dependencies = {
@@ -149,7 +156,7 @@ return {
 			-- `right_pad`) to zero so the block visually hugs the source text.
 			left_pad = 0,
 			right_pad = 0,
-			left_margin = 2,
+			left_margin = 0,
 			width = "full",
 			min_width = 0,
 			language_name = false,
@@ -183,7 +190,7 @@ return {
 			enabled = true,
 			-- Wikilink support for Obsidian
 			wiki = {
-				icon = "", --  
+				icon = "", --   
 				highlight = "RenderMarkdownLink",
 			},
 		},
@@ -201,9 +208,14 @@ return {
 		},
 
 		-- Horizontal rules
+		-- render-markdown's dash handler uses virt_text_pos = 'overlay' at
+		-- buffer col 0, which gets shifted by the indent component's inline
+		-- virt_text. We disable the built-in handler and render dashes
+		-- ourselves in `config` with virt_text_win_col = 0 so the line draws
+		-- from visual col 0 regardless of the indent.
 		dash = {
-			enabled = true,
-			icon = "", -- ─
+			enabled = false,
+			icon = "", -- ─ (icon is now handled by the custom renderer below)
 			width = "full",
 		},
 
@@ -268,6 +280,51 @@ return {
 				vim.api.nvim_set_hl(0, "RenderMarkdownCheckboxUrgent", { fg = "#f07178", bold = true })
 				vim.api.nvim_set_hl(0, "RenderMarkdownIndentActive", { fg = "#4F6166" })
 			end,
+		})
+
+		-- Custom horizontal rule renderer. Replaces render-markdown's dash
+		-- handler (disabled in `opts.dash` above) so the line draws from
+		-- visual col 0 regardless of the indent component. The built-in
+		-- handler uses virt_text_pos = 'overlay' at buffer col 0, which
+		-- gets shifted by indent's inline virt_text; we use
+		-- virt_text_win_col = 0 to anchor at the window's left edge.
+		local dash_highlight = "RenderMarkdownDash"
+		local dash_ns = vim.api.nvim_create_namespace("render-markdown-custom-dash")
+
+		local function render_dashes()
+			local buf = vim.api.nvim_get_current_buf()
+			local ft = vim.bo[buf].filetype
+			if ft ~= "markdown" and ft ~= "md" then
+				return
+			end
+
+			vim.api.nvim_buf_clear_namespace(buf, dash_ns, 0, -1)
+
+			local win_width = vim.api.nvim_win_get_width(0)
+			local icon_width = vim.fn.strdisplaywidth(dash_icon)
+			if icon_width <= 0 then
+				return
+			end
+			local repeat_count = math.ceil(win_width / icon_width)
+			local dash_line = string.rep(dash_icon, repeat_count)
+
+			local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+			for i, line in ipairs(lines) do
+				if line:match("^%-%-%-+$") or line:match("^%*%*%*+$") or line:match("^___+$") then
+					vim.api.nvim_buf_set_extmark(buf, dash_ns, i - 1, 0, {
+						virt_text = { { dash_line, dash_highlight } },
+						virt_text_pos = "overlay",
+						virt_text_win_col = 0,
+						priority = 1000,
+					})
+				end
+			end
+		end
+
+		vim.api.nvim_create_autocmd({ "BufWinEnter", "BufWritePost", "TextChanged", "TextChangedI", "VimResized" }, {
+			group = vim.api.nvim_create_augroup("RenderMarkdownCustomDash", { clear = true }),
+			pattern = { "*.md", "*.markdown" },
+			callback = render_dashes,
 		})
 
 		-- Enable treesitter folds for markdown (foldenable=false so it starts expanded)
