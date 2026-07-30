@@ -49,9 +49,23 @@ return {
 			-- icons = { " ", " ", " ", " ", " ", " " },
 			-- icons = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " },
 			-- icons = { "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 " },
-			icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
+			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
 			-- icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
-			-- icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
+			--
+			-- Roman numeral icons padded to 4 columns (widest label is "III")
+			-- so the heading text aligns vertically across all levels. With
+			-- `position = "inline"`, render-markdown conceals the '#' marker
+			-- and places the icon as virt_text at column 0; Neovim then shifts
+			-- the heading text to start right after the icon, producing a
+			-- single aligned column regardless of nesting level.
+			icons = function(ctx)
+				local labels = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " }
+				-- local labels = { "I", "II", "III", "IV", "V", "VI", "VII" }
+
+				local label = labels[ctx.level] or tostring(ctx.level)
+				return label .. string.rep(" ", 4 - #label)
+			end,
+			position = "inline",
 			-- Use single line borders to match your theme
 			backgrounds = {
 				"RenderMarkdownH1",
