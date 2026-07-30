@@ -1,12 +1,10 @@
 # nix/hosts/main/default.nix
 # Main NixOS configuration for The Grid main host.
-# TODO: Add hardware-configuration.nix after NixOS installation.
 
 { config, pkgs, inputs, ... }:
 
 {
   imports = [
-    # Auto-generated hardware scan (uncomment after installation)
     ./hardware-configuration.nix
 
     # Host-specific
@@ -115,7 +113,8 @@
   };
 
   # --- KANATA KEYBOARD REMAPPER ---
-  # Opt-in enabled: this is the host where kanata is being tested.
+  # Module imported above; enable on the host where you're testing kanata.
+  # Set to `true` on the active host, leave `false` on the others.
   the-grid.kanata.enable = false;
 
   # Do NOT change this value.

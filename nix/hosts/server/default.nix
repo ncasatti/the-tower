@@ -8,7 +8,6 @@
 
 {
   imports = [
-    # Auto-generated hardware scan (uncomment after installation)
     ./hardware-configuration.nix
 
     # Shared system modules
