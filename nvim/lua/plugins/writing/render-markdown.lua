@@ -49,9 +49,9 @@ return {
 			-- icons = { " ", " ", " ", " ", " ", " " },
 			-- icons = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " },
 			-- icons = { "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 " },
-			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
+			icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
 			-- icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
-			icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
+			-- icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
 			-- Use single line borders to match your theme
 			backgrounds = {
 				"RenderMarkdownH1",
@@ -169,7 +169,7 @@ return {
 			enabled = true,
 			-- Wikilink support for Obsidian
 			wiki = {
-				icon = " ", -- 
+				icon = "", --  
 				highlight = "RenderMarkdownLink",
 			},
 		},
