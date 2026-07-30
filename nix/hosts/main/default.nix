@@ -16,6 +16,7 @@
 
     # Shared system modules
     ../../modules/nix.nix
+    ../../modules/boot-invariants.nix   # Stage 1 mkForce guard
     ../../modules/audio.nix
     ../../modules/services.nix
     ../../modules/journald.nix

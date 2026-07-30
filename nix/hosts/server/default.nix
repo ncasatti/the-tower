@@ -13,6 +13,7 @@
 
     # Shared system modules
     ../../modules/nix.nix
+    ../../modules/boot-invariants.nix   # Stage 1 mkForce guard
     ../../modules/services.nix
     ../../modules/journald.nix
     ../../modules/kanata.nix
