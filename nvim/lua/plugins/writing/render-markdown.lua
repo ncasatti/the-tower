@@ -50,8 +50,8 @@ return {
 			-- icons = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " },
 			-- icons = { "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 ", "󱍕 " },
 			-- icons = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " },
-			icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
-			-- icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
+			-- icons = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " },
+			icons = { "I ", "II ", "III ", "IV ", "V ", "VI ", "VII " },
 			-- Use single line borders to match your theme
 			backgrounds = {
 				"RenderMarkdownH1",
@@ -124,7 +124,7 @@ return {
 			sign = true,
 			style = "language",
 			position = "center",
-			language_pad = 2,
+			language_pad = 0,
 			border = "none",
 			-- render-markdown derives `code.data.padding` from `code.left_pad`
 			-- (render/markdown/code.lua:53). When background is on, every inner
@@ -135,7 +135,7 @@ return {
 			-- `right_pad`) to zero so the block visually hugs the source text.
 			left_pad = 0,
 			right_pad = 0,
-			left_margin = 0,
+			left_margin = 2,
 			width = "full",
 			min_width = 0,
 			language_name = false,
@@ -169,7 +169,7 @@ return {
 			enabled = true,
 			-- Wikilink support for Obsidian
 			wiki = {
-				icon = " ",
+				icon = " ", -- 
 				highlight = "RenderMarkdownLink",
 			},
 		},
@@ -189,14 +189,14 @@ return {
 		-- Horizontal rules
 		dash = {
 			enabled = true,
-			icon = "─",
+			icon = "", -- ─
 			width = "full",
 		},
 
 		-- Quote blocks
 		quote = {
 			enabled = true,
-			icon = "▎",
+			icon = "", -- ▎
 		},
 
 		-- Custom callout definitions with unique colors
