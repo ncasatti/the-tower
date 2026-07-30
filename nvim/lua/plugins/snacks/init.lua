@@ -44,7 +44,6 @@ return {
 		scope = { enabled = true },
 		statuscolumn = { enabled = false },
 		words = { enabled = true },
-		lazygit = { enabled = true },
 		toggle = { enabled = true },
 
 		-- Scroll with animation settings
@@ -55,6 +54,7 @@ return {
 		scroll = require("plugins.snacks.scroll"),
 		zen = require("plugins.snacks.zen"),
 		dim = require("plugins.snacks.dim"),
+		lazygit = require("plugins.snacks.lazygit"),
 	},
 
 	-- Keybindings (loaded from separate file)
