@@ -46,13 +46,6 @@
   # protected by LUKS either way, not by the initrd shadow file.
   boot.initrd.systemd.emergencyAccess = true;
 
-  # --- KERNEL PARAMS ---
-  # amd_pstate driver fails to load on Ryzen 5 3600 (ACPI reports
-  # min/max/nominal_freq=0 → init fails with -19). Force passive mode so it
-  # reads ACPI CPPC tables directly; CPU can boost to 4.2 GHz instead of
-  # being capped at 3.6 GHz by the acpi-cpufreq fallback.
-  boot.kernelParams = [ "amd_pstate=passive" ];
-
   # --- SSD TRIM (batched, replaces continuous discard) ---
   # 'discard' is dropped directly in hardware-configuration.nix, NOT overridden
   # from here.
