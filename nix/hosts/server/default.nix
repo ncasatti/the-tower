@@ -26,7 +26,6 @@
     # Server-specific
     ./adguard.nix
     ./htpc.nix                  # Hyprland + greetd autologin + Intel VA-API
-    ./swap.nix
   ];
 
   # --- PLATFORM ---
@@ -39,6 +38,16 @@
   # is the difference between a 30-second rollback and a rescue USB. See
   # boot-lockout-postmortem.md §10.4.
   boot.loader.systemd-boot.configurationLimit = 5;
+
+  # --- SWAP (zram + randomEncryption on the swap partition) ---
+  # zramSwap: critical on this host — only 3.7 GiB RAM, 881 MiB available
+  # observed on multiple boots. zstd ~3x compression doubles effective
+  # capacity. Replaces the static LUKS swap and removes the stage 1
+  # dependency. See boot-lockout-postmortem.md §10.1 Option 1.
+  zramSwap = {
+    enable   = true;
+    algorithm = "zstd";
+  };
 
   # --- STAGE 1 RESCUE ACCESS ---
   # Unauthenticated root shell when the initrd drops to emergency.target.

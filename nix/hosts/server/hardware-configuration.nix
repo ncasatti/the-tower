@@ -26,9 +26,20 @@
       options = [ "fmask=0077" "dmask=0077" ];
     };
 
-  swapDevices =
-    [ { device = "/dev/mapper/luks-e801fd46-c89a-4dab-97ab-72ecdf46c786"; }
-    ];
+  swapDevices = lib.mkForce [
+    {
+      device  = "/dev/disk/by-partuuid/3c171dd3-9e0b-490a-b153-f342f22ad06c";
+      # randomEncryption: NixOS opens the partition with
+      # `cryptsetup plainOpen -d /dev/urandom` at every boot. No persistent
+      # LUKS header, no passphrase prompt, forward secrecy for swap
+      # contents. The existing LUKS header is overwritten by the first
+      # mkswap. See boot-lockout-postmortem.md §10.1 Option 1.
+      randomEncryption = {
+        enable        = true;
+        allowDiscards = true;
+      };
+    }
+  ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
