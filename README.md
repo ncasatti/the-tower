@@ -54,6 +54,7 @@ The root README orients; each module's own docs are the **source of truth** for 
 | **Neovim** | [nvim/README.md](nvim/README.md) | Colemak layout, native LSP (13 langs), Snacks UI, keybindings, TaskNotes, Python/Android — full doc index |
 | **Hyprland** | [hypr/README.md](hypr/README.md) | Modular Hyprland config, layouts, theming via Wallust, scripts, pyprland |
 | **Tmux** | [tmux/TMUX_KEYBINDINGS.md](tmux/TMUX_KEYBINDINGS.md) · [tmux/TMUX_PLUGINS.md](tmux/TMUX_PLUGINS.md) | Colemak tmux keybindings + plugin setup (TPM) |
+| **Swap architecture** | [docs/swap-architecture.md](docs/swap-architecture.md) | Two-layer swap (zram + randomEncryption), why static LUKS swap is a stage 1 bomb, fresh-install workflow |
 | **Kanata** (WIP) | [docs/kanata-remapper.md](docs/kanata-remapper.md) | Cross-platform keyboard remapper — opt-in scaffold, not yet active. `keyd` remains the live remapper. |
 | **Agent rules** | [CLAUDE.md](CLAUDE.md) · [AGENTS.md](AGENTS.md) | Repo architecture & rules for AI agents (Claude Code / OpenCode) |
 
@@ -160,6 +161,30 @@ Test a host build without switching: `nixos-rebuild build --flake .#<target>`.
   `errors=remount-ro`).
 - **NVIDIA on `main`** — host-scoped env vars (GBM, EGL, GLX) live in
   `nix/hosts/main/nvidia.nix`. Shared `hypr/configs/env.conf` is GPU-agnostic.
+
+### Swap architecture
+
+`main` and `server` (both with encrypted root + a dedicated swap partition) use a
+**two-layer swap** that replaced a single static LUKS swap. The original design was
+a mandatory stage 1 dependency and silently timed out 90 s on every boot — invisible
+until memory pressure surfaced it.
+
+| Layer | Mechanism | Priority | Purpose |
+|---|---|---|---|
+| `zramSwap` | Compressed RAM-backed swap (zstd ~3×) | 5 (high) | Hot path; absorbs burst pressure at RAM speed |
+| `randomEncryption` | `cryptsetup plainOpen -d /dev/urandom` on the swap partition at every boot | -2 (low) | Encrypted overflow; no persistent key, no passphrase prompt |
+
+| Host | RAM | zram (raw / compressed) | disk swap | Total effective |
+|---|---|---|---|---|
+| `main` | 15 GiB | 7.8 / ~22.5 GiB | 17.1 GiB | ~39 GiB |
+| `server` | 3.7 GiB | 1.85 / ~5.5 GiB | 8.2 GiB | ~13.7 GiB |
+
+zram is critical on `server`: without it, the 3.7 GiB physical memory OOMs under any
+pressure. The disk swap alone is too slow (5400 RPM) to absorb burst pressure.
+
+For the full architecture, root-cause analysis from the fresh-install failure mode,
+and the workflow for installing on new hardware, see
+[docs/swap-architecture.md](docs/swap-architecture.md).
 
 ### Theming
 
