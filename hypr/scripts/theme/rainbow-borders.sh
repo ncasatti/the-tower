@@ -29,12 +29,12 @@ C13=$(hex_to_0x $COLOR13)
 C14=$(hex_to_0x $COLOR14)
 C15=$(hex_to_0x $COLOR15)
 
-# Random Rainbow Border
-# hyprctl keyword general:col.active_border $(random_hex)  $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex)  270deg
-# hyprctl keyword general:col.inactive_border $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex) $(random_hex)  270deg
-
-# Wallpaper Colors Border
-# hyprctl keyword general:col.active_border $C0 $C1 $C2 $C3 $C4 $C5 $C6 $C7 $C8 $C9 $C10 $C11 $C12 0deg
-# hyprctl keyword general:col.active_border $C1 $C2 $C3 $C4 $C9 $C10 $C12 $C0 $C13 $C7 90deg
-hyprctl keyword general:col.active_border $C14 $C5 $C13 $C11 $C10 $C7 90deg
-# hyprctl keyword general:col.inactive_border $C0 $C1 $C2 $C3 $C4 $C5 0deg
+# DEPRECATED: per-color angles don't work via `hyprctl keyword` IPC — the parser only takes the
+# first color+angle pair and silently drops the rest. So this script can NOT set per-side gradients.
+#
+# Rainbow border is now configured directly in:
+#   hypr/configs/settings.conf  (general { col.active_border = ... per-color angles })
+# Animation: animation = borderangle, 1, 60, linear, loop  (in the animations block)
+#
+# This script is kept as a no-op stub for backwards compat (refresh.sh may call it).
+echo "[rainbow-borders] deprecated; rainbow border is configured in settings.conf" >&2

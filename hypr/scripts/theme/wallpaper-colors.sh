@@ -10,3 +10,9 @@ if [[ -z "$wallpaper_path" ]] || [[ ! -f "$wallpaper_path" ]]; then
 fi
 
 wallust run "$wallpaper_path" -s
+
+# Reload Hyprland so the new $colorN_alpha vars (used by border config) take effect.
+# Without this, Hyprland caches the old values and the border doesn't update.
+if command -v hyprctl &>/dev/null; then
+    hyprctl reload
+fi
