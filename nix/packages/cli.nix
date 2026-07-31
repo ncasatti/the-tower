@@ -30,7 +30,6 @@
     speedtest-cli
     bind
     tcpdump
-    posting
     translate-shell
     btop
     ncdu
