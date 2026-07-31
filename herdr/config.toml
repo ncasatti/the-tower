@@ -94,6 +94,7 @@ navigate_pane_right = "i"
 # Show the detected agent (claude, codex, gemini, ...) in a split pane's border
 # when the pane has no manual name. A manual rename_pane always wins.
 show_agent_labels_on_pane_borders = true
+agent_panel_sort = "priority"
 
 [ui.toast]
 # In-app popup notifications (default was "off", hence nothing showed up).
