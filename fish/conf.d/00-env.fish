@@ -3,3 +3,4 @@
 set -gx EDITOR      nvim
 set -gx BROWSER     zen
 set -gx BUN_INSTALL $HOME/.bun
+set -gx VAULT_PATH  $HOME/.local/share/the-grid
