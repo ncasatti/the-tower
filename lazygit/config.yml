@@ -27,3 +27,20 @@ gui:
       - '#BFBDB6'
     searchingActiveBorderColor:
       - '#FFB454'
+
+  # Shrink the per-commit columns so the commit message gets more room. The
+  # right panel still shows full hash + author + date + message on expansion
+  # (it uses the `commit*Length` values below too), so the left panel only
+  # needs row identification — typically the message itself is enough.
+  # NOTE: lazygit has no `showAuthor/showHash/showDate: false` toggles; this
+  # is the closest we can get to hiding them. `commitHashLength: 0` collapses
+  # the hash to a '*' glyph; `commitAuthorShortLength: 0` collapses the
+  # author column to nothing in the collapsed view. Slightly outside the
+  # documented defaults (2/8/17) — bump up if it visually breaks.
+  commitHashLength: 0
+  commitAuthorShortLength: 0
+  commitAuthorLongLength: 0
+  # Tighter time formats. `3:04PM` → `15:04` saves 2 chars; `02 Jan 06` →
+  # `06-01-02` keeps ISO-ish order, ~1 char savings. Go-style format syntax.
+  shortTimeFormat: "15:04"
+  timeFormat: "06-01-02"
