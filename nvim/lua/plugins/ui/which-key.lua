@@ -11,7 +11,7 @@ return {
 	config = function()
 		local wk = require("which-key")
 		wk.setup({
-			preset = "modern", -- helix|modern|classic
+			preset = "classic", -- helix|modern|classic
 			-- Hydra mode: keep which-key open for window commands
 			show = {
 				keys = "<c-w>",
