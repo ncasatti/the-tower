@@ -20,26 +20,40 @@ local task_ops = require("tasknotes.task_ops")
 local query = require("tasknotes.query")
 local pomodoro = require("tasknotes.pomodoro")
 local templates = require("zettelkasten.templates")
+local wk = require("which-key")
 
 local M = {}
 
--- Registers the <leader>ow* keymaps. All mutations route through the
--- multi-field editor (`owe`); per-field singles were collapsed into it.
+-- Registers the <leader>o* keymaps (shared namespace with obsidian — see
+-- docs/keys/writing.md). Tasks take single keys; the four obsidian bindings
+-- we displaced (Search/New note/Template/Rename) moved to Shift variants
+-- (<leader>oS / oN / oT / oR). All mutations route through the multi-field
+-- editor (`oe`); per-field singles were collapsed into it.
+--
+-- `bind()` registers each binding twice: `vim.keymap.set` for the actual
+-- mapping, `wk.add` for which-key's display metadata (icon + desc).
+-- which-key ignores the `icon` field of `vim.keymap.set` opts, so we have
+-- to feed it explicitly through `wk.add`.
 local function register_keymaps()
-	-- Zettelkasten search + filtering
-	vim.keymap.set("n", "<leader>owk", pickers.pick_key, { desc = "Search by frontmatter key" })
-	vim.keymap.set("n", "<leader>owr", function()
+	local function bind(lhs, rhs, desc)
+		vim.keymap.set("n", lhs, rhs, { desc = desc })
+		wk.add({ { lhs, desc = desc, icon = config.keymap_icon } })
+	end
+
+	-- Search + filtering
+	bind("<leader>ok", pickers.pick_key, "Task: Search by frontmatter key")
+	bind("<leader>or", function()
 		cache.force_refresh()
 		templates.reload()
-	end, { desc = "Force cache rebuild + reload templates" })
-	vim.keymap.set("n", "<leader>ows", pickers.pick_file_by_status, { desc = "Filter by status" })
-	vim.keymap.set("n", "<leader>owo", pickers.pick_file_by_tag, { desc = "Filter by tag/project" })
-	vim.keymap.set("n", "<leader>owt", pickers.note_search, { desc = "Search notes by tag (vault)" })
-	vim.keymap.set("n", "<leader>owq", query.query_builder.open, { desc = "Task: Query builder" })
+	end, "Task: Force cache rebuild + reload templates")
+	bind("<leader>os", pickers.pick_file_by_status, "Task: Filter by status")
+	bind("<leader>ot", pickers.pick_file_by_tag, "Task: Filter by tag/project")
+	bind("<leader>ow", pickers.note_search, "Task: Search notes by tag (vault)")
+	bind("<leader>oq", query.query_builder.open, "Task: Query builder")
 
-	vim.keymap.set("n", "<leader>own", task_ops.create_task, { desc = "Task: New" })
-	vim.keymap.set("n", "<leader>owe", task_ops.edit_fields.open, { desc = "Task: Edit fields" })
-	vim.keymap.set("n", "<leader>owp", pomodoro.panel, { desc = "Pomodoro & time tracking" })
+	bind("<leader>on", task_ops.create_task, "Task: New")
+	bind("<leader>oe", task_ops.edit_fields.open, "Task: Edit fields")
+	bind("<leader>op", pomodoro.panel, "Task: Pomodoro & time tracking")
 end
 
 -- Entry point. Merges user opts into the config table IN PLACE (never

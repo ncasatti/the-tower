@@ -32,8 +32,6 @@ return {
 			{ "<leader>L",  group = "Language tools",    icon = "󰘧 " },
 			{ "<leader>m",  group = "Markdown",          icon = "󰍔 " },
 			{ "<leader>o",  group = "Obsidian",          icon = "󱓧 " },
-			{ "<leader>ow", group = "Zettelkasten",      icon = "󰍉 " },
-			{ "<leader>oz", group = "Task Management",   icon = "󰄬 " },
 			{ "<leader>r",  group = "REPL",              icon = "󰜎 " },
 			{ "<leader>rj", group = "Jupyter",           icon = "󰧮 " },
 			-- Override iron.nvim auto-generated descs (strip `iron_repl_` prefix)

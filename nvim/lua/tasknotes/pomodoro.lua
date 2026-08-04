@@ -1,4 +1,4 @@
--- TaskNotes — Pomodoro & time-tracking panel (<leader>owp).
+-- TaskNotes — Pomodoro & time-tracking panel (<leader>op).
 --
 -- A single state-aware Snacks picker. The title reflects live pomodoro
 -- state; the item list mutates with state. State machine empirically

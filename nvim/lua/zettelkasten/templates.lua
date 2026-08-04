@@ -3,7 +3,7 @@
 -- Scans ~/.the-grid/zettelkasten/Templates/*.md and registers a LuaSnip
 -- snippet per file. Markers {{name}} become stops; identical names mirror
 -- (typing in one updates the other). Edit the .md, save → snippets auto-
--- reload (autocmd wired in the lazy spec). Manual fallback: <leader>owr.
+-- reload (autocmd wired in the lazy spec). Manual fallback: <leader>or.
 --
 -- Caveat: removing a template .md leaves its snippet registered until nvim
 -- restart. add_snippets is idempotent for same trigger, so editing a

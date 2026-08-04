@@ -24,7 +24,7 @@ return {
       end,
     })
 
-    -- Manual reload command (also chained into <leader>owr)
+    -- Manual reload command (also chained into <leader>or)
     vim.api.nvim_create_user_command("ReloadTemplates", function()
       templates.reload()
     end, { desc = "Reload Zettelkasten templates from disk" })

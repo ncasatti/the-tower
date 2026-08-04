@@ -169,7 +169,7 @@ function M.pick_key()
 	end
 
 	if #items == 0 then
-		vim.notify("TaskNotes: vault index is empty. Try <leader>owr to force refresh.", vim.log.levels.WARN)
+		vim.notify("TaskNotes: vault index is empty. Try <leader>or to force refresh.", vim.log.levels.WARN)
 		return
 	end
 
@@ -214,11 +214,11 @@ function M.pick_file_by_tag()
 	M.pick_value("tags", true)
 end
 
--- Whole-vault note search by tag (<leader>owt). Two-stage drill-down:
+-- Whole-vault note search by tag (<leader>ow). Two-stage drill-down:
 -- Stage 1 = distinct tags (no preview, fuzzy by tag name); pick one →
 -- Stage 2 = notes carrying that tag (preview + shared view). <Esc> in
 -- Stage 2 (without picking) returns to Stage 1. Cache-backed (instant);
--- cold cache builds async first. Distinct from owo (tasks only).
+-- cold cache builds async first. Distinct from ot (tasks-only tag filter).
 function M.note_search()
 	-- Stage 2: notes for a single tag, with preview.
 	local function stage_notes(tag, notes, back)

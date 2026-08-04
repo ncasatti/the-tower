@@ -1,6 +1,6 @@
 -- TaskNotes — in-memory caches.
 --   M.data / M.keys_index — task index, API-sourced, TTL-gated (drill-down).
---   M.notes               — whole-vault notes index, FS-scanned (owt tag browser).
+--   M.notes               — whole-vault notes index, FS-scanned (ow tag browser).
 -- Module-level state is a singleton via require's module cache — same semantics
 -- as the old single closure.
 
@@ -74,9 +74,9 @@ function M.invalidate_file(filepath)
 end
 
 -- ──────────────────────────────────────────────────────────────────────
--- Whole-vault notes cache (for <leader>owt note-by-tag search).
+-- Whole-vault notes cache (for <leader>ow note-by-tag search).
 -- Distinct from the task index (API-sourced). Scans the filesystem for
--- frontmatter `tags`; built lazily on first owt and rebuilt on owr.
+-- frontmatter `tags`; built lazily on first ow and rebuilt on or.
 -- Async/chunked across event-loop ticks to avoid freezing on ~750 notes.
 -- ──────────────────────────────────────────────────────────────────────
 M.notes = {
@@ -223,8 +223,8 @@ function M.notes.build(on_done)
 end
 
 -- Forces a complete cache rebuild regardless of TTL.
--- Invalidates BOTH the local task index (used by <leader>owk drill-down)
--- AND the API caches (filter-options + task paths) AND the notes index (owt).
+-- Invalidates BOTH the local task index (used by <leader>ok drill-down)
+-- AND the API caches (filter-options + task paths) AND the notes index (ow).
 function M.force_refresh()
 	M.data = {}
 	M.keys_index = {}

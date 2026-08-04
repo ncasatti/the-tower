@@ -8,12 +8,12 @@ return {
   },
   keys = {
     -- Search commands
-    { "<leader>os", "<cmd>Obsidian search<cr>", desc = "Search Notes" },
+    { "<leader>oS", "<cmd>Obsidian search<cr>", desc = "Search Notes" },
     { "<leader>og", "<cmd>Obsidian grep<cr>", desc = "Grep Notes" },
 
     -- Main commands
-    { "<leader>on", "<cmd>Obsidian new<cr>", desc = "New Note" },
-    { "<leader>ot", "<cmd>Obsidian template<cr>", desc = "Insert Template" },
+    { "<leader>oN", "<cmd>Obsidian new<cr>", desc = "New Note" },
+    { "<leader>oT", "<cmd>Obsidian template<cr>", desc = "Insert Template" },
     { "<leader>oo", "<cmd>Obsidian quick_switch<cr>", desc = "Quick Switch" },
 
     -- Link commands
@@ -25,12 +25,12 @@ return {
     { "<leader>ox", "<cmd>Obsidian toggle_checkbox<cr>", desc = "Toggle Checkbox" },
 
     -- Additional commands
-    -- NOTE: <leader>owt is now owned by tasknotes.lua (M.picker.note_search) —
+    -- NOTE: <leader>ow is now owned by tasknotes.lua (M.picker.note_search) —
     -- a cache-backed whole-vault note-by-tag picker. The native `Obsidian tags`
     -- did a live ripgrep scan on every call (slow) and couldn't inherit our
     -- Snacks layout/nav, so the binding was moved out of here.
     {
-      "<leader>or",
+      "<leader>oR",
       function()
         return require("obsidian").util.rename_with_visual_selection()
       end,

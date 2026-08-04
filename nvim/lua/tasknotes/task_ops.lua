@@ -24,7 +24,7 @@ local function require_task_buffer()
 	if not task_paths or not task_paths[id] then
 		vim.notify(
 			string.format(
-				"Buffer is not a recognized task: %s\n(Force cache refresh with <leader>owr if recently added)",
+				"Buffer is not a recognized task: %s\n(Force cache refresh with <leader>or if recently added)",
 				id
 			),
 			vim.log.levels.WARN
