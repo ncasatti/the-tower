@@ -33,10 +33,10 @@ local function today_filter(metadata)
 	local today = today_iso()
 	local sched = date_prefix(metadata.scheduled)
 	local due = date_prefix(metadata.due)
-	if sched and sched <= today then
+	if sched and sched == today then
 		return true
 	end
-	if due and due <= today then
+	if due and due == today then
 		return true
 	end
 	return false
@@ -47,10 +47,10 @@ local function overdue_filter(metadata)
 	local today = today_iso()
 	local sched = date_prefix(metadata.scheduled)
 	local due = date_prefix(metadata.due)
-	if sched and sched < today then
+	if sched and sched <= today then
 		return true
 	end
-	if due and due < today then
+	if due and due <= today then
 		return true
 	end
 	return false
