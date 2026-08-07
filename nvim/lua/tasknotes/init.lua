@@ -2,15 +2,16 @@
 --
 -- Public entry point. The lazy spec (lua/plugins/writing/tasknotes.lua) calls
 -- require("tasknotes").setup(). Implementation is split across sibling modules:
---   config   — tunables (single source of truth)
---   api      — HTTP client + API caches
---   util     — pure helpers
---   cache    — task index + whole-vault notes index
---   ui       — Snacks view, color engine, rank tables
---   pickers  — Key → Value → File drill-down + tag browser
---   task_ops — NLP create + multi-field editor
---   query    — filter builder + finder + interactive query builder
---   pomodoro — Pomodoro & time-tracking panel
+--   config          — tunables (single source of truth)
+--   api             — HTTP client + API caches
+--   util            — pure helpers
+--   cache           — task index + whole-vault notes index
+--   ui              — Snacks view, color engine, rank tables
+--   pickers         — Key → Value → File drill-down + tag browser
+--   task_ops        — NLP create + multi-field editor
+--   query           — filter builder + finder + interactive query builder
+--   query_templates — pre-canned date filters (today / overdue)
+--   pomodoro        — Pomodoro & time-tracking panel
 
 local config = require("tasknotes.config")
 local api = require("tasknotes.api")
@@ -18,6 +19,7 @@ local cache = require("tasknotes.cache")
 local pickers = require("tasknotes.pickers")
 local task_ops = require("tasknotes.task_ops")
 local query = require("tasknotes.query")
+local query_templates = require("tasknotes.query_templates")
 local pomodoro = require("tasknotes.pomodoro")
 local templates = require("zettelkasten.templates")
 local wk = require("which-key")
@@ -49,7 +51,8 @@ local function register_keymaps()
 	bind("<leader>os", pickers.pick_file_by_status, "Task: Filter by status")
 	bind("<leader>ow", pickers.pick_file_by_tag, "Task: Filter by tag/project")
 	bind("<leader>ot", pickers.note_search, "Task: Search notes by tag (vault)")
-	bind("<leader>oq", query.query_builder.open, "Task: Query builder")
+	bind("<leader>oq", query_templates.open, "Task: Query templates")
+	bind("<leader>oQ", query.query_builder.open, "Task: Query builder")
 
 	bind("<leader>on", task_ops.create_task, "Task: New")
 	bind("<leader>oe", task_ops.edit_fields.open, "Task: Edit fields")

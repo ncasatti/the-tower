@@ -66,6 +66,7 @@ point. The lazy spec under `lua/plugins/writing/` does nothing but `require` it.
 | `ui` | Shared Snacks picker view, the live-color engine, status/priority rank tables, row formatter |
 | `pickers` | The `Key → Value → File` drill-down + status/tag shortcuts + the vault tag browser |
 | `query` | Filter builder, the API-backed task finder, and the interactive query builder |
+| `query_templates` | Pre-canned date filters (today / overdue) reachable via `oq` |
 | `task_ops` | NLP task creation (`own`) + the staged multi-field editor (`owe`) |
 | `pomodoro` | The Pomodoro & time-tracking panel (`owp`) |
 | `init` | Public entry: `setup(opts)` merges config in place, gates on `/api/health`, registers keymaps |
@@ -81,7 +82,7 @@ in `ui`, then wire the keymap in `init`.
 
 ## Keybindings
 
-All bindings are **flat under `<leader>ow`** (no chord sub-trees). Registered in
+All bindings are **flat under `<leader>o`** (no chord sub-trees). Registered in
 `tasknotes.lua` after the boot health check passes.
 
 | Key | Action | What it does |
@@ -90,7 +91,8 @@ All bindings are **flat under `<leader>ow`** (no chord sub-trees). Registered in
 | `ows` | **Filter: status** | Pick a status, list matching tasks |
 | `owo` | **Filter: tag/project** | Pick a tag/project, list matching tasks |
 | `owt` | **Tag browser** | Vault-wide two-stage **Tag → Notes** over all notes (the only real FS scan) |
-| `owq` | **Query builder** | Interactive multi-field filter (multi-select via `<Tab>`, inclusive date ranges) |
+| `oq` | **Query templates** | Snacks picker: today (sched/due on/before today) / overdue (sched/due before today) |
+| `oQ` | **Query builder** | Interactive multi-field filter (multi-select via `<Tab>`, inclusive date ranges) |
 | `own` | **New task** | Natural-language quick-add (`POST /api/nlp/create`) |
 | `owe` | **Edit fields** | Multi-field editor; batches changes into a **single PUT** |
 | `owp` | **Pomodoro / time** | State-aware Pomodoro & time-tracking panel |
@@ -115,7 +117,22 @@ tasks.
 Two-stage **Tag → Notes** over every note in the vault (not just tasks). Backed by
 a dedicated async filesystem scan.
 
-### Build a query — `owq`
+### Query templates — `oq`
+Pre-canned filters for the two common date-based buckets. Each template is a
+`find_tasks` filter closure that runs against `/api/tasks` and renders the
+matches with the standard task row format. Both templates check `scheduled`
+**OR** `due` (whichever is on/before the threshold), so a task with only one
+of the fields set still appears.
+
+- **Today** — Scheduled or due on or before today (inclusive). The default
+  starting point; tasks that have landed on your plate but are still pending.
+- **Overdue** — Scheduled or due strictly before today. The "I missed this"
+  bucket.
+
+Both templates are pure filter functions — neither reads from nor writes back
+to the local cache.
+
+### Build a query — `oQ`
 Interactive field selector (status / priority / contexts, multi-select with
 `<Tab>`; inclusive date-range bounds), then runs the filtered query against the
 API.

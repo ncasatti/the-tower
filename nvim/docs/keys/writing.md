@@ -17,7 +17,7 @@ Obsidian (Zettelkasten), TaskNotes (task management), Markdown rendering.
 - `<leader>oi` — Paste image
 - `<leader>ov` — Open in Obsidian app
 
-## TaskNotes (`<leader>ow*`)
+## TaskNotes (`<leader>o*`)
 
 API-driven via TaskNotes HTTP API (`localhost:8080/api`). Plugin disables itself if the API is unreachable at startup.
 
@@ -28,7 +28,8 @@ API-driven via TaskNotes HTTP API (`localhost:8080/api`). Plugin disables itself
 - `<leader>ows` — Filter by status (shortcut into stage 2)
 - `<leader>ou` — Search tags (Globaly)
 - `<leader>owo` — Filter by tag/project (shortcut into stage 2)
-- `<leader>owq` — Interactive query builder (field-selector with multi-select, inclusive date bounds)
+- `<leader>oq` — Query templates (Snacks picker: today / overdue)
+- `<leader>oQ` — Interactive query builder (field-selector with multi-select, inclusive date bounds)
 
 ### Task management
 
