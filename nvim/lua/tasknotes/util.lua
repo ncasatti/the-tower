@@ -107,6 +107,49 @@ function M.effective(task, patch, field)
 	return task[field]
 end
 
+-- Resolves the picker title for a task. Priority:
+--   1. fm.task — string (non-empty)
+--   2. fm.task — list, first non-empty string element
+--   3. fm.title — string (non-empty)
+--   4. filename stem (filepath :t:r)
+-- Mirrors the resolution used by cache.notes.parse for the FS-scanned index,
+-- so the task index and the whole-vault notes index surface the same title.
+-- @param fm table|nil: frontmatter table
+-- @param filepath string: absolute path to the .md file (used for fallback)
+-- @return string
+function M.task_title(fm, filepath)
+	local function nonempty(s)
+		return type(s) == "string" and s ~= "" and s or nil
+	end
+
+	if fm then
+		local t = fm.task
+		if type(t) == "string" then
+			local v = nonempty(t)
+			if v then
+				return v
+			end
+		elseif type(t) == "table" then
+			for _, v in ipairs(t) do
+				local n = nonempty(v)
+				if n then
+					return n
+				end
+			end
+		end
+
+		local title = fm.title
+		if type(title) == "string" then
+			local v = nonempty(title)
+			if v then
+				return v
+			end
+		end
+	end
+
+	return vim.fn.fnamemodify(filepath, ":t:r")
+end
+
 -- Renders a frontmatter value (scalar / list / nil) for display.
 function M.fmt_field(value)
 	if value == nil or value == "" then

@@ -138,7 +138,7 @@ M.find_tasks = function(query_or_filter, filter_fn)
 		end
 
 		local abs_path = config.vault_path .. "/" .. task.path
-		local title = vim.fn.fnamemodify(abs_path, ":t:r")
+		local title = util.task_title(fm, abs_path)
 
 		local time_info, time_hl = util.due_info(fm.due, fm.scheduled)
 

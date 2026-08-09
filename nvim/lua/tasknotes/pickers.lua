@@ -22,9 +22,8 @@ function M.pick_file(key, value, from_shortcut)
 
 	local items = {}
 	for _, fp in ipairs(filepaths) do
-		local filename = vim.fn.fnamemodify(fp, ":t")
-		local title = filename:gsub("%.md$", "")
 		local fm = cache.data[fp] and cache.data[fp].fm or {}
+		local title = util.task_title(fm, fp)
 
 		local status_val = fm.status
 		if type(status_val) == "table" then

@@ -194,6 +194,10 @@ Search rows (`owk` file stage, `ows`/`owo`, `owq` results) render as four segmen
 - **Colors are live, not local.** Status-glyph and priority-dot colors come from
   `GET /api/filter-options` at runtime (`ui.get_color_tables` →
   `ui.ensure_color_hl`); they are never hardcoded.
+- **Title resolution.** The title segment uses `fm.task` (string, or first
+  element of a list) when present, falling back to `fm.title` and finally the
+  filename stem. Mirrors the convention used by the whole-vault notes index
+  (`ot`) so both surfaces show the same title. Source: `util.task_title`.
 - The date suffix (`util.due_info`) keeps the **OVERDUE / DUE TODAY** emphasis.
 
 ## Data model
