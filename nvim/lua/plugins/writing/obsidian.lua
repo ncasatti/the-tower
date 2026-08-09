@@ -46,6 +46,10 @@ return {
           name = "Zettelkasten",
           path = vim.fn.expand("~/.the-grid/zettelkasten/"),
         },
+        {
+          name = "Agents",
+          path = vim.fn.expand("~/.local/share/the-grid/"),
+        },
       },
 
       -- SETOPTS: Disable legacy commands
