@@ -17,19 +17,19 @@ let
 in
 {
   home.packages = with pkgs; [
+    thunderbird
+    zen-browser
+    mpv
+    ntfs3g
     # brave
     # google-chrome
-    zen-browser
-    # tidal-hifi: declared per-host now — wrapped (no VA-API) on main, stock
-    # elsewhere. GPU env is host-specific, so is this. See ADR-002.
-    mpv
     # yt-dlp
-    thunderbird
     # sioyek
     # zoom-us
     # onlyoffice-desktopeditors
-    ntfs3g
     # qcad
+    # tidal-hifi: declared per-host now — wrapped (no VA-API) on main, stock
+    # elsewhere. GPU env is host-specific, so is this. See ADR-002.
   ];
 
   programs.zathura = {
