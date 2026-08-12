@@ -12,3 +12,11 @@ abbr -a nd-gev 'nix develop ~/.the-grid/systems/flakes/gev/'
 abbr -a ng  'sudo nix-collect-garbage'
 abbr -a ngd 'sudo nix-collect-garbage -d'
 abbr -a nu  'sudo nixos-rebuild switch --upgrade-all'
+
+alias clean 'sudo nix-collect-garbage -d'
+alias clean-env 'rm -rf /nix/var/nix/gcroots/per-user/$USER/* && nix-env --delete-generations old && sudo nix-env -p /nix/var/nix/profiles/system --delete-generations +2 && nix-collect-garbage -d'
+alias clean-store 'nix-store --optimise'
+
+
+
+
