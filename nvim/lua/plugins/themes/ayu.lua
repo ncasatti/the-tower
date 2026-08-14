@@ -71,7 +71,7 @@ return {
 	config = function()
 		local darkvenom = {
 			-- Background transparent + brighter body text (less gray)
-			Normal = { fg = Colors.fg_bright, bg = "None" },
+			Normal = { fg = Colors.fg_default, bg = "None" },
 			ColorColumn = { bg = "None" },
 			SignColumn = { bg = "None" },
 			Folded = { bg = "None" },
