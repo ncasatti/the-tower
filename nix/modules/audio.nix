@@ -17,6 +17,21 @@
     jack.enable     = true;
   };
 
+  # --- PLUGIN PATHS (system-wide, propagates to GUI sessions) ---
+  # Audio plugins (LV2/LADSPA/DSSI/VST/VST3) live under the per-user profile
+  # directory because Home Manager installs them. Without these vars exported
+  # at the system level, GUI apps started by Hyprland/greetd inherit an empty
+  # $LV2_PATH and miss mda, Calf, etc. The double-quoted Nix strings expand
+  # `$USER` and `$HOME` lazily at shell-source time (Nix strings don't
+  # interpolate `$USER` because it's not followed by `{`).
+  environment.sessionVariables = {
+    LV2_PATH    = "/etc/profiles/per-user/$USER/lib/lv2:$HOME/.local/share/lv2";
+    LADSPA_PATH = "/etc/profiles/per-user/$USER/lib/ladspa";
+    DSSI_PATH   = "/etc/profiles/per-user/$USER/lib/dssi";
+    VST_PATH    = "/etc/profiles/per-user/$USER/lib/vst";
+    VST3_PATH   = "/etc/profiles/per-user/$USER/lib/vst3";
+  };
+
   # --- REALTIME AUDIO LIMITS ---
   # Required for low-latency operation with Focusrite interface.
   security.pam.loginLimits = [

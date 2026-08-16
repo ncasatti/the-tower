@@ -16,7 +16,7 @@
 
   home.packages = with pkgs; [
     # --- DAWs & Hosts ---
-    # ardour          # Professional DAW
+    ardour          # Professional DAW (open source, MIDI + audio + JACK)
     carla           # Plugin host (LV2, VST, SF2, SFZ)
     qjackctl        # JACK control GUI
     qpwgraph        # PipeWire graph GUI
@@ -25,6 +25,7 @@
     calf            # LV2 plugin suite (EQ, compressors, reverbs)
     x42-plugins     # Professional meters, EQ, analyzers
     gxplugins-lv2   # Guitarix LV2 plugins (amp sims, effects)
+    mda_lv2         # mda Piano + mda EPiano + DX10/JX10 (LV2 port)
 
     # --- Libraries & Engines ---
     fluidsynth      # SoundFont synthesizer (used by Carla for SF2)
