@@ -5,9 +5,10 @@
 {
   home.packages = with pkgs; [
     # nodejs_22
-    # pnpm
+    nodejs_22
+    pnpm
     bun
-    (python3.withPackages (ps: with ps; [ pip mdformat mdformat-front-matters mdformat-wikilink ]))
+    (python3.withPackages ( ps: with ps; [ pip mdformat mdformat-front-matters mdformat-wikilink ]))
     # go
     # cargo
     # rustc

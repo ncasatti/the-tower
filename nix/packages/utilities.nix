@@ -22,7 +22,7 @@ in
     mpv
     ntfs3g
     # brave
-    # google-chrome
+    google-chrome
     # yt-dlp
     # sioyek
     # zoom-us
