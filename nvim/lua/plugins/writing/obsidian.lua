@@ -69,7 +69,14 @@ return {
       -- pure liability here.
       frontmatter = { enabled = false },
 
-      notes_subdir = "Fleeting",
+      -- Per-workspace subdir: Zettelkasten creates notes under "Fleeting/",
+      -- Agents gets nil so obsidian.nvim doesn't pre-create the folder on init.
+      notes_subdir = function(workspace)
+        if workspace.name == "Zettelkasten" then
+          return "Fleeting"
+        end
+        return nil
+      end,
 
       -- Vault-relative attachment folder. The plugin default ("attachments")
       -- doesn't match this vault; this path feeds both `Obsidian paste_img`
@@ -84,7 +91,14 @@ return {
       --   min_chars = 2,
       -- },
       templates = {
-        subdir = "Templates",
+        -- Same per-workspace treatment as notes_subdir: only Zettelkasten
+        -- gets a Templates/ folder; Agents stays clean.
+        subdir = function(workspace)
+          if workspace.name == "Zettelkasten" then
+            return "Templates"
+          end
+          return nil
+        end,
         date_format = "%Y-%m-%d-%a",
         time_format = "%H:%M",
       },

@@ -66,8 +66,10 @@ return {
 			-- the heading text to start right after the icon, producing a
 			-- single aligned column regardless of nesting level.
 			icons = function(ctx)
+				-- local labels = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " }
 				local labels = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " }
 				-- local labels = { "I", "II", "III", "IV", "V", "VI", "VII" }
+				-- local labels = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " }
 
 				local label = labels[ctx.level] or tostring(ctx.level)
 				return label .. string.rep(" ", 4 - #label)
@@ -181,7 +183,7 @@ return {
 		-- Bullet points
 		bullet = {
 			enabled = true,
-			-- icons: ● ○ 󰸶 󱤙 󰌕 󰌖 󰫥 󰤲   󱦰 󱞩
+			-- icons: ● ○ 󰸶 󱤙 󰌕 󰌖 󰫥 󰤲   󱦰 󱞩 󱥸  
 			icons = { "󱥸", "󱥸", "󱥸", "󱥸" },
 		},
 
