@@ -17,6 +17,7 @@ alias clean 'sudo nix-collect-garbage -d'
 alias clean-env 'rm -rf /nix/var/nix/gcroots/per-user/$USER/* && nix-env --delete-generations old && sudo nix-env -p /nix/var/nix/profiles/system --delete-generations +2 && nix-collect-garbage -d'
 alias clean-store 'nix-store --optimise'
 
+alias restart-hyprlock "hyprctl --instance 0 'keyword misc:allow_session_lock_restore 1' && hyprctl --instance 0 'dispatch exec hyprlock'"
 
 
 
