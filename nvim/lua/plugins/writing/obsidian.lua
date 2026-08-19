@@ -45,10 +45,20 @@ return {
         {
           name = "Zettelkasten",
           path = vim.fn.expand("~/.the-grid/zettelkasten/"),
+          -- Per-workspace overrides deep-merge into the global opts when this
+          -- vault is active. notes_subdir/templates.subdir MUST be strings —
+          -- passing a function makes obsidian.nvim tostring() it into a literal
+          -- folder name ("function: 0x…"), so the per-vault split lives here.
+          overrides = {
+            notes_subdir = "Fleeting",
+            templates = { subdir = "Templates" },
+          },
         },
         {
           name = "Agents",
           path = vim.fn.expand("~/.local/share/the-grid/"),
+          -- No overrides: Agents inherits the global defaults (no notes_subdir,
+          -- no templates.subdir) so obsidian.nvim never pre-creates those dirs.
         },
       },
 
@@ -69,14 +79,9 @@ return {
       -- pure liability here.
       frontmatter = { enabled = false },
 
-      -- Per-workspace subdir: Zettelkasten creates notes under "Fleeting/",
-      -- Agents gets nil so obsidian.nvim doesn't pre-create the folder on init.
-      notes_subdir = function(workspace)
-        if workspace.name == "Zettelkasten" then
-          return "Fleeting"
-        end
-        return nil
-      end,
+      -- notes_subdir / templates.subdir are set per-workspace via the
+      -- `overrides` tables above (Zettelkasten only). Left unset globally so
+      -- the Agents vault stays flat.
 
       -- Vault-relative attachment folder. The plugin default ("attachments")
       -- doesn't match this vault; this path feeds both `Obsidian paste_img`
@@ -90,15 +95,9 @@ return {
       --   nvim_cmp = true,
       --   min_chars = 2,
       -- },
+      -- `subdir` is injected per-workspace (Zettelkasten → "Templates") via the
+      -- workspace overrides above; only the shared formats live here.
       templates = {
-        -- Same per-workspace treatment as notes_subdir: only Zettelkasten
-        -- gets a Templates/ folder; Agents stays clean.
-        subdir = function(workspace)
-          if workspace.name == "Zettelkasten" then
-            return "Templates"
-          end
-          return nil
-        end,
         date_format = "%Y-%m-%d-%a",
         time_format = "%H:%M",
       },
