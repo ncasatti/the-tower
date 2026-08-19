@@ -284,6 +284,53 @@ return {
 			end,
 		})
 
+		-- Disable link underline on every highlight group that may apply it.
+		-- render-markdown sets `RenderMarkdownLink` on its own extmarks, but
+		-- treesitter captures (@markup.link.label, @markup.link.url, …) and
+		-- legacy groups (Link, mkdLink) layer below with their own underline.
+		-- Iterate all common link groups and strip underline from each, keeping
+		-- the foreground intact. Re-applied on ColorScheme so theme switches
+		-- don't reintroduce the underline.
+		local link_groups = {
+			"RenderMarkdownLink",
+			"RenderMarkdownWikiLink",
+			"@markup.link",
+			"@markup.link.label",
+			"@markup.link.label.markdown_inline",
+			"@markup.link.url",
+			"@markup.link.url.markdown_inline",
+			"@markup.underline",
+			"@markup.underline.link",
+			"Underlined",
+			"Link",
+			"mkdLink",
+			"markdownLink",
+			"markdownLinkText",
+			"markdownUrl",
+		}
+		-- Resolve each group's effective attributes (link = false follows the
+		-- link chain and returns concrete attrs), strip every underline variant,
+		-- and re-set. Overwriting the full table — not just `fg` — preserves
+		-- bold/italic/bg; dropping the old `if h.fg` guard means underline-only
+		-- groups (which inherit fg) are no longer skipped.
+		local function apply_link_no_underline()
+			for _, group in ipairs(link_groups) do
+				local h = vim.api.nvim_get_hl(0, { name = group, link = false })
+				if not vim.tbl_isempty(h) then
+					h.underline = false
+					h.undercurl = false
+					h.underdouble = false
+					h.underdotted = false
+					h.underdashed = false
+					vim.api.nvim_set_hl(0, group, h)
+				end
+			end
+		end
+		apply_link_no_underline()
+		vim.api.nvim_create_autocmd("ColorScheme", {
+			callback = apply_link_no_underline,
+		})
+
 		-- Custom horizontal rule renderer. Replaces render-markdown's dash
 		-- handler (disabled in `opts.dash` above) so the line draws from
 		-- visual col 0 regardless of the indent component. The built-in

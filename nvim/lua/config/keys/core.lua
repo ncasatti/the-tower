@@ -43,6 +43,13 @@ vim.keymap.set("n", "l", "i", { noremap = true, desc = "Enter insert mode" })
 vim.keymap.set("n", "L", "I", { noremap = true, desc = "Insert at line start" })
 vim.keymap.set("n", "R", "zz", { noremap = true, desc = "Center screen" })
 
+-- Viewport scroll without moving the cursor (Colemak directions).
+-- Snacks smooth-animates the underlying vanilla keys (<C-y>/<C-e>/zh/zl).
+vim.keymap.set("n", "<C-u>", "<C-y>", { noremap = true, desc = "Colemak: Scroll viewport up" })
+vim.keymap.set("n", "<C-e>", "<C-e>", { noremap = true, desc = "Colemak: Scroll viewport down" })
+vim.keymap.set("n", "<C-n>", "zh", { noremap = true, desc = "Colemak: Scroll viewport left" })
+vim.keymap.set("n", "<C-i>", "zl", { noremap = true, desc = "Colemak: Scroll viewport right" })
+
 -- Operator-pending mode (CRITICAL: enables motions after d, c, y, v)
 vim.keymap.set("o", "u", "k", { noremap = true, desc = "Colemak: Up" })
 vim.keymap.set("o", "e", "j", { noremap = true, desc = "Colemak: Down" })

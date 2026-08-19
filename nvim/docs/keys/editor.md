@@ -14,6 +14,17 @@
 - `]]` / `[[` — Next/prev header + center
 - `k` / `K` — Next/prev search result (was `n`/`N`)
 
+## Viewport scroll (Colemak directions, cursor stays)
+
+Scrolls the viewport without moving the cursor — useful for long wrapped
+lines, wide tables, and lines extending past the right edge (e.g. unwrapped
+URLs). Snacks smooth-animates the underlying vanilla motions.
+
+- `<C-u>` — Scroll viewport up (was default `<C-u>`: half-page jump with cursor)
+- `<C-e>` — Scroll viewport down (vanilla `<C-e>`)
+- `<C-n>` — Scroll viewport left (Colemak-left)
+- `<C-i>` — Scroll viewport right (Colemak-right; note: `<C-i>` shares a key with `<Tab>`, normal-mode only)
+
 ## Editing
 
 - `l` — Enter insert mode (was `i`)
@@ -26,7 +37,7 @@
 - `<leader>-` — Jump to matching bracket
 - `<leader>,` — Insert at line start
 - `<leader>k` — Yank entire buffer
-- `<leader>W` — Toggle line wrap
+- `<leader>W` — Toggle wrap + linebreak (cuts at word boundaries; long links no longer break mid-URL)
 
 ## Buffers
 
