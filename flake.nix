@@ -35,10 +35,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    antigravity-nix = {
-      url = "github:jacopone/antigravity-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    antigravity.url = "github:Hy4ri/antigravity-flake"; 
 
     # Claude Code (community flake, hourly updates from Anthropic npm release).
     # Intentionally NOT following nixpkgs — preserves cachix prebuilt cache hits
@@ -54,7 +51,7 @@
     #   2) nix flake lock --update-input herdr
     #   3) sudo nixos-rebuild switch --flake .#<host>
     herdr = {
-      url = "github:ogulcancelik/herdr?ref=v0.8.0";
+      url = "github:ogulcancelik/herdr?ref=v0.8.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
