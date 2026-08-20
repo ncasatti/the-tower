@@ -103,7 +103,7 @@ function M.reload()
 		end
 	end
 
-	vim.notify(string.format("Zettelkasten: %d template(s) loaded", count), vim.log.levels.INFO)
+	-- vim.notify(string.format("Zettelkasten: %d template(s) loaded", count), vim.log.levels.INFO)
 end
 
 return M

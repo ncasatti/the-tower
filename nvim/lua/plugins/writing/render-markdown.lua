@@ -68,6 +68,7 @@ return {
 			icons = function(ctx)
 				-- local labels = { "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 ", "󱥣 " }
 				local labels = { "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 ", "󰨝 " }
+				-- local labels = { " ", " ", " ", " ", " ", " ", " " }
 				-- local labels = { "I", "II", "III", "IV", "V", "VI", "VII" }
 				-- local labels = { "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 ", "󰕮 " }
 
@@ -184,7 +185,7 @@ return {
 		bullet = {
 			enabled = true,
 			-- icons: ● ○ 󰸶 󱤙 󰌕 󰌖 󰫥 󰤲   󱦰 󱞩 󱥸  
-			icons = { "󱥸", "󱥸", "󱥸", "󱥸" },
+			icons = { "󰮸", "󰮸", "󰮸", "󰮸" },
 		},
 
 		-- Links
