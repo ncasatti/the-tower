@@ -35,7 +35,7 @@ vim.opt.clipboard = "unnamedplus"
 vim.opt.linebreak = true
 vim.opt.wrap = true
 vim.opt.breakindent = true
-vim.opt.showbreak = " " --
+vim.opt.showbreak = "  " -- 
 
 -- Show trailing whitespace and other invisible characters
 vim.opt.list = true

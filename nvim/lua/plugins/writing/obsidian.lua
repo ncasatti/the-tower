@@ -67,7 +67,7 @@ return {
 
 			-- Disable obsidian.nvim UI rendering to avoid conflict with render-markdown.nvim
 			-- (both plugins conceal list markers and apply icons, causing visual overlap)
-			ui = { enable = true },
+			ui = { enable = false },
 
 			-- Disable obsidian.nvim's frontmatter management. Its BufWritePre hook
 			-- (autocmds.lua -> note:update_frontmatter) reserializes the WHOLE
