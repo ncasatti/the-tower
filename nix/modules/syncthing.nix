@@ -100,6 +100,15 @@ in
           };
         };
 
+        grid-vault = {
+          path = "/home/flyn/.local/share/the-grid/";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "14";
+          };
+        };
+
         books = {
           path = "/home/flyn/.the-grid/books";
           devices = lib.attrNames peers;
