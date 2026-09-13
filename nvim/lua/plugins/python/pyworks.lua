@@ -68,7 +68,7 @@ return {
         
         -- Pyworks auto-configures Molten, Jupytext, and Image.nvim
         skip_molten = false,
-        skip_jupytext = false,
+        skip_jupytext = true,
         skip_image = false,
         skip_keymaps = true, -- We'll set custom keymaps
       })
