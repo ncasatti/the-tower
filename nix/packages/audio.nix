@@ -27,6 +27,10 @@
     gxplugins-lv2   # Guitarix LV2 plugins (amp sims, effects)
     mda_lv2         # mda Piano + mda EPiano + DX10/JX10 (LV2 port)
 
+    # --- Piano Instruments ---
+    decent-sampler  # Free sample player (.dspreset); pair with a Pianobook library for non-robotic sound
+    # sfizz           # Open-source SFZ player — alternative if Decent Sampler doesn't suit
+
     # --- Libraries & Engines ---
     fluidsynth      # SoundFont synthesizer (used by Carla for SF2)
     lilv            # LV2 plugin host library

@@ -2,7 +2,7 @@
 # PipeWire audio subsystem + realtime PAM limits (system-level).
 # Audio packages are managed in nix/packages/audio.nix via Home Manager.
 
-{ ... }:
+{ pkgs, ... }:
 
 {
   # --- AUDIO SUBSYSTEM (PipeWire) ---
@@ -16,6 +16,24 @@
     # CRITICAL: Emulates JACK server natively for Carla
     jack.enable     = true;
   };
+
+  # --- LOW-LATENCY TUNING ---
+  # Override the default quantum (1024 samples = ~21.3ms @ 48kHz) for live
+  # monitoring with Decent Sampler and similar hosts. 256 = ~5.3ms.
+  # Si aparecen xruns (audio dropouts), subir a 512.
+  # NOTA: `extraConfig.pipewire` serializa a JSON — no sirve para la sintaxis
+  # custom de PipeWire. `configPackages` embebe raw text en `pipewire.conf.d/`.
+  services.pipewire.configPackages = [
+    (pkgs.runCommand "99-low-latency" { } ''
+      mkdir -p $out/pipewire.conf.d
+      cat > $out/pipewire.conf.d/99-low-latency.conf <<'EOF'
+      context.properties = {
+        default.clock.quantum = 256
+        default.clock.min-quantum = 32
+      }
+      EOF
+    '')
+  ];
 
   # --- PLUGIN PATHS (system-wide, propagates to GUI sessions) ---
   # Audio plugins (LV2/LADSPA/DSSI/VST/VST3) live under the per-user profile
