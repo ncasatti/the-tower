@@ -5,6 +5,10 @@ alias rebuild-main   'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#ma
 alias rebuild-server 'sudo nixos-rebuild switch --flake ~/.the-grid/the-tower#server'
 
 alias use-flake 'echo "use flake" > .envrc'
+alias uf 'echo "use flake" > .envrc'
+abbr -a da 'direnv allow'
+abbr -a dr 'direnv reload'
+abbr -a dc 'rm -rf .direnv/'
 
 abbr -a nd     'nix develop'
 abbr -a nd-gev 'nix develop ~/.the-grid/systems/flakes/gev/'
