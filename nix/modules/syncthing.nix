@@ -96,7 +96,7 @@ in
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
-            params.cleanoutDays = "14";
+            params.cleanoutDays = "10";
           };
         };
 
@@ -105,7 +105,7 @@ in
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
-            params.cleanoutDays = "14";
+            params.cleanoutDays = "10";
           };
         };
 
@@ -114,7 +114,16 @@ in
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
-            params.cleanoutDays = "14";
+            params.cleanoutDays = "10";
+          };
+        };
+
+        wallpapers = {
+          path = "/home/flyn/Pictures/wallpapers/";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "10";
           };
         };
       };
