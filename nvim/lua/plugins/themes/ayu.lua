@@ -56,13 +56,13 @@ Colors = {
 	h6 = "#6FD0C0", -- teal-mint
 }
 Elements = {
-	bold = Colors.bold_orange,
+	bold = Colors.green2,
 	code = Colors.code_blue,
-	italic = Colors.gray4,
+	italic = Colors.cyan_gray5,
+	selection = Colors.gray2, -- darker box → white selection text pops more
+	comments = Colors.gray2,
 	cursor = Colors.white1,
-	selection = Colors.blue_dark3, -- darker box → white selection text pops more
-	matched = Colors.red,
-	comments = Colors.gray,
+	matched = Colors.pink2,
 }
 -- Ayu theme configuration for Neovim
 return {
