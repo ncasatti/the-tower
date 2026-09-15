@@ -56,7 +56,7 @@ Colors = {
 	h6 = "#6FD0C0", -- teal-mint
 }
 Elements = {
-	bold = Colors.green2,
+	bold = Colors.bold_orange,
 	code = Colors.code_blue,
 	italic = Colors.cyan_gray5,
 	selection = Colors.gray2, -- darker box → white selection text pops more
