@@ -18,10 +18,10 @@ in
 
   gtk = {
     enable = true;
-    theme = {
-      name    = "Sweet-Ambar-Blue-Dark-v40";
-      package = pkgs.sweet;
-    };
+    # theme = {
+    #   name    = "Sweet-Ambar-Blue-Dark-v40";
+    #   package = pkgs.sweet;
+    # };
     iconTheme = {
       name    = "Qogir-dark";
       package = pkgs.qogir-icon-theme;

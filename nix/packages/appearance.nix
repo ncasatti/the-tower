@@ -10,7 +10,7 @@
     inter
 
     # --- Themes ---
-    sweet
+    # sweet
     qogir-icon-theme
   ];
 }

@@ -4,6 +4,7 @@
 # keeps useful boot/session logs while bounding disk pressure.
 { ... }:
 {
+  # services.journald.settings.Journal.SystemMaxUse = "400M";
   services.journald.extraConfig = ''
     SystemMaxUse=400M
   '';
