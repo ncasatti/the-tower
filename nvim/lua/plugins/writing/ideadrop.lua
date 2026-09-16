@@ -228,6 +228,28 @@ return {
 			vim.cmd("edit " .. vim.fn.fnameescape(file))
 		end
 
+		-- Prevent swap collision across multiple nvim instances and fix E676 on save
+		local todo_mod = require("ideaDrop.features.todo")
+		local orig_todo_open = todo_mod.open
+		todo_mod.open = function()
+			orig_todo_open()
+			local _, tbuf = debug.getupvalue(orig_todo_open, 2)
+			local _, tsave = debug.getupvalue(orig_todo_open, 3)
+			if tbuf and vim.api.nvim_buf_is_valid(tbuf) then
+				vim.bo[tbuf].swapfile = false
+				vim.api.nvim_clear_autocmds({ buffer = tbuf, event = "BufWriteCmd" })
+				vim.api.nvim_create_autocmd("BufWriteCmd", {
+					buffer = tbuf,
+					callback = function()
+						if tsave then
+							tsave()
+						end
+						vim.bo[tbuf].modified = false
+					end,
+				})
+			end
+		end
+
 		-- Silence noisy startup notifications and enforce minimalist header on global graph
 		local orig_graph_open = graph_mod.open
 		graph_mod.open = function(gopts)
@@ -474,8 +496,8 @@ return {
 			callback = function(args)
 				local buf = args.buf
 
-				local _, state = debug.getupvalue(graph_mod.open, 1)
-				local _, update_display = debug.getupvalue(graph_mod.open, 9)
+				local _, state = debug.getupvalue(graph_mod.is_open, 1)
+				local _, update_display = debug.getupvalue(graph_mod.refresh, 4)
 
 				local function pan(dx, dy)
 					if state and state.view then
