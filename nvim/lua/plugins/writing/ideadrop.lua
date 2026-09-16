@@ -140,7 +140,8 @@ function M.open_local_graph()
 
 	-- Minimalist window header: | note-name | X nodes | Y edges |
 	if state and state.win and vim.api.nvim_win_is_valid(state.win) then
-		local title = string.format(" │ %s │ %d nodes │ %d edges │ ", target_node.name, visible_count, visible_edges)
+		local title =
+			string.format(" │ %s │ %d nodes │ %d edges │ ", target_node.name, visible_count, visible_edges)
 		vim.api.nvim_win_set_config(state.win, {
 			title = title,
 			title_pos = "center",
@@ -167,7 +168,7 @@ return {
 			desc = "Obsidian: Local Graph (Current Note)",
 		},
 		{ "<leader>oG", "<cmd>IdeaGraph<cr>", desc = "Obsidian: Global Graph (Zettelkasten)" },
-		{ "<leader>od", "<cmd>IdeaTodo<cr>", desc = "Todo: Project Next Steps (.todo.md)" },
+		{ "<leader>oi", "<cmd>IdeaTodo<cr>", desc = "Todo: Project Next Steps (.todo.md)" },
 	},
 	opts = {
 		graph = {

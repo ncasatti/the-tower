@@ -35,7 +35,7 @@ return {
 			end,
 			desc = "Rename Note",
 		},
-		{ "<leader>oi", "<cmd>Obsidian paste_img<cr>", desc = "Paste Image" },
+		{ "<leader>od", "<cmd>Obsidian paste_img<cr>", desc = "Paste Image" },
 		{ "<leader>ov", "<cmd>Obsidian open<cr>", desc = "Open in Obsidian App" },
 	},
 	config = function(_, opts)
