@@ -165,10 +165,10 @@ return {
 			function()
 				M.open_local_graph()
 			end,
-			desc = "Obsidian: Local Graph (Current Note)",
+			desc = "Local Graph",
 		},
-		{ "<leader>oG", "<cmd>IdeaGraph<cr>", desc = "Obsidian: Global Graph (Zettelkasten)" },
-		{ "<leader>oi", "<cmd>IdeaTodo<cr>", desc = "Todo: Project Next Steps (.todo.md)" },
+		{ "<leader>oG", "<cmd>IdeaGraph<cr>", desc = "Global Graph" },
+		{ "<leader>,", "<cmd>IdeaTodo<cr>", desc = "Todo (.todo.md)" },
 	},
 	opts = {
 		graph = {
