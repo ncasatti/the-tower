@@ -16,6 +16,9 @@ Obsidian (Zettelkasten), TaskNotes (task management), Markdown rendering.
 - `<leader>or` — Rename note
 - `<leader>oi` — Paste image
 - `<leader>ov` — Open in Obsidian app
+- `<leader>oG` — Visual Graph of Zettelkasten (ideadrop, global)
+- `<leader>og` — Visual Local Graph of current note (ideadrop, 1-hop neighborhood)
+- `<leader>od` — Project Todo list (.todo.md in cwd, ideadrop)
 
 ## TaskNotes (`<leader>o*`)
 

@@ -9,7 +9,6 @@ return {
 	keys = {
 		-- Search commands
 		{ "<leader>oS", "<cmd>Obsidian search<cr>", desc = "Search Notes" },
-		{ "<leader>og", "<cmd>Obsidian grep<cr>", desc = "Grep Notes" },
 
 		-- Main commands
 		{ "<leader>oN", "<cmd>Obsidian new<cr>", desc = "New Note" },
