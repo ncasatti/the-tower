@@ -228,9 +228,47 @@ return {
 			vim.cmd("edit " .. vim.fn.fnameescape(file))
 		end
 
-		-- Prevent swap collision across multiple nvim instances and fix E676 on save
+		-- Prevent swap collision across multiple nvim instances, fix E676 on save,
+		-- and add 'in-progress' ([-]) to the checkbox toggle cycle ([ ] -> [-] -> [x] -> [ ])
 		local todo_mod = require("ideaDrop.features.todo")
 		local orig_todo_open = todo_mod.open
+
+		local function custom_toggle_item()
+			local _, tbuf = debug.getupvalue(orig_todo_open, 2)
+			local _, twin = debug.getupvalue(orig_todo_open, 1)
+			local _, tsave = debug.getupvalue(orig_todo_open, 3)
+
+			if not tbuf or not vim.api.nvim_buf_is_valid(tbuf) then
+				return
+			end
+
+			local win = (twin and vim.api.nvim_win_is_valid(twin)) and twin or 0
+			local cursor = vim.api.nvim_win_get_cursor(win)
+			local row = cursor[1] - 1
+			local line = vim.api.nvim_buf_get_lines(tbuf, row, row + 1, false)[1]
+			if not line then
+				return
+			end
+
+			local new_line
+			if line:match("%- %[ %]") then
+				new_line = line:gsub("%- %[ %]", "- [-]", 1)
+			elseif line:match("%- %[%-%]") then
+				new_line = line:gsub("%- %[%-%]", "- [x]", 1)
+			elseif line:match("%- %[x%]") then
+				new_line = line:gsub("%- %[x%]", "- [ ]", 1)
+			else
+				return
+			end
+
+			vim.api.nvim_buf_set_lines(tbuf, row, row + 1, false, { new_line })
+			if tsave then
+				tsave()
+			end
+		end
+
+		todo_mod.toggle_item = custom_toggle_item
+
 		todo_mod.open = function()
 			orig_todo_open()
 			local _, tbuf = debug.getupvalue(orig_todo_open, 2)
@@ -247,6 +285,10 @@ return {
 						vim.bo[tbuf].modified = false
 					end,
 				})
+
+				local kopts = { noremap = true, silent = true, buffer = tbuf }
+				vim.keymap.set("n", "<CR>", custom_toggle_item, kopts)
+				pcall(vim.api.nvim_buf_del_keymap, tbuf, "n", "<Space>")
 			end
 		end
 
