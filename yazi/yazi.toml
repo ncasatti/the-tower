@@ -2,14 +2,14 @@
 edit = [
     { run = '${EDITOR:-nvim} %s', block = true, desc = "Edit" },
 ]
-vlc = [
-    { run = 'vlc %s', desc = "Abrir con VLC" },
+xdg = [
+    { run = 'xdg-open %s', desc = "Abrir con la app predeterminada" },
 ]
 mpv = [
     { run = 'mpv %s', desc = "Abrir con MPV" },
 ]
-xdg = [
-    { run = 'xdg-open %s', desc = "Abrir con la app predeterminada" },
+vlc = [
+    { run = 'vlc %s', desc = "Abrir con VLC" },
 ]
 
 [open]
@@ -24,7 +24,7 @@ rules = [
     { mime = "application/pdf", use = ["xdg"] },
 
     # Video → multi-choice (preferred apps first, xdg as fallback)
-    { mime = "video/*", use = ["vlc", "mpv", "xdg"] },
+    { mime = "video/*", use = ["xdg", "mpv", "vlc"] },
 
     # Catch-all → xdg-open consults mimeapps.list (single source of truth)
     { mime = "*/*", use = ["xdg"] },
