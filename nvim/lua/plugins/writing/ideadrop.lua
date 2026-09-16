@@ -172,13 +172,13 @@ return {
 	},
 	opts = {
 		graph = {
-			animate = false,
+			animate = true,
 			show_orphans = true,
 			show_labels = true,
 		},
 		todo = {
 			file = ".todo.md",
-			width = 0.25,
+			width = 0.35,
 		},
 		obsidian = {
 			enabled = false,
@@ -200,12 +200,12 @@ return {
 		-- Clean title without emoji
 		constants.GRAPH_SETTINGS.WINDOW.TITLE = " │ Graph │ "
 
-		-- Side-split for notes: 35% width with standard buffer editing
+		-- Side-split for notes: 45% width with standard buffer editing
 		sidebar.open_right_side = function(file)
 			if not file or file == "" then
 				return
 			end
-			local width = math.floor(vim.o.columns * 0.35)
+			local width = math.floor(vim.o.columns * 0.45)
 
 			local target_win = nil
 			for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
