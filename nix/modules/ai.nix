@@ -1,6 +1,5 @@
 # nix/modules/ai.nix
-# AI-specific Home Manager wiring: LiteLLM proxy (MiniMax-M3 / M2.7-highspeed),
-# gbrain activation bootstrap (config dir + secrets.env placeholder + ollama model pull),
+# AI-specific Home Manager wiring: LiteLLM proxy (MiniMax-M3 / M2.7-highspeed)
 # and the litellm systemd --user service.
 # Auto-managed by home-manager; do not hand-edit ~/.config/litellm/config.yaml.
 
@@ -24,18 +23,6 @@
 
     litellm_settings:
       drop_params: true
-  '';
-
-  # --- GBRAIN ACTIVATION BOOTSTRAP ---
-  # Creates the gbrain config dir, ensures secrets.env exists (chmod 600),
-  # and pre-pulls the ollama embedding model. Idempotent.
-  home.activation.bootstrap-gbrain = config.lib.dag.entryAfter [ "writeBoundary" ] ''
-    mkdir -p "$HOME/.config/gbrain"
-    chmod 700 "$HOME/.config/gbrain"
-    [ -f "$HOME/.config/gbrain/secrets.env" ] || { umask 077; : > "$HOME/.config/gbrain/secrets.env"; }
-    if command -v ollama >/dev/null 2>&1; then
-      ollama pull nomic-embed-text 2>/dev/null || true
-    fi
   '';
 
   # --- LITELLM SYSTEMD --USER SERVICE ---
