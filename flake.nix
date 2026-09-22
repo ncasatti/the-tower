@@ -55,6 +55,19 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # Hermes Agent (NousResearch): single-user Python agent framework.
+    # Built with uv2nix from source; upstream ships NO cachix, so the first
+    # build compiles locally. Intentionally NOT following nixpkgs — the uv.lock
+    # wheels are pinned and tested against Hermes's own nixpkgs (same rationale
+    # as claude-code above). Exposes packages + overlay + nixosModules +
+    # homeManagerModules. Pinned to calver tag v2026.9.14 — update flow:
+    #   1) bump ?ref= below to the new tag
+    #   2) nix flake lock --update-input hermes-agent
+    #   3) sudo nixos-rebuild switch --flake .#<host>
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent?ref=v2026.9.14";
+    };
+
     # NixOS-WSL: run full NixOS as a WSL2 distribution (the `wsl` host).
     # Pinned to the full commit SHA of release tag 2605.7.2 — fetches the
     # tarball directly from codeload (bypasses the rate-limited GitHub API).
