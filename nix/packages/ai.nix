@@ -11,7 +11,6 @@
     engram # persistent memory MCP
     codebase-memory-mcp # code intelligence MCP (knowledge graph + UI)
     antigravity-cli
-    # ollama    # local embedding server CLI (gbrain backend)
-    # litellm   # proxy for MiniMax-M3 / M2.7-highspeed
+    # litellm   # proxy for MiniMax-M3 / M2.7-highspeed (runs as a systemd --user service, see modules/ai.nix)
   ];
 }

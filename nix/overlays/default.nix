@@ -7,6 +7,11 @@
     clingy = inputs.clingy.packages.${prev.stdenv.hostPlatform.system}.default;
     claude-code = inputs.claude-code.packages.${prev.stdenv.hostPlatform.system}.default;
     herdr = inputs.herdr.packages.${prev.stdenv.hostPlatform.system}.default;
+    # `minimal` (not `.default` = full): the from-source build stays small.
+    # Dependency groups (anthropic, voice, ...) are added per-phase in
+    # nix/modules/hermes.nix via .override. The HM module is not a package and
+    # cannot be aliased here — it is imported there directly from the input.
+    hermes-agent = inputs.hermes-agent.packages.${prev.stdenv.hostPlatform.system}.minimal;
     engram = prev.callPackage ../packages/custom/engram.nix { };
     codebase-memory-mcp = prev.callPackage ../packages/custom/codebase-memory-mcp.nix { };
     pdf2md = prev.callPackage ../packages/custom/pdf2md.nix { };
