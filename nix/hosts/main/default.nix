@@ -100,6 +100,7 @@
     description  = "System Administrator";
     extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
     shell        = pkgs.fish;
+    linger       = true;  # keep user slice alive after logout (hermes services)
   };
 
   # --- CORE SYSTEM PACKAGES ---
@@ -110,14 +111,6 @@
     eza
     iw
   ];
-
-  # --- OLLAMA (local embedding server for gbrain) ---
-  services.ollama = {
-    enable = true;
-    host = "127.0.0.1";
-    port = 11434;
-    openFirewall = false;
-  };
 
   # --- KANATA KEYBOARD REMAPPER ---
   # Module imported above; enable on the host where you're testing kanata.
