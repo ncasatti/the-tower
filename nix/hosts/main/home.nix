@@ -34,8 +34,11 @@ in
     ../../home/moonlight.nix    # Moonlight client + paired config
     # ../../home/secrets.nix  # agenix — disabled for now
 
-    # --- AI module (LiteLLM proxy + gbrain bootstrap) ---
+    # --- AI module (LiteLLM proxy) ---
     ../../modules/ai.nix
+
+    # --- Hermes Agent (NousResearch) — see nix/modules/hermes.nix ---
+    ../../modules/hermes.nix
 
     # --- Package sets ---
     ../../packages/cli.nix
@@ -75,37 +78,4 @@ in
     xdg-user-dirs
     sound-theme-freedesktop
   ];
-
-  # --- GBRAIN EMBED SCHEDULER ---
-  # Re-embeds stale pages every 6h with jitter; persistent (runs missed runs at boot).
-  # Note: home-manager systemd.user.timers/services use systemd unit schema
-  # (Unit / Timer / Service / Install submodules), NOT flat keys.
-  systemd.user.timers."gbrain-embed" = {
-    Unit = {
-      Description = "Re-embed stale gbrain pages";
-    };
-    Timer = {
-      OnBootSec = "5min";
-      OnUnitActiveSec = "6h";
-      RandomizedDelaySec = "15min";
-      Persistent = true;
-    };
-    Install = {
-      WantedBy = [ "timers.target" ];
-    };
-  };
-
-  systemd.user.services."gbrain-embed" = {
-    Unit = {
-      Description = "Embed gbrain pages (oneshot)";
-    };
-    Service = {
-      Type = "oneshot";
-      Environment = [
-        "BUN_INSTALL=$HOME/.bun"
-        "PATH=$HOME/.bun/bin:/run/current-system/sw/bin"
-      ];
-      ExecStart = "${pkgs.bash}/bin/bash -c 'gbrain embed --all --quiet || journalctl --user -u gbrain-embed --no-pager'";
-    };
-  };
 }
