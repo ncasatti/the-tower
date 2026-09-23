@@ -9,6 +9,7 @@
     qimgv
     ripgrep
     fd
+    gh
     git
     fzf
     gcc

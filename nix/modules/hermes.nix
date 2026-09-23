@@ -24,7 +24,10 @@
     # dependency groups a phase needs; `anthropic` = the Claude/Anthropic SDK
     # (initializes the provider; calling Claude still needs an API key/auth).
     package = pkgs.hermes-agent.override {
-      extraDependencyGroups = [ "anthropic" "messaging" ];
+      extraDependencyGroups = [
+        "anthropic"
+        "messaging"
+      ];
     };
     desktop.enable = true;
   };
@@ -36,13 +39,34 @@
     # Declarative settings merged into config.yaml on activation.
     settings = {
       display.skin = "the-grid";
-      default_model = {
+      # Primary model. Hermes reads `model.default` + `model.provider`
+      # (there is no `default_model` key).
+      model = {
+        default = "MiniMax-M3";
         provider = "minimax";
-        model = "MiniMax-M3";
       };
       fallback_model = {
         provider = "minimax";
         model = "MiniMax-M3";
+      };
+      # Voice: speech-to-text (local faster-whisper on CPU)
+      stt = {
+        enabled = true;
+        provider = "local";
+        language = "en";
+        local = {
+          model = "base";
+          vad = true;
+        };
+      };
+      # Voice: text-to-speech (Edge TTS, free, no API key)
+      # es-AR-TomasNeural
+      # es-AR-ElenaNeural
+      # en-US-GuyNeural
+      # en-US-AriaNeural
+      tts = {
+        provider = "edge";
+        edge.voice = "es-AR-ElenaNeural";
       };
     };
 
@@ -64,14 +88,15 @@
       the-grid = {
         command = "bun";
         args = [
-          "run" "--cwd"
+          "run"
+          "--cwd"
           "/home/flyn/.the-grid/systems/grid/packages/mcp"
           "start"
         ];
         env = {
           VAULT_PATH = "/home/flyn/.local/share/the-grid";
-          DB_PATH    = "/home/flyn/.local/state/the-grid/.grid.db";
-          MCP_ACTOR  = "agent/hermes";
+          DB_PATH = "/home/flyn/.local/state/the-grid/.grid.db";
+          MCP_ACTOR = "agent/hermes";
         };
       };
     };
