@@ -48,6 +48,17 @@ let
   hermesBase = if self == "the-grid-notebook"
     then "/home/flyn/.hermes-grid"
     else "/home/flyn/.hermes";
+
+  # Hermes folder direction. `main` (the-grid) is the source of truth:
+  #   - main     → sendonly:    never applies changes/deletions from peers.
+  #   - notebook → receiveonly: local edits/deletions never propagate back.
+  #   - others   → sendreceive.
+  # Guards against an empty/relocated peer folder replicating mass deletions
+  # (incident: notebook path move wiped skins/plugins/profiles on main).
+  hermesType =
+    if self == "the-grid" then "sendonly"
+    else if self == "the-grid-notebook" then "receiveonly"
+    else "sendreceive";
 in
 {
   services.syncthing = {
@@ -138,6 +149,7 @@ in
         # in sync across hosts without rebuilding the world.
         hermes-skins = {
           path = "${hermesBase}/skins";
+          type = hermesType;
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
@@ -151,6 +163,7 @@ in
         # swap files lives next to the folder, runtime-only.
         hermes-plugins = {
           path = "${hermesBase}/desktop-plugins";
+          type = hermesType;
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
@@ -164,6 +177,7 @@ in
         # sessions, model caches) regenerates locally.
         hermes-profiles = {
           path = "${hermesBase}/profiles";
+          type = hermesType;
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
