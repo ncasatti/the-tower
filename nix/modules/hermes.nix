@@ -53,7 +53,7 @@
       stt = {
         enabled = true;
         provider = "local";
-        language = "es";  # Argentine Spanish (río de la plata, voseo)
+        language = "es";
         local = {
           model = "small";  # ~1.5 GB RAM, much better than base
           vad = true;
