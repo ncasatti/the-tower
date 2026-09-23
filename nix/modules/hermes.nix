@@ -67,7 +67,7 @@
       # es-ES-XimenaMultilingualNeural
       tts = {
         provider = "edge";
-        edge.voice = "es-ES-XimenaMultilingualNeural";
+        edge.voice = "es-ES-XimenaNeural";
       };
     };
 
