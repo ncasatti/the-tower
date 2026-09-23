@@ -1,0 +1,147 @@
+/* ===========================================================================
+   Brutalist Command — Vesktop theme
+   Matchea la paleta del Hyprland:
+     canvas #0a0a0a · border #2e2e2e · cyan #22d3ee · purple #a855f7 ·
+     off-white #e5e2e1 · text-muted #888 · red #ef4444 · green #22c55e
+   =========================================================================== */
+
+:root {
+  --brand-primary: #22d3ee;
+  --brand-secondary: #a855f7;
+  --bg: #0a0a0a;
+  --bg-overlay: #0f0f0f;
+  --bg-elevated: #161616;
+  --border: #2e2e2e;
+  --text: #e5e2e1;
+  --text-muted: #888888;
+  --accent-red: #ef4444;
+  --accent-green: #22c55e;
+  --radius-flat: 0;
+  --shadow-flat: none;
+}
+
+/* Canonical Discord variable overrides */
+.theme-dark,
+.theme-light {
+  --background-primary: var(--bg) !important;
+  --background-secondary: var(--bg-overlay) !important;
+  --background-tertiary: var(--bg-elevated) !important;
+  --background-accent: var(--bg-elevated) !important;
+  --background-floating: var(--bg-overlay) !important;
+  --background-modifier-hover: #1a1a1a !important;
+  --background-modifier-active: #1f1f1f !important;
+  --background-modifier-selected: #1a1a1a !important;
+
+  --channeltextarea-background: var(--bg-elevated) !important;
+  --text-normal: var(--text) !important;
+  --text-muted: var(--text-muted) !important;
+  --text-link: var(--brand-primary) !important;
+  --header-primary: var(--text) !important;
+  --header-secondary: var(--text-muted) !important;
+
+  --border-color: var(--border) !important;
+  --input-border: var(--border) !important;
+
+  --brand-experiment: var(--brand-primary) !important;
+  --brand-experiment-560: var(--brand-primary) !important;
+}
+
+/* Nuke rounded corners and shadows — flat aesthetic */
+* {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Sidebar */
+.sidebar-1tnWFu,
+.container-YkU50l {
+  background-color: var(--bg) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Server list */
+nav[class*="guilds"] {
+  background-color: var(--bg) !important;
+  border-right: 1px solid var(--border) !important;
+}
+
+/* Message area */
+.chat-2ZfjoI,
+.chatContent-3KubbW {
+  background-color: var(--bg) !important;
+}
+
+/* Messages — lower density, monospace-ish */
+.message-2CShn3 {
+  background-color: transparent !important;
+  border-bottom: 1px solid #1a1a1a !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+}
+
+.message-2CShn3:hover {
+  background-color: #0d0d0d !important;
+}
+
+/* Mentions */
+.mentioned-Twkn9u {
+  background-color: rgba(34, 211, 238, 0.08) !important;
+  border-left: 2px solid var(--brand-primary) !important;
+}
+
+/* Username color override — use cyan for self, keep others default */
+.username-h_3Fx0 {
+  color: var(--brand-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Code blocks / inline code */
+code, pre, .markup-eYLPri code {
+  font-family: "JetBrains Mono", "Cascadia Code", monospace !important;
+  background-color: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
+}
+
+pre {
+  padding: 8px !important;
+}
+
+/* Links */
+a, .anchor-1X4H4v, .anchorUnderline-1MiBgM {
+  color: var(--brand-primary) !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid var(--brand-primary) !important;
+}
+
+a:hover {
+  color: var(--brand-secondary) !important;
+  border-bottom-color: var(--brand-secondary) !important;
+}
+
+/* Inputs / buttons */
+input, textarea, .input-3hp8rX {
+  background-color: var(--bg-elevated) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* Selection accent */
+::selection {
+  background-color: rgba(168, 85, 247, 0.3) !important;
+  color: var(--text) !important;
+}
+
+/* Status indicators */
+rect[fill="#23a55a"] { fill: var(--accent-green) !important; }
+rect[fill="#f23f42"] { fill: var(--accent-red) !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px !important; height: 6px !important; }
+::-webkit-scrollbar-track { background: var(--bg) !important; }
+::-webkit-scrollbar-thumb {
+  background: var(--border) !important;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted) !important;
+}

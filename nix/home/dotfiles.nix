@@ -46,5 +46,8 @@
     # Per-host Hyprland override include (sourced last by hypr/hyprland.conf).
     # Empty default; hosts override with lib.mkForce (see hosts/server/home.nix).
     ".config/hypr-host.conf".text = "# host-specific Hyprland overrides (none)\n";
+
+    # --- Vesktop custom CSS (Brutalist Command theme) ---
+    ".config/vesktop/custom.css" = { source = ../../vesktop/custom.css; };
   };
 }
