@@ -101,4 +101,14 @@
       };
     };
   };
+
+  # ── Opus codec for Discord voice bubbles ──────────────────────────────
+  # discord.py needs libopus but ctypes.util.find_library can't resolve
+  # Nix store paths. Inject LD_LIBRARY_PATH into both gateway and backend.
+  systemd.user.services.hermes-agent.Service.Environment = [
+    "LD_LIBRARY_PATH=${pkgs.libopus}/lib"
+  ];
+  systemd.user.services.hermes-backend.Service.Environment = [
+    "LD_LIBRARY_PATH=${pkgs.libopus}/lib"
+  ];
 }
