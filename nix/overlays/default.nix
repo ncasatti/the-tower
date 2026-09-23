@@ -11,7 +11,15 @@
     # Dependency groups (anthropic, voice, ...) are added per-phase in
     # nix/modules/hermes.nix via .override. The HM module is not a package and
     # cannot be aliased here — it is imported there directly from the input.
-    hermes-agent = inputs.hermes-agent.packages.${prev.stdenv.hostPlatform.system}.minimal;
+    hermes-agent = inputs.hermes-agent.packages.${prev.stdenv.hostPlatform.system}.minimal.overrideAttrs (old: {
+      # Add libopus to the wrapper's LD_LIBRARY_PATH so discord.py's
+      # ctypes.util.find_library('opus') can resolve it.
+      # Without this, Discord voice bubbles fail with "Opus codec not found".
+      postFixup = (old.postFixup or "") + ''
+        wrapProgram $out/bin/hermes \
+          --prefix LD_LIBRARY_PATH : "${prev.libopus}/lib"
+      '';
+    });
     engram = prev.callPackage ../packages/custom/engram.nix { };
     codebase-memory-mcp = prev.callPackage ../packages/custom/codebase-memory-mcp.nix { };
     pdf2md = prev.callPackage ../packages/custom/pdf2md.nix { };
