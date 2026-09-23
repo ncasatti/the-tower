@@ -59,15 +59,14 @@
           vad = true;
         };
       };
-      # Voice: text-to-speech (Edge TTS, free, no API key)
-      # es-AR-TomasNeural
-      # es-AR-ElenaNeural
-      # en-US-GuyNeural
-      # en-US-AriaNeural
-      # es-ES-XimenaMultilingualNeural
+      # Voice: text-to-speech
+      # Edge TTS alternatives (free, no API key):
+      #   es-MX-DaliaNeural (preferred Edge voice)
+      #   es-AR-TomasNeural, es-AR-ElenaNeural
+      #   en-US-GuyNeural, en-US-AriaNeural
       tts = {
-        provider = "edge";
-        edge.voice = "es-ES-XimenaNeural";
+        provider = "gemini";
+        gemini.voice = "Kore";
       };
     };
 
