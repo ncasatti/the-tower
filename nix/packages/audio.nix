@@ -38,6 +38,7 @@
     aubio           # Audio analysis (pitch detection, onset)
 
     # --- Audio Utilities ---
+    ffmpeg          # Audio/video conversion (required by Hermes TTS for Discord)
     pavucontrol     # PipeWire/PulseAudio volume control GUI
     pamixer         # CLI mixer
     wiremix         # GUI mixer
