@@ -53,10 +53,11 @@
       stt = {
         enabled = true;
         provider = "local";
-        language = "";  # auto-detect (Spanish, English, etc.)
+        language = "es";  # Argentine Spanish (río de la plata, voseo)
         local = {
-          model = "base";
+          model = "small";  # ~1.5 GB RAM, much better than base
           vad = true;
+          initial_prompt = "Conversación en español rioplatense con voseo. Vocabulario técnico: NixOS, Hermes, Discord, faster-whisper, STT, TTS, kanban, Opus, codec, GPU, CUDA, fluye el lenguaje natural.";
         };
       };
       # Voice: text-to-speech
