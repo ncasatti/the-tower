@@ -53,7 +53,7 @@
       stt = {
         enabled = true;
         provider = "local";
-        language = "en";
+        language = "";  # auto-detect (Spanish, English, etc.)
         local = {
           model = "base";
           vad = true;
@@ -64,9 +64,10 @@
       # es-AR-ElenaNeural
       # en-US-GuyNeural
       # en-US-AriaNeural
+      # es-ES-XimenaMultilingualNeural
       tts = {
         provider = "edge";
-        edge.voice = "es-AR-ElenaNeural";
+        edge.voice = "es-ES-XimenaMultilingualNeural";
       };
     };
 
