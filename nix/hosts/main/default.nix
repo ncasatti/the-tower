@@ -99,7 +99,7 @@
     isNormalUser = true;
     description  = "System Administrator";
     extraGroups  = [ "networkmanager" "wheel" "audio" "video" "keyd" ];
-    shell        = pkgs.fish;
+    shell        = pkgs.bash;  # bash login shell; fish launched for interactive (hermes SSH compat)
     linger       = true;  # keep user slice alive after logout (hermes services)
   };
 

@@ -24,6 +24,7 @@ in
   imports = [
     # --- Home modules ---
     ../../home/dotfiles.nix
+    ../../home/bash.nix
     ../../home/git.nix
     ../../home/gtk.nix
     ../../home/tmux.nix
