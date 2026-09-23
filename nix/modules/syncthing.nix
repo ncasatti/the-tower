@@ -42,6 +42,12 @@ let
 
   self = config.networking.hostName;
   peers = lib.filterAttrs (name: dev: name != self && dev.id != null) grid;
+
+  # On the notebook the synced Hermes folders land under ~/.hermes-grid so they
+  # don't collide with the notebook's own local Hermes install (~/.hermes).
+  hermesBase = if self == "the-grid-notebook"
+    then "/home/flyn/.hermes-grid"
+    else "/home/flyn/.hermes";
 in
 {
   services.syncthing = {
@@ -131,7 +137,7 @@ in
         # HM-deployed YAML lives in ~/.hermes/skins/ — this keeps skin edits
         # in sync across hosts without rebuilding the world.
         hermes-skins = {
-          path = "/home/flyn/.hermes/skins";
+          path = "${hermesBase}/skins";
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
@@ -144,7 +150,7 @@ in
         # the desktop app hot-reloads them on file change. .stignore for editor
         # swap files lives next to the folder, runtime-only.
         hermes-plugins = {
-          path = "/home/flyn/.hermes/desktop-plugins";
+          path = "${hermesBase}/desktop-plugins";
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";
@@ -157,7 +163,7 @@ in
         # plugins metadata cross devices. The profile runtime (SQLite,
         # sessions, model caches) regenerates locally.
         hermes-profiles = {
-          path = "/home/flyn/.hermes/profiles";
+          path = "${hermesBase}/profiles";
           devices = lib.attrNames peers;
           versioning = {
             type = "trashcan";

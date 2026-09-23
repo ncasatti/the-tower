@@ -1,6 +1,7 @@
 # Nix build artifacts
 result
 result-*
+docs/
 
 # Backup files
 *.backup

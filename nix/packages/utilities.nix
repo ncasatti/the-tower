@@ -21,6 +21,8 @@ in
     zen-browser
     mpv
     ntfs3g
+    vesktop  # Vencord client — better Linux support than official Discord, declarative updates via nix flake update + rebuild
+    bitwarden-desktop  # desktop password manager (alternative to browser extension)
     # brave
     # google-chrome
     # yt-dlp
