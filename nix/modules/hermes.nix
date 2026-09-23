@@ -24,7 +24,7 @@
     # dependency groups a phase needs; `anthropic` = the Claude/Anthropic SDK
     # (initializes the provider; calling Claude still needs an API key/auth).
     package = pkgs.hermes-agent.override {
-      extraDependencyGroups = [ "anthropic" ];
+      extraDependencyGroups = [ "anthropic" "messaging" ];
     };
     desktop.enable = true;
   };

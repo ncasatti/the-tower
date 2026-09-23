@@ -189,6 +189,7 @@
 		"class<VSCode|code-url-handler|[Vv]S[Cc]ode|code>": " ",
 		"class<cursor|cursor-url-handler>": " ",
 		"class<kitty|konsole>": " ",
+		"class<hermes>": " ",
 		"class<kitty-dropterm>": " ",
 		"class<cool-retro-term.>": " ",
 

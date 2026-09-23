@@ -22,7 +22,7 @@ in
     mpv
     ntfs3g
     # brave
-    google-chrome
+    # google-chrome
     # yt-dlp
     # sioyek
     # zoom-us
@@ -31,6 +31,8 @@ in
     # tidal-hifi: declared per-host now — wrapped (no VA-API) on main, stock
     # elsewhere. GPU env is host-specific, so is this. See ADR-002.
   ];
+
+  programs.chromium.enable = true;
 
   programs.zathura = {
     enable = true;

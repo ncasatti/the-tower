@@ -148,8 +148,8 @@ return {
 			enabled = true,
 			sign = true,
 			style = "language",
-			position = "center",
-			language_pad = 0,
+			position = "left",
+			language_pad = -1,
 			border = "none",
 			-- render-markdown derives `code.data.padding` from `code.left_pad`
 			-- (render/markdown/code.lua:53). When background is on, every inner
@@ -165,8 +165,8 @@ return {
 			min_width = 0,
 			language_name = false,
 			language_icon = false,
-			above = "",
-			below = "",
+			above = "",
+			below = "",
 		},
 
 		-- Checkbox rendering for task lists

@@ -126,6 +126,44 @@ in
             params.cleanoutDays = "10";
           };
         };
+
+        # Runtime-free Hermes skin custom (the-grid + future user skins).
+        # HM-deployed YAML lives in ~/.hermes/skins/ — this keeps skin edits
+        # in sync across hosts without rebuilding the world.
+        hermes-skins = {
+          path = "/home/flyn/.hermes/skins";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "10";
+          };
+        };
+
+        # Runtime-free Hermes desktop plugins (3270-bionic-font, hermes-tailscale,
+        # hermes-resetwatch, hermes-home-dashboard, ...). Plain ESM, no build —
+        # the desktop app hot-reloads them on file change. .stignore for editor
+        # swap files lives next to the folder, runtime-only.
+        hermes-plugins = {
+          path = "/home/flyn/.hermes/desktop-plugins";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "10";
+          };
+        };
+
+        # Custom Hermes profiles (eve, ...). Per-profile .stignore keeps state
+        # out (DBs, locks, caches, logs, memories) — only config + skills +
+        # plugins metadata cross devices. The profile runtime (SQLite,
+        # sessions, model caches) regenerates locally.
+        hermes-profiles = {
+          path = "/home/flyn/.hermes/profiles";
+          devices = lib.attrNames peers;
+          versioning = {
+            type = "trashcan";
+            params.cleanoutDays = "10";
+          };
+        };
       };
     };
   };
