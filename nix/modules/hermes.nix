@@ -36,7 +36,10 @@
     # Declarative settings merged into config.yaml on activation.
     settings = {
       display.skin = "the-grid";
-      # MiniMax M3 as fallback when Anthropic is unavailable (rate limit, overload)
+      default_model = {
+        provider = "minimax";
+        model = "MiniMax-M3";
+      };
       fallback_model = {
         provider = "minimax";
         model = "MiniMax-M3";
