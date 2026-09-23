@@ -49,16 +49,13 @@
         provider = "minimax";
         model = "MiniMax-M3";
       };
-      # Voice: speech-to-text (local faster-whisper on CPU)
+      # Voice: speech-to-text (Groq cloud — whisper-large-v3)
+      # Free tier: 20 RPM, 2K RPD, 8h audio/day. Works from any client.
+      # Fallback: local faster-whisper small on CPU (1.5 GB RAM)
       stt = {
         enabled = true;
-        provider = "local";
+        provider = "groq";
         language = "es";
-        local = {
-          model = "small";  # ~1.5 GB RAM, much better than base
-          vad = true;
-          initial_prompt = "Conversación en español rioplatense con voseo. Vocabulario técnico: NixOS, Hermes, Discord, faster-whisper, STT, TTS, kanban, Opus, codec, GPU, CUDA, fluye el lenguaje natural.";
-        };
       };
       # Voice: text-to-speech
       # Edge TTS alternatives (free, no API key):
