@@ -18,6 +18,9 @@
     ../../home/moonlight.nix    # Moonlight client + paired config
     # ../../home/secrets.nix  # agenix — disabled for now
 
+    # --- Hermes Agent (NousResearch) — see nix/modules/hermes.nix ---
+    ../../modules/hermes.nix
+
     # --- Package sets ---
     ../../packages/cli.nix
     ../../packages/dev.nix
