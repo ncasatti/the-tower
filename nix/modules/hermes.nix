@@ -12,7 +12,7 @@
 #
 # IMPORTANT: the NixOS host config must set `users.users.flyn.linger = true`
 # so systemd keeps the user slice alive after logout.
-{ inputs, pkgs, ... }:
+{ inputs, pkgs, lib, ... }:
 
 {
   imports = [ inputs.hermes-agent.homeManagerModules.default ];
@@ -94,4 +94,24 @@
   # Opus codec for Discord voice bubbles is handled by patching
   # discord/opus.py in nix/overlays/default.nix (find_library cache poisoning
   # makes LD_LIBRARY_PATH unreliable for ctypes-based lazy loaders).
+
+  # ── Disable HERMES_MANAGED guard ──────────────────────────────────────
+  # The upstream HM module sets HERMES_MANAGED=home-manager on every
+  # systemd unit and writes a ~/.hermes/.managed marker file.  This blocks
+  # ALL config writes — CLI `hermes config set`, the desktop UI toggles,
+  # and save_config() in Python.  Since we deliberately manage config as
+  # mutable state (UI + Syncthing), override the env var to "false" and
+  # neuter the marker file so the application treats config as writable.
+  #
+  # Risk: zero.  The guard's only meaningful protection (hermes update,
+  # gateway install/uninstall) is already impossible on a Nix store.
+  systemd.user.services.hermes-agent.Service.Environment =
+    lib.mkAfter [ "HERMES_MANAGED=false" ];
+  systemd.user.services.hermes-backend.Service.Environment =
+    lib.mkAfter [ "HERMES_MANAGED=false" ];
+
+  home.activation.hermesDisableManaged =
+    lib.hm.dag.entryAfter [ "hermesAgentSetup" ] ''
+      $DRY_RUN_CMD install -m 0600 /dev/stdin "$HOME/.hermes/.managed" <<< "false"
+    '';
 }
