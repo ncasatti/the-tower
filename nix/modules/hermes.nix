@@ -100,6 +100,11 @@
     };
   };
 
-  # Opus codec for Discord voice bubbles is handled in nix/overlays/default.nix
-  # via wrapProgram on the hermes wrapper — no systemd override needed here.
+  # ── Opus codec for Discord voice bubbles ──────────────────────────────
+  # discord.py loads libopus via ctypes.util.find_library('opus'), which
+  # needs LD_LIBRARY_PATH on NixOS. The overlay also patches the wrapper,
+  # but the systemd service must carry the env var too.
+  systemd.user.services.hermes-agent.Service.Environment = [
+    "LD_LIBRARY_PATH=${pkgs.libopus}/lib"
+  ];
 }
