@@ -36,37 +36,9 @@
   services.hermes-agent = {
     enable = true;
 
-    # Declarative settings merged into config.yaml on activation.
-    settings = {
-      display.skin = "the-grid";
-      # Primary model. Hermes reads `model.default` + `model.provider`
-      # (there is no `default_model` key).
-      model = {
-        default = "MiniMax-M3";
-        provider = "minimax";
-      };
-      fallback_model = {
-        provider = "minimax";
-        model = "MiniMax-M3";
-      };
-      # Voice: speech-to-text (Groq cloud — whisper-large-v3)
-      # Free tier: 20 RPM, 2K RPD, 8h audio/day. Works from any client.
-      # Fallback: local faster-whisper small on CPU (1.5 GB RAM)
-      stt = {
-        enabled = true;
-        provider = "groq";
-        language = "es";
-      };
-      # Voice: text-to-speech
-      # Edge TTS alternatives (free, no API key):
-      #   es-MX-DaliaNeural (preferred Edge voice)
-      #   es-AR-TomasNeural, es-AR-ElenaNeural
-      #   en-US-GuyNeural, en-US-AriaNeural
-      tts = {
-        provider = "gemini";
-        gemini.voice = "Kore";
-      };
-    };
+    # Config (model, TTS, STT, display, capabilities) is fully mutable —
+    # managed via UI / Syncthing, not declared here. Only structural
+    # service settings (gateway, backend, mcpServers) stay in Nix.
 
     # Messaging gateway (Telegram, Discord, etc.) — starts as
     # systemd.user.services.hermes-agent
@@ -82,9 +54,16 @@
     };
 
     # ── Declarative MCP servers ───────────────────────────────────────
+    # IMPORTANT: `command` MUST be an absolute path on NixOS. The Hermes
+    # scheduler spawns MCP subprocesses with a minimal PATH (/usr/bin:/bin),
+    # which does not include `/etc/profiles/per-user/flyn/bin` where `bun`
+    # lives. Using just "bun" causes `FileNotFoundError: 'bun'` and the MCP
+    # parks without retries. The `PATH` env var is also injected so that
+    # anything the MCP server spawns (subagent runners, etc.) can find
+    # curl, jq, and friends.
     mcpServers = {
       the-grid = {
-        command = "bun";
+        command = "/etc/profiles/per-user/flyn/bin/bun";
         args = [
           "run"
           "--cwd"
@@ -95,6 +74,7 @@
           VAULT_PATH = "/home/flyn/.local/share/the-grid";
           DB_PATH = "/home/flyn/.local/state/the-grid/.grid.db";
           MCP_ACTOR = "agent/hermes";
+          PATH = "/etc/profiles/per-user/flyn/bin:/run/current-system/sw/bin:/usr/bin:/bin";
         };
       };
     };
