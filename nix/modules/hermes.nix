@@ -37,8 +37,11 @@
     enable = true;
 
     # Config (model, TTS, STT, display, capabilities) is fully mutable —
-    # managed via UI / Syncthing, not declared here. Only structural
-    # service settings (gateway, backend, mcpServers) stay in Nix.
+    # managed via UI / Syncthing, not declared here. Only host-specific
+    # settings that need NixOS store paths stay in Nix.
+    settings = {
+      terminal.shell = "/run/current-system/sw/bin/fish";
+    };
 
     # Messaging gateway (Telegram, Discord, etc.) — starts as
     # systemd.user.services.hermes-agent
@@ -51,6 +54,14 @@
       mode = "dashboard";
       host = "127.0.0.1";
       port = 9119;
+      # Stable session token shared between the systemd backend and the
+      # desktop app.  Without this, the backend mints a random token on
+      # every restart and the desktop loses auth (401 loop on /api/*,
+      # which breaks transcript hydration and makes messages vanish).
+      # Generate once:
+      #   python3 -c "import secrets; print(secrets.token_urlsafe(32), end='')" \
+      #     > ~/.hermes/secrets/desktop-token && chmod 600 ~/.hermes/secrets/desktop-token
+      sessionTokenFile = "/home/flyn/.hermes/secrets/desktop-token";
     };
 
     # ── Declarative MCP servers ───────────────────────────────────────
