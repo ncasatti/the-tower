@@ -12,12 +12,31 @@
     # nix/modules/hermes.nix via .override. The HM module is not a package and
     # cannot be aliased here — it is imported there directly from the input.
     hermes-agent = inputs.hermes-agent.packages.${prev.stdenv.hostPlatform.system}.minimal.overrideAttrs (old: {
-      # Add libopus to the wrapper's LD_LIBRARY_PATH so discord.py's
-      # ctypes.util.find_library('opus') can resolve it.
-      # Without this, Discord voice bubbles fail with "Opus codec not found".
+      # Patch discord/opus.py to load libopus from the Nix store at import time.
+      #
+      # Why this works while LD_LIBRARY_PATH does not:
+      #   - ctypes.util.find_library('opus') DOES resolve libopus.so.0 when
+      #     LD_LIBRARY_PATH is set.
+      #   - discord.opus._load_default() runs that lookup exactly ONCE at
+      #     first import, caches the result in the module-level _lib global.
+      #   - If find_library returns None on that first call (e.g. when the
+      #     Hermes env was constructed before libopus was in the store), the
+      #     cache is poisoned for the whole process.
+      #   - Replacing find_library('opus') with the absolute store path makes
+      #     the lookup succeed unconditionally — no cache poisoning possible.
       postFixup = (old.postFixup or "") + ''
-        wrapProgram $out/bin/hermes \
-          --prefix LD_LIBRARY_PATH : "${prev.libopus}/lib"
+        OPUS_FILE="$out/lib/python3.12/site-packages/discord/opus.py"
+        if [ ! -f "$OPUS_FILE" ]; then
+          OPUS_FILE=$(find "$out" -path '*/site-packages/discord/opus.py' | head -1)
+        fi
+        if [ -f "$OPUS_FILE" ]; then
+          chmod +w "$OPUS_FILE"
+          substituteInPlace "$OPUS_FILE" --replace-fail \
+            "ctypes.util.find_library('opus')" \
+            "'${prev.libopus}/lib/libopus.so.0'"
+        else
+          echo "WARNING: discord/opus.py not found in $out; voice will not work" >&2
+        fi
       '';
     });
     engram = prev.callPackage ../packages/custom/engram.nix { };

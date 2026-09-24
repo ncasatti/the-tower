@@ -100,11 +100,7 @@
     };
   };
 
-  # ── Opus codec for Discord voice bubbles ──────────────────────────────
-  # discord.py loads libopus via ctypes.util.find_library('opus'), which
-  # needs LD_LIBRARY_PATH on NixOS. The overlay also patches the wrapper,
-  # but the systemd service must carry the env var too.
-  systemd.user.services.hermes-agent.Service.Environment = [
-    "LD_LIBRARY_PATH=${pkgs.libopus}/lib"
-  ];
+  # Opus codec for Discord voice bubbles is handled by patching
+  # discord/opus.py in nix/overlays/default.nix (find_library cache poisoning
+  # makes LD_LIBRARY_PATH unreliable for ctypes-based lazy loaders).
 }
