@@ -60,12 +60,12 @@
     # build compiles locally. Intentionally NOT following nixpkgs — the uv.lock
     # wheels are pinned and tested against Hermes's own nixpkgs (same rationale
     # as claude-code above). Exposes packages + overlay + nixosModules +
-    # homeManagerModules. Pinned to calver tag v2026.9.14 — update flow:
+    # homeManagerModules. Update flow:
     #   1) bump ?ref= below to the new tag
     #   2) nix flake lock --update-input hermes-agent
     #   3) sudo nixos-rebuild switch --flake .#<host>
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent?ref=v2026.9.21";
+      url = "github:NousResearch/hermes-agent?ref=v2026.9.24";
     };
 
     # NixOS-WSL: run full NixOS as a WSL2 distribution (the `wsl` host).
