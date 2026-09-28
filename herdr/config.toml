@@ -17,6 +17,15 @@ onboarding = false
 # gruvbox, one-dark, solarized, kanagawa, rose-pine, vesper.
 name = "terminal"
 
+[terminal]
+# Pane shells default to bash right now because herdr falls back to /bin/sh
+# when default_shell is unset. fish is the shell we want for new panes —
+# executable name (herdr looks it up on PATH), not a command line.
+# shell_mode "login" so /etc/profiles/per-user/flyn ships the right env into
+# each pane (notably Hermes env vars from the flake HM activation script).
+default_shell = "fish"
+shell_mode    = "login"
+
 [keys]
 # Prefix: Ctrl-a (parity with tmux; NOT the default ctrl+b).
 # Caveat: collides if herdr is ever nested inside tmux — we don't nest.
