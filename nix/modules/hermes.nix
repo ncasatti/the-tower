@@ -47,6 +47,14 @@
     # systemd.user.services.hermes-agent
     gateway.enable = true;
 
+    # Tools on the unit PATH (the module's default is only bash, coreutils
+    # and git). systemd provides `systemd-run`: the gateway probes
+    # `systemd-run --user --scope` via shutil.which() before spawning
+    # Kanban workers / background processes into restart-safe scopes.
+    # Without it on PATH the probe fails and every Kanban dispatch is
+    # deferred with "cannot create restart-safe systemd scope".
+    extraPackages = [ pkgs.systemd ];
+
     # Web dashboard + backend API (JSON-RPC/WS on :9119) — starts as
     # systemd.user.services.hermes-backend
     # "dashboard" = "serve" + browser admin panel on the same port.
@@ -103,8 +111,10 @@
   # mutable state (UI + Syncthing), override the env var to "false" and
   # neuter the marker file so the application treats config as writable.
   #
-  # Risk: zero.  The guard's only meaningful protection (hermes update,
-  # gateway install/uninstall) is already impossible on a Nix store.
+  # Side effect: with the guard off, `hermes gateway install` is no longer
+  # refused. It writes an unmanaged ~/.config/systemd/user/hermes-gateway.service
+  # that races the Nix unit (only one gateway per host may run). Do not run
+  # it; manage the gateway via systemctl --user {restart,status} hermes-agent.
   systemd.user.services.hermes-agent.Service.Environment =
     lib.mkAfter [ "HERMES_MANAGED=false" ];
   systemd.user.services.hermes-backend.Service.Environment =
