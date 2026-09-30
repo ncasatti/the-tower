@@ -1,6 +1,10 @@
 -- TaskNotes — in-memory caches.
---   M.data / M.keys_index — task index, API-sourced, TTL-gated (drill-down).
---   M.notes               — whole-vault notes index, FS-scanned (ow tag browser).
+--   M.data / M.keys_index    — task index, API-sourced, TTL-gated (shortcuts).
+--   M.global_data / global_keys_index — whole-vault index, FS-scanned
+--                                       (used by <leader>ok drill-down).
+--   M.notes                  — whole-vault notes index, FS-scanned, with
+--                              the same frontmatter table as global_data
+--                              (used by <leader>ot tag browser).
 -- Module-level state is a singleton via require's module cache — same semantics
 -- as the old single closure.
 
@@ -9,10 +13,16 @@ local api = require("tasknotes.api")
 
 local M = {}
 
--- Task index (API-sourced).
+-- Task index (API-sourced). Used by the shortcut pickers (<leader>os status,
+-- <leader>ow tags) that are documented as "task filters".
 M.data = {} -- { [filepath] = { fm = table, mtime = number } }
 M.keys_index = {} -- { [key] = { [value] = { filepath, ... } } }
 M.last_full_scan = 0
+
+-- Whole-vault index (FS-scanned). Used by <leader>ok drill-down. Includes
+-- tasks too — the whole point is the search is global.
+M.global_data = {} -- { [filepath] = { fm = table, mtime = number } }
+M.global_keys_index = {} -- { [key] = { [value] = { filepath, ... } } }
 
 -- Ensures the task index is fresh by fetching from the API.
 function M.ensure()
@@ -92,17 +102,28 @@ function M.notes.clean(s)
 	return (s:gsub("^%s+", ""):gsub("%s+$", ""))
 end
 
--- Parses ONLY the YAML frontmatter of a note, extracting `tags` (block
--- list, inline [..], or scalar) plus a display title. Returns nil when the
--- note has no frontmatter or no tags.
+-- Parses the YAML frontmatter of a note, extracting:
+--   - `tags` (block list, inline [..], or scalar)
+--   - `title` (from `task:` or `title:`)
+--   - the full frontmatter as a flat { [key] = scalar_or_list } table, with
+--     values normalized via the same parser used for the keys_index
+-- Returns nil when the note has no frontmatter.
+--
+-- The parser is intentionally lightweight: scalar lines `key: value`,
+-- block lists under the last `key:` with empty value, and inline `[a, b]`.
+-- It is NOT a full YAML implementation — complex constructs (nested maps,
+-- multi-line scalars, anchors) are NOT supported. Good enough for the
+-- hand-written frontmatter in this vault.
 function M.notes.parse(path)
 	local fd = io.open(path, "r")
 	if not fd then
 		return nil
 	end
 
-	local in_fm, in_tags = false, false
+	local in_fm = false
 	local tags, title = {}, nil
+	local fm = {} -- full frontmatter table
+	local current_block_key = nil -- tracks the key whose block list we are inside
 	local lineno = 0
 
 	for line in fd:lines() do
@@ -118,44 +139,77 @@ function M.notes.parse(path)
 			in_fm = true
 		elseif in_fm then
 			local handled = false
-			if in_tags then
+
+			-- Are we inside a block list continuation of the previous key?
+			if current_block_key then
 				local item = line:match("^%s*%-%s*(.+)$")
 				if item then
 					local t = M.notes.clean(item)
 					if t ~= "" then
-						tags[#tags + 1] = t
+						if current_block_key == "tags" then
+							tags[#tags + 1] = t
+						end
+						fm[current_block_key] = fm[current_block_key] or {}
+						fm[current_block_key][#fm[current_block_key] + 1] = t
 					end
 					handled = true
 				else
-					in_tags = false
+					current_block_key = nil
 				end
 			end
 
 			if not handled then
 				local k, v = line:match("^([%w_]+):%s*(.*)$")
-				if k == "tags" then
-					if v == "" then
-						in_tags = true
-					else
-						local inner = v:match("^%[(.*)%]$")
-						if inner then
-							for t in inner:gmatch("[^,]+") do
-								t = M.notes.clean(t)
+				if k then
+					if k == "tags" then
+						if v == "" then
+							current_block_key = "tags"
+							fm.tags = fm.tags or {}
+						else
+							local inner = v:match("^%[(.*)%]$")
+							if inner then
+								fm.tags = {}
+								for t in inner:gmatch("[^,]+") do
+									t = M.notes.clean(t)
+									if t ~= "" then
+										tags[#tags + 1] = t
+										fm.tags[#fm.tags + 1] = t
+									end
+								end
+							else
+								local t = M.notes.clean(v)
 								if t ~= "" then
 									tags[#tags + 1] = t
+									fm.tags = t
 								end
 							end
+						end
+					elseif (k == "task" or k == "title") and not title then
+						local t = M.notes.clean(v)
+						if t ~= "" then
+							title = t
+						end
+					else
+						-- Generic key: scalar, inline list, or start of block list.
+						if v == "" then
+							current_block_key = k
+							fm[k] = fm[k] or {}
 						else
-							local t = M.notes.clean(v)
-							if t ~= "" then
-								tags[#tags + 1] = t
+							current_block_key = nil
+							local inner = v:match("^%[(.*)%]$")
+							if inner then
+								fm[k] = {}
+								for t in inner:gmatch("[^,]+") do
+									t = M.notes.clean(t)
+									if t ~= "" then
+										fm[k][#fm[k] + 1] = t
+									end
+								end
+							else
+								local t = M.notes.clean(v)
+								fm[k] = (t ~= "") and t or nil
 							end
 						end
-					end
-				elseif (k == "task" or k == "title") and not title then
-					local t = M.notes.clean(v)
-					if t ~= "" then
-						title = t
 					end
 				end
 			end
@@ -164,20 +218,28 @@ function M.notes.parse(path)
 
 	fd:close()
 
-	if #tags == 0 then
+	-- A note without any frontmatter content is not indexable.
+	if next(fm) == nil then
 		return nil
 	end
 
 	title = title or vim.fn.fnamemodify(path, ":t:r")
+	local display = (#tags > 0)
+		and string.format("%s  #%s", title, table.concat(tags, " #"))
+		or title
 	return {
 		path = path,
 		title = title,
 		tags = tags,
-		display = string.format("%s  #%s", title, table.concat(tags, " #")),
+		fm = fm,
+		display = display,
 	}
 end
 
 -- Builds M.notes asynchronously (chunked). on_done() fires when ready.
+-- Also populates M.global_data / M.global_keys_index — the whole-vault
+-- frontmatter index used by the <leader>ok drill-down. Both views share
+-- the same per-file parse (a single io.open + scan).
 function M.notes.build(on_done)
 	if M.notes.building then
 		return
@@ -189,8 +251,32 @@ function M.notes.build(on_done)
 	end, { path = config.vault_path, type = "file", limit = math.huge })
 
 	local entries = {}
+	local global_data = {}
+	local global_keys_index = {}
 	local i = 1
 	local CHUNK = 80
+
+	-- Inserts a parsed frontmatter key into the global inverted index.
+	-- Mirrors the loop body of M.ensure (line ~37-55) so behaviour is
+	-- identical: scalar values become single-element lists, list values
+	-- iterate. Empty strings are skipped.
+	local function index_fm(filepath, fm)
+		for key, value in pairs(fm) do
+			if not global_keys_index[key] then
+				global_keys_index[key] = {}
+			end
+			local values = type(value) == "table" and value or { tostring(value) }
+			for _, v in ipairs(values) do
+				v = tostring(v)
+				if v ~= "" then
+					if not global_keys_index[key][v] then
+						global_keys_index[key][v] = {}
+					end
+					table.insert(global_keys_index[key][v], filepath)
+				end
+			end
+		end
+	end
 
 	local function step()
 		local stop = math.min(i + CHUNK - 1, #files)
@@ -198,6 +284,8 @@ function M.notes.build(on_done)
 			local e = M.notes.parse(files[j])
 			if e then
 				entries[#entries + 1] = e
+				global_data[e.path] = { fm = e.fm, mtime = 0 }
+				index_fm(e.path, e.fm)
 			end
 		end
 		i = stop + 1
@@ -213,6 +301,8 @@ function M.notes.build(on_done)
 			M.notes.entries = entries
 			M.notes.built = true
 			M.notes.building = false
+			M.global_data = global_data
+			M.global_keys_index = global_keys_index
 			if on_done then
 				on_done()
 			end
@@ -223,11 +313,14 @@ function M.notes.build(on_done)
 end
 
 -- Forces a complete cache rebuild regardless of TTL.
--- Invalidates BOTH the local task index (used by <leader>ok drill-down)
--- AND the API caches (filter-options + task paths) AND the notes index (ow).
+-- Invalidates BOTH the local task index (used by <leader>os / <leader>ow
+-- shortcuts) AND the API caches (filter-options + task paths) AND the
+-- whole-vault notes index (used by <leader>ok drill-down and <leader>ot).
 function M.force_refresh()
 	M.data = {}
 	M.keys_index = {}
+	M.global_data = {}
+	M.global_keys_index = {}
 	M.last_full_scan = 0
 	M.ensure()
 	api.invalidate_caches()

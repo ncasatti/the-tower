@@ -1,5 +1,13 @@
 -- TaskNotes — 3-stage drill-down pickers (Key → Value → File) + shortcuts
 -- + whole-vault tag browser (note_search).
+--
+-- The drill-down has two flavours driven by the data source:
+--   - "global" (FS-scanned, all notes with frontmatter) — used by
+--     <leader>ok, which the user requested be vault-wide.
+--   - "tasks" (API-sourced, only TaskNotes-tagged notes) — used by the
+--     <leader>os / <leader>ow shortcuts which are documented as task
+--     filters and depend on live API data (status/priority metadata).
+-- pick_value / pick_file take a `source` arg; pick_key is global-only.
 
 local cache = require("tasknotes.cache")
 local ui = require("tasknotes.ui")
@@ -7,11 +15,25 @@ local util = require("tasknotes.util")
 
 local M = {}
 
+-- Resolves the right index/data tables for a given source. Keeping this in
+-- one place means the pickers don't need to know about cache internals.
+local function source_tables(source)
+	if source == "tasks" then
+		return cache.keys_index, cache.data
+	end
+	return cache.global_keys_index, cache.global_data
+end
+
 -- Stage 3: Pick a file from the list matching key=value.
 -- Displays filename with optional status/priority badge + time info.
 -- On <CR>: opens the file. On close without confirm: back to Stage 2.
-function M.pick_file(key, value, from_shortcut)
-	local filepaths = cache.keys_index[key] and cache.keys_index[key][value]
+-- `source` selects "tasks" (API, status/priority metadata) or "global"
+-- (FS, plain notes). Status/priority badges are best-effort — global
+-- notes usually lack those fields and render as bare title rows.
+function M.pick_file(key, value, from_shortcut, source)
+	source = source or "global"
+	local keys_index, data = source_tables(source)
+	local filepaths = keys_index[key] and keys_index[key][value]
 	if not filepaths or #filepaths == 0 then
 		vim.notify(string.format("TaskNotes: no files found for %s = %s", key, value), vim.log.levels.WARN)
 		return
@@ -22,7 +44,7 @@ function M.pick_file(key, value, from_shortcut)
 
 	local items = {}
 	for _, fp in ipairs(filepaths) do
-		local fm = cache.data[fp] and cache.data[fp].fm or {}
+		local fm = data[fp] and data[fp].fm or {}
 		local title = util.task_title(fm, fp)
 
 		local status_val = fm.status
@@ -34,7 +56,7 @@ function M.pick_file(key, value, from_shortcut)
 			priority_val = priority_val[1]
 		end
 
-		local time_info, time_hl = util.due_info(fm.due, fm.scheduled)
+		local time_info, time_hl = (source == "tasks") and util.due_info(fm.due, fm.scheduled) or "", "Comment"
 
 		table.insert(items, {
 			-- `text` drives fuzzy matching (status/priority/title); the visible
@@ -82,7 +104,7 @@ function M.pick_file(key, value, from_shortcut)
 		on_close = function()
 			if not confirmed then
 				vim.schedule(function()
-					M.pick_value(key, from_shortcut)
+					M.pick_value(key, from_shortcut, source)
 				end)
 			end
 		end,
@@ -92,10 +114,25 @@ end
 -- Stage 2: Pick a value for the given key.
 -- Displays value + file count. On <CR>: transitions to Stage 3.
 -- On close without confirm: back to Stage 1 (unless from_shortcut).
-function M.pick_value(key, from_shortcut)
-	cache.ensure()
+function M.pick_value(key, from_shortcut, source)
+	source = source or "global"
+	if source == "tasks" then
+		cache.ensure()
+	elseif not cache.notes.built then
+		-- Global drill-down needs the FS index. Trigger async build if it
+		-- hasn't run yet (mirrors the pattern in note_search, pickers.lua
+		-- line 304-309).
+		vim.notify("TaskNotes: indexing vault…", vim.log.levels.INFO)
+		cache.notes.build(function()
+			vim.schedule(function()
+				M.pick_value(key, from_shortcut, source)
+			end)
+		end)
+		return
+	end
 
-	local value_map = cache.keys_index[key]
+	local keys_index = source_tables(source)
+	local value_map = keys_index[key]
 	if not value_map then
 		vim.notify(string.format("TaskNotes: no values found for key '%s'", key), vim.log.levels.WARN)
 		return
@@ -129,7 +166,7 @@ function M.pick_value(key, from_shortcut)
 			picker:close()
 			if item then
 				vim.schedule(function()
-					M.pick_file(key, item.value, from_shortcut)
+					M.pick_file(key, item.value, from_shortcut, source)
 				end)
 			end
 		end,
@@ -145,72 +182,83 @@ end
 
 -- Stage 1: Pick a frontmatter key from the vault index.
 -- Displays key + file count. On <CR>: transitions to Stage 2.
+-- Always operates on the whole-vault FS index (the user explicitly asked
+-- for this drill-down to be global, not task-only).
 function M.pick_key()
-	cache.ensure()
-
-	local items = {}
-	for key, value_map in pairs(cache.keys_index) do
-		local file_set = {}
-		for _, fps in pairs(value_map) do
-			for _, fp in ipairs(fps) do
-				file_set[fp] = true
+	local function stage_index()
+		local items = {}
+		for key, value_map in pairs(cache.global_keys_index) do
+			local file_set = {}
+			for _, fps in pairs(value_map) do
+				for _, fp in ipairs(fps) do
+					file_set[fp] = true
+				end
 			end
-		end
-		local file_count = 0
-		for _ in pairs(file_set) do
-			file_count = file_count + 1
+			local file_count = 0
+			for _ in pairs(file_set) do
+				file_count = file_count + 1
+			end
+
+			table.insert(items, {
+				text = string.format("%s (%d files)", key, file_count),
+				value = key,
+			})
 		end
 
-		table.insert(items, {
-			text = string.format("%s (%d files)", key, file_count),
-			value = key,
+		if #items == 0 then
+			vim.notify("TaskNotes: vault index is empty. Try <leader>or to force refresh.", vim.log.levels.WARN)
+			return
+		end
+
+		table.sort(items, function(a, b)
+			return a.value < b.value
+		end)
+		for i, item in ipairs(items) do
+			item.idx = i
+		end
+
+		Snacks.picker.pick({
+			source = "tasknotes_key",
+			title = "Frontmatter Key (vault)",
+			items = items,
+			format = "text",
+			preview = "none",
+			layout = { hidden = { "preview" } },
+			confirm = function(picker, item)
+				picker:close()
+				if item then
+					vim.schedule(function()
+						M.pick_value(item.value, false, "global")
+					end)
+				end
+			end,
 		})
 	end
 
-	if #items == 0 then
-		vim.notify("TaskNotes: vault index is empty. Try <leader>or to force refresh.", vim.log.levels.WARN)
-		return
+	if cache.notes.built then
+		stage_index()
+	else
+		vim.notify("TaskNotes: indexing vault…", vim.log.levels.INFO)
+		cache.notes.build(stage_index)
 	end
-
-	table.sort(items, function(a, b)
-		return a.value < b.value
-	end)
-	for i, item in ipairs(items) do
-		item.idx = i
-	end
-
-	Snacks.picker.pick({
-		source = "tasknotes_key",
-		title = "Frontmatter Key",
-		items = items,
-		format = "text",
-		preview = "none",
-		layout = { hidden = { "preview" } },
-		confirm = function(picker, item)
-			picker:close()
-			if item then
-				vim.schedule(function()
-					M.pick_value(item.value, false)
-				end)
-			end
-		end,
-	})
 end
 
 -- ──────────────────────────────────────────────────────────────────────
--- Shortcut pickers (skip Stage 1)
+-- Shortcut pickers (skip Stage 1, task-only by contract)
 -- ──────────────────────────────────────────────────────────────────────
 
--- Jumps directly to Stage 2 for the 'status' key
+-- Jumps directly to Stage 2 for the 'status' key. Task-only — depends on
+-- live API data (status icons/colors come from /api/filter-options).
 function M.pick_file_by_status()
 	cache.ensure()
-	M.pick_value("status", true)
+	M.pick_value("status", true, "tasks")
 end
 
--- Jumps directly to Stage 2 for the 'tags' key
+-- Jumps directly to Stage 2 for the 'tags' key. Task-only — <leader>ow was
+-- originally documented as a task tag filter.
 function M.pick_file_by_tag()
 	cache.ensure()
-	M.pick_value("tags", true)
+	M.pick_value("tags", true, "tasks")
 end
 
 -- Whole-vault note search by tag (<leader>ow). Two-stage drill-down:

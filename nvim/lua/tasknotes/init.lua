@@ -43,7 +43,7 @@ local function register_keymaps()
 	end
 
 	-- Search + filtering
-	bind("<leader>ok", pickers.pick_key, "Task: Search by frontmatter key")
+	bind("<leader>ok", pickers.pick_key, "Vault: Search by frontmatter key (whole vault)")
 	bind("<leader>or", function()
 		cache.force_refresh()
 		templates.reload()
