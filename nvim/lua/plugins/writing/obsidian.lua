@@ -112,22 +112,97 @@ return {
 		})
 
 		-- Patch Note.save_to_buffer to honour `frontmatter.enabled = false` in ALL
-		-- code paths — not only the BufWritePre autocmd. The LSP rename handler
-		-- (obsidian-ls, lua/obsidian/lsp/handlers/_rename.lua) calls save_to_buffer
-		-- directly, which reserializes the WHOLE frontmatter. obsidian's YAML PARSER
-		-- flattens TaskNotes' nested `timeEntries` (a list of maps) into a single
-		-- quoted string on read, so any parse→reserialize round-trip corrupts it.
-		-- With frontmatter management off, TaskNotes owns it — make save_to_buffer a
-		-- no-op so the block stays byte-for-byte intact. Rename still renames the
-		-- file and updates [[backlinks]] (those go via the WorkspaceEdit, untouched).
-		local Note = require("obsidian").Note
-		local orig_save_to_buffer = Note.save_to_buffer
-		Note.save_to_buffer = function(self, save_opts)
-			if self.should_save_frontmatter and not self:should_save_frontmatter() then
-				return false
+			-- code paths — not only the BufWritePre autocmd. The LSP rename handler
+			-- (obsidian-ls, lua/obsidian/lsp/handlers/_rename.lua) calls save_to_buffer
+			-- directly, which reserializes the WHOLE frontmatter. obsidian's YAML PARSER
+			-- flattens TaskNotes' nested `timeEntries` (a list of maps) into a single
+			-- quoted string on read, so any parse→reserialize round-trip corrupts it.
+			-- With frontmatter management off, TaskNotes owns it — make save_to_buffer a
+			-- no-op so the block stays byte-for-byte intact. Rename still renames the
+			-- file and updates [[backlinks]] (those go via the WorkspaceEdit, untouched).
+			local Note = require("obsidian").Note
+			local orig_save_to_buffer = Note.save_to_buffer
+			Note.save_to_buffer = function(self, save_opts)
+				if self.should_save_frontmatter and not self:should_save_frontmatter() then
+					return false
+				end
+				return orig_save_to_buffer(self, save_opts)
 			end
-			return orig_save_to_buffer(self, save_opts)
-		end
+
+			-- Patch obsidian.picker.util.make_display to prefix filename:lnum:col.
+			-- obsidian.nvim PR #963 ("util cleanup", merged 2026-09-15) changed this
+			-- function to drop the filename prefix when `entry.text` is present. That
+			-- broke the visual contract of pickers fed LSP locations — most visibly
+			-- `:Obsidian backlinks` (commands/backlinks.lua), which renders one row per
+			-- incoming backlink with the matched line as `text` and the source file as
+			-- `filename`. Since then, every backlink row shows just the line, with no
+			-- indication of which note it belongs to (the filename only surfaces in the
+			-- preview pane and buffer name).
+			--
+			-- We restore the pre-#963 format — `icon filename:lnum:col  text` — by
+			-- replacing `M.make_display` on the cached module table. Every picker
+			-- backend (snacks, telescope, mini, fzf, ui) accesses it as a top-level
+			-- local `ut = require("obsidian.picker.util")`, so updating the module
+			-- table in `package.loaded` propagates to all of them at once.
+			--
+			-- The original is captured before we overwrite, and we pcall it as a
+			-- fallback so a future upstream refactor (rename, signature change,
+			-- table→function flip) degrades to current upstream behaviour instead of
+			-- throwing in every picker.
+			do
+				local picker_util = require("obsidian.picker.util")
+				local orig_make_display = picker_util.make_display
+				picker_util.make_display = function(entry)
+					-- Bail out for non-table entries (strings etc.) — mirrors the
+					-- original function's first guard so we don't crash on inputs
+					-- other picker backends may legitimately pass.
+					if type(entry) ~= "table" then
+						local ok, fallback = pcall(orig_make_display, entry)
+						if ok then
+							return fallback
+						end
+						return tostring(entry or "")
+					end
+
+					local Path = require("obsidian.path")
+					local icons = require("obsidian.icons")
+
+					local buf = {}
+					local icon = icons.get_icon(entry)
+					if icon then
+						buf[#buf + 1] = icon
+						buf[#buf + 1] = " "
+					end
+
+					-- Filename prefix with lnum/col. Preserved verbatim from the
+					-- pre-#963 implementation so visual spacing and the `:lnum:col`
+					-- suffix match the historical contract.
+					if entry.filename then
+						buf[#buf + 1] = Path.new(entry.filename):vault_relative_path()
+						if entry.lnum ~= nil then
+							buf[#buf + 1] = ":"
+							buf[#buf + 1] = tostring(entry.lnum)
+							if entry.col ~= nil then
+								buf[#buf + 1] = ":"
+								buf[#buf + 1] = tostring(entry.col)
+							end
+						end
+					end
+
+					-- Text after a single space. If only `user_data` is present
+					-- (some non-LSP pickers), surface that as a fallback to keep the
+					-- row informative instead of empty.
+					if entry.text then
+						buf[#buf + 1] = " "
+						buf[#buf + 1] = entry.text
+					elseif entry.user_data then
+						buf[#buf + 1] = " "
+						buf[#buf + 1] = tostring(entry.user_data)
+					end
+
+					return table.concat(buf, "")
+				end
+			end
 
 		-- Disable documentSymbol on obsidian-ls (marksman provides cleaner rendered symbols)
 		vim.api.nvim_create_autocmd("LspAttach", {
