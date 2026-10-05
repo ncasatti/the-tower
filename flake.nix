@@ -51,7 +51,7 @@
     #   2) nix flake lock --update-input herdr
     #   3) sudo nixos-rebuild switch --flake .#<host>
     herdr = {
-      url = "github:ogulcancelik/herdr?ref=v0.9.1";
+      url = "github:ogulcancelik/herdr?ref=v0.9.3";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
