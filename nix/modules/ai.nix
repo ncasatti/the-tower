@@ -5,6 +5,12 @@
 
 { config, pkgs, lib, ... }:
 
+let
+  # Disabled 2026-10-01: EnvironmentFile (~/.config/gbrain/secrets.env) is
+  # missing, so the unit crash-looped (2180 restarts in one boot). Flip to
+  # true once the secrets file exists.
+  enableLitellm = false;
+in
 {
   # --- LITELLM PROXY CONFIG (declarative) ---
   # This file is auto-managed by home-manager. Edit this Nix module instead.
@@ -28,7 +34,7 @@
   # --- LITELLM SYSTEMD --USER SERVICE ---
   # Note: home-manager's systemd.user.services.<name> uses the systemd unit
   # schema (Unit / Service / Install submodules), NOT flat keys.
-  systemd.user.services.litellm = {
+  systemd.user.services.litellm = lib.mkIf enableLitellm {
     Unit = {
       Description = "LiteLLM proxy: MiniMax-M3 and MiniMax-M2.7-highspeed";
     };
