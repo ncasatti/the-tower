@@ -118,7 +118,26 @@
   systemd.user.services.hermes-agent.Service.Environment =
     lib.mkAfter [ "HERMES_MANAGED=false" ];
   systemd.user.services.hermes-backend.Service.Environment =
-    lib.mkAfter [ "HERMES_MANAGED=false" ];
+    lib.mkAfter [
+      "HERMES_MANAGED=false"
+
+      # ── Browser tools in desktop sessions ─────────────────────────────
+      # Desktop sessions run in-process inside hermes-backend, which does
+      # NOT load profile .env files. Hermes' browser gate
+      # (tools/browser_tool_install.py:_chromium_installed) needs
+      # AGENT_BROWSER_EXECUTABLE_PATH or `chromium` on PATH; without it
+      # every browser_* tool is silently dropped (cached until restart).
+      # The Playwright-bundled Chromium cannot run on NixOS (libglib).
+      "AGENT_BROWSER_EXECUTABLE_PATH=${pkgs.chromium}/bin/chromium"
+      "AGENT_BROWSER_ARGS=--ozone-platform=wayland"
+
+      # Headed Chromium needs the Wayland socket. The unit starts at boot
+      # (linger) before Hyprland imports WAYLAND_DISPLAY into the systemd
+      # user manager, and graphical-session.target is never reached here
+      # (see polkit.nix), so ordering cannot fix it. Hyprland's socket is
+      # stable at wayland-1 on this host.
+      "WAYLAND_DISPLAY=wayland-1"
+    ];
 
   home.activation.hermesDisableManaged =
     lib.hm.dag.entryAfter [ "hermesAgentSetup" ] ''
