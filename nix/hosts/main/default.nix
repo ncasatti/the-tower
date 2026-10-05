@@ -37,6 +37,9 @@
   # is the difference between a 30-second rollback and a rescue USB. See
   # boot-lockout-postmortem.md §10.4.
   boot.loader.systemd-boot.configurationLimit = 5;
+  # Memtest86+ boot entry for offline RAM diagnostics (full-coverage test,
+  # unlike userspace memtester which only touches free memory).
+  boot.loader.systemd-boot.memtest86.enable = true;
 
   # --- STAGE 1 RESCUE ACCESS ---
   # Unauthenticated root shell when the initrd drops to emergency.target.
