@@ -8,6 +8,12 @@ local M = {
 	vault_path = vim.fn.expand("~/.the-grid/zettelkasten"),
 	tasks_folder = "TaskNotes/Tasks",
 	api_url = "http://localhost:8080/api",
+	-- API auth token. TaskNotes' HTTP API now requires a bearer token (set
+	-- in Obsidian's HTTP API settings). This is a private local API on
+	-- 127.0.0.1, so the token is committed for convenience. If you ever
+	-- expose the API beyond loopback, move this to an env var and remove
+	-- from the repo.
+	api_token = "dRYfzwv2MqArMWNLFnpjnfg48_pWfDr86tjvoQ8RQEc",
 	cache_ttl = 30, -- seconds, applies to local frontmatter cache only
 	-- Defaults for NLP-driven create_task when parser doesn't provide them.
 	-- Live statuses/priorities are pulled from /api/filter-options.

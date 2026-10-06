@@ -15,15 +15,26 @@ function M._encode_id(path)
 	end))
 end
 
+-- Builds the standard headers table for every request. Adds the bearer
+-- token (config.api_token) when set; the API started requiring it after
+-- a 2026-08-ish update. The header is omitted entirely when the token is
+-- empty, so a misconfigured client still works against a (deprecated)
+-- token-less server.
+local function build_headers()
+	local h = { content_type = "application/json" }
+	if config.api_token and config.api_token ~= "" then
+		h.Authorization = "Bearer " .. config.api_token
+	end
+	return h
+end
+
 function M.request(method, endpoint, params)
 	local curl = require("plenary.curl")
 	local url = config.api_url .. endpoint
 	-- See M.health for rationale: `on_error` prevents plenary from
 	-- raising error() from its libuv callback when curl exit code != 0.
 	local options = {
-		headers = {
-			content_type = "application/json",
-		},
+		headers = build_headers(),
 		on_error = function() end,
 	}
 
@@ -82,6 +93,7 @@ function M.health()
 	-- the absent body / non-200 status.
 	local ok, res = pcall(curl.get, config.api_url .. "/health", {
 		timeout = 1500,
+		headers = build_headers(),
 		on_error = function() end,
 	})
 	if not ok or not res or res.status ~= 200 or not res.body or res.body == "" then
