@@ -57,8 +57,8 @@ Colors = {
 }
 Elements = {
 	bold = Colors.bold_orange,
-	code = Colors.code_blue,
-	italic = Colors.cyan_gray5,
+	code = Colors.cyan_gray3,
+	italic = Colors.blue_dark,
 	selection = Colors.gray2, -- darker box → white selection text pops more
 	comments = Colors.gray2,
 	cursor = Colors.white1,
