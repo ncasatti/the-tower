@@ -26,6 +26,7 @@
     jq
     tldr
     lazygit
+    lazydocker
     fish
     rclone
     speedtest-cli
