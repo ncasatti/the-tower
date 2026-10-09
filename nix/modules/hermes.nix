@@ -14,22 +14,60 @@
 # so systemd keeps the user slice alive after logout.
 { inputs, pkgs, lib, ... }:
 
+let
+  # Session token shared by hermes-backend and the hermes-desktop wrapper.
+  # Runtime path (never a Nix path literal: that would copy the secret into
+  # the world-readable store).
+  desktopTokenFile = "/home/flyn/.hermes/secrets/desktop-token";
+
+  # Idempotent: creates the token only when absent or empty, never rotates
+  # an existing one (rotation would 401 any open desktop session).
+  ensureDesktopToken = pkgs.writeShellScript "hermes-ensure-desktop-token" ''
+    set -eu
+    PATH=${lib.makeBinPath [ pkgs.coreutils ]}
+    f=${lib.escapeShellArg desktopTokenFile}
+    if [ -s "$f" ]; then exit 0; fi
+    umask 077
+    install -d -m 0700 "$(dirname "$f")"
+    tmp="$(mktemp "$f.XXXXXX")"
+    head -c 32 /dev/urandom | base64 | tr '+/' '-_' | tr -d '=\n' > "$tmp"
+    chmod 0600 "$tmp"
+    mv -f "$tmp" "$f"
+    echo "hermes-ensure-desktop-token: minted new session token at $f" >&2
+  '';
+
+  # pkgs.hermes-agent is the overlay alias (minimal build). Add only the
+  # dependency groups a phase needs; `anthropic` = the Claude/Anthropic SDK
+  # (initializes the provider; calling Claude still needs an API key/auth).
+  hermesPkg = pkgs.hermes-agent.override {
+    extraDependencyGroups = [
+      "anthropic"
+      "messaging"
+    ];
+  };
+
+  # The upstream HM module bakes HERMES_MANAGED=home-manager into the
+  # desktop launcher via desktop.package.override { extraEnv = ...; }.
+  # The env var wins over the ~/.hermes/.managed marker, so the desktop app
+  # (and every terminal/CLI it spawns) stays read-only even though the
+  # services and the marker say "false". Wrap override so our value lands
+  # last in extraEnv.
+  hermesDesktopBase = hermesPkg.hermesDesktop;
+  hermesDesktopUnmanaged = hermesDesktopBase // {
+    override = args: hermesDesktopBase.override (args // {
+      extraEnv = (args.extraEnv or { }) // { HERMES_MANAGED = "false"; };
+    });
+  };
+in
 {
   imports = [ inputs.hermes-agent.homeManagerModules.default ];
 
   # ── CLI + Desktop app ─────────────────────────────────────────────────
   programs.hermes-agent = {
     enable = true;
-    # pkgs.hermes-agent is the overlay alias (minimal build). Add only the
-    # dependency groups a phase needs; `anthropic` = the Claude/Anthropic SDK
-    # (initializes the provider; calling Claude still needs an API key/auth).
-    package = pkgs.hermes-agent.override {
-      extraDependencyGroups = [
-        "anthropic"
-        "messaging"
-      ];
-    };
+    package = hermesPkg;
     desktop.enable = true;
+    desktop.package = hermesDesktopUnmanaged;
   };
 
   # ── Services (gateway + web dashboard) ────────────────────────────────
@@ -66,10 +104,10 @@
       # desktop app.  Without this, the backend mints a random token on
       # every restart and the desktop loses auth (401 loop on /api/*,
       # which breaks transcript hydration and makes messages vanish).
-      # Generate once:
-      #   python3 -c "import secrets; print(secrets.token_urlsafe(32), end='')" \
-      #     > ~/.hermes/secrets/desktop-token && chmod 600 ~/.hermes/secrets/desktop-token
-      sessionTokenFile = "/home/flyn/.hermes/secrets/desktop-token";
+      # Self-provisioned: hermes-backend's ExecStartPre (below) mints the
+      # file when missing, so wiping ~/.hermes no longer bricks the backend
+      # (1300+ restart loop) and the desktop app ("REMOTE_TOKEN is not set").
+      sessionTokenFile = desktopTokenFile;
     };
 
     # ── Declarative MCP servers ───────────────────────────────────────
@@ -138,6 +176,21 @@
       # stable at wayland-1 on this host.
       "WAYLAND_DISPLAY=wayland-1"
     ];
+
+  # ── Session token self-provisioning ──────────────────────────────────
+  # Runs before every backend start (including Restart= retries), so a
+  # deleted token heals within one restart cycle. The upstream module
+  # defines no ExecStartPre, so there is nothing to merge with.
+  systemd.user.services.hermes-backend.Service.ExecStartPre = [
+    "${ensureDesktopToken}"
+  ];
+
+  # Also at activation, so the desktop wrapper finds the token right after
+  # a rebuild even if the backend has not restarted yet.
+  home.activation.hermesDesktopToken =
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      $DRY_RUN_CMD ${ensureDesktopToken}
+    '';
 
   home.activation.hermesDisableManaged =
     lib.hm.dag.entryAfter [ "hermesAgentSetup" ] ''
