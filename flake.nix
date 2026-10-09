@@ -65,7 +65,7 @@
     #   2) nix flake lock --update-input hermes-agent
     #   3) sudo nixos-rebuild switch --flake .#<host>
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent?ref=v2026.9.24";
+      url = "github:NousResearch/hermes-agent?ref=v0.21.6";
     };
 
     # NixOS-WSL: run full NixOS as a WSL2 distribution (the `wsl` host).
