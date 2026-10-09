@@ -5,6 +5,7 @@
     zen-browser = inputs.zen-browser.packages.${prev.stdenv.hostPlatform.system}.default;
     opencode = inputs.opencode-nix.packages.${prev.stdenv.hostPlatform.system}.default;
     clingy = inputs.clingy.packages.${prev.stdenv.hostPlatform.system}.default;
+    pylon = inputs.pylon.packages.${prev.stdenv.hostPlatform.system}.default;
     claude-code = inputs.claude-code.packages.${prev.stdenv.hostPlatform.system}.default;
     herdr = inputs.herdr.packages.${prev.stdenv.hostPlatform.system}.default;
     # `minimal` (not `.default` = full): the from-source build stays small.

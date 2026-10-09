@@ -370,6 +370,22 @@
         "type": "github"
       }
     },
+    "nixpkgs_5": {
+      "locked": {
+        "lastModified": 1791260994,
+        "narHash": "sha256-Miqqk/ammqnTUxaoCyvtwoPeLbI1ksFyLxi/CazZpWY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "151fa4e8ddfdd8dd25d945ad94ed54a13de9f6e4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "npm-lockfile-fix": {
       "inputs": {
         "nixpkgs": [
@@ -410,6 +426,24 @@
         "owner": "dominicnunez",
         "repo": "opencode-nix",
         "type": "github"
+      }
+    },
+    "pylon": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_5"
+      },
+      "locked": {
+        "lastModified": 1791488414,
+        "narHash": "sha256-xmuV4fnQ1hjRjvDJODixEUbZIqHy8rXxhiqxudQwlEA=",
+        "ref": "refs/heads/main",
+        "rev": "460d7969a1cbeb6fa5ec8972cbb59554fe114d77",
+        "revCount": 12,
+        "type": "git",
+        "url": "file:///home/flyn/.the-grid/systems/github/pylon"
+      },
+      "original": {
+        "type": "git",
+        "url": "file:///home/flyn/.the-grid/systems/github/pylon"
       }
     },
     "pyproject-build-systems": {
@@ -474,6 +508,7 @@
         "nixos-wsl": "nixos-wsl",
         "nixpkgs": "nixpkgs_4",
         "opencode-nix": "opencode-nix",
+        "pylon": "pylon",
         "zen-browser": "zen-browser"
       }
     },

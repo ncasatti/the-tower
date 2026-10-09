@@ -69,6 +69,7 @@ in
     cool-retro-term
     kitty
     obsidian
+    pylon        # local flake input, only present on this host (see flake.nix)
     tidal-hifi   # wrapped above: VA-API decode disabled (ADR-002)
 
     # Screenshot & Multimedia dependencies

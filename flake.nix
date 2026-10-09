@@ -77,6 +77,19 @@
       url = "github:nix-community/NixOS-WSL/add6b01c7ca72240046b5d541a74845423f1ee35";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # pylon: per-repo control interface runtime (own project, not published).
+    # LOCAL input: the repo only exists on `main`, so only `main` installs it
+    # (nix/hosts/main/home.nix). Inputs are fetched lazily, so the other hosts
+    # evaluate fine as long as they don't reference pkgs.pylon. Intentionally
+    # NOT following nixpkgs: pylon needs the Go toolchain from its own lock.
+    # Update flow:
+    #   1) commit in ~/.the-grid/systems/github/pylon
+    #   2) nix flake update pylon
+    #   3) sudo nixos-rebuild switch --flake .#main
+    pylon = {
+      url = "git+file:///home/flyn/.the-grid/systems/github/pylon";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, agenix, ... }@inputs:
