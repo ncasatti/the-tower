@@ -11,9 +11,6 @@
       user.email = "ncasatti@gmail.com";
       core.editor = "nvim";
       credential.helper = "store";
-    };
-    signing.format = null;
-    extraConfig = {
       pull = {
         rebase = true;
       };
@@ -21,5 +18,6 @@
         autoStash = true;
       };
     };
+    signing.format = null;
   };
 }
