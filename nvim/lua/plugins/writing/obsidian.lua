@@ -213,5 +213,45 @@ return {
 				end
 			end,
 		})
+
+		-- Autostart obsidian-ls on markdown buffers inside an Obsidian vault.
+		-- obsidian.nvim deprecated its nvim-cmp completion in favour of its
+		-- built-in LSP server (lua/obsidian/lsp/init.lua), but the plugin
+		-- itself never wires up autostart — you have to opt in. Without this,
+		-- wikilink completion inside YAML frontmatter doesn't work, because
+		-- marksman (the only other markdown LSP we enable) deliberately
+		-- treats the `---...---` block as opaque prose and refuses to emit
+		-- completion items for it.
+		--
+		-- We only start the server when the buffer resolves to a known
+		-- workspace, so markdown files outside the vault (READMEs in other
+		-- repos, scratch notes, etc.) don't accidentally pull obsidian-ls in.
+		-- The LspAttach hook above then runs and disables documentSymbol as
+		-- planned, so we don't double up with marksman's symbols.
+		vim.api.nvim_create_autocmd("FileType", {
+			pattern = "markdown",
+			callback = function(args)
+				local bufnr = args.buf
+				local bufname = vim.api.nvim_buf_get_name(bufnr)
+				if bufname == "" then
+					return
+				end
+				local ok, workspace_dir =
+					pcall(require("obsidian").api.resolve_workspace_dir, bufname)
+				if ok and workspace_dir and workspace_dir ~= "" then
+					-- Defer to BufEnter so the buffer is fully loaded (and so
+					-- marksman has a chance to attach first if it wants to).
+					-- Calling lsp.start too early on a scratch buffer races
+					-- with the ftplugin and can leak orphan clients.
+					vim.api.nvim_create_autocmd("BufEnter", {
+						buffer = bufnr,
+						once = true,
+						callback = function()
+							require("obsidian").lsp.start(bufnr)
+						end,
+					})
+				end
+			end,
+		})
 	end,
 }

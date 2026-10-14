@@ -26,6 +26,59 @@ return {
 	config = function()
 		local conform = require("conform")
 
+		-- mdformat-front-matters decides the quote style for every YAML
+		-- frontmatter value. When a value contains `[[` or `]]` (an Obsidian
+		-- wikilink), its internal heuristics flag the value as a potential
+		-- flow-sequence start and wrap it in single quotes instead of
+		-- preserving the original double quotes — which is technically valid
+		-- YAML but breaks the way the rest of the Obsidian stack (obsidian-ls,
+		-- dataview, the frontmatter UI) interprets the value.
+		--
+		-- Workaround: when the frontmatter contains wikilink markers, run
+		-- mdformat with only the wikilink extension enabled (no front_matters
+		-- normalization). This preserves the user's chosen quote style and
+		-- keeps mdformat-wikilink active to protect the `[[...]]` token
+		-- from backslash-escaping.
+		--
+		-- Detection is cheap: read just the first N lines up to the closing
+		-- `---` of the frontmatter and regex for `[[`/`]]`. We don't
+		-- actually parse the YAML — we're not asking "is this a list of
+		-- wikilinks?", we're asking "is there any wikilink token anywhere
+		-- in the frontmatter?".
+		local function frontmatter_has_wikilinks(bufnr)
+			bufnr = bufnr or vim.api.nvim_get_current_buf()
+			-- Read up to 200 lines — frontmatter is virtually always
+			-- < 100 lines, this gives a generous ceiling.
+			local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 200, false)
+			if not lines or #lines == 0 or lines[1] ~= "---" then
+				return false
+			end
+			-- Find the closing `---` (line containing only "---"). Skip
+			-- the opening one at index 1.
+			for i = 2, #lines do
+				if lines[i] == "---" then
+					return false -- reached end of frontmatter without seeing wikilinks
+				end
+				if lines[i]:find("%[%[") or lines[i]:find("%]%]") then
+					return true
+				end
+			end
+			return false
+		end
+
+		-- conform's `prepend_args` accepts a function (self, ctx) -> string[].
+		-- We return either the normal chain (`--sort-front-matter`) or the
+		-- wikilink-safe chain (`--extensions=wikilink`) per buffer. Both
+		-- extensions are auto-discovered by mdformat because they're
+		-- installed; passing --extensions overrides the auto-set and is the
+		-- documented way to drop a specific extension for one invocation.
+		local function mdformat_prepend_args(_, ctx)
+			if frontmatter_has_wikilinks(ctx.buf) then
+				return { "--extensions=wikilink" }
+			end
+			return { "--sort-front-matter" }
+		end
+
 		conform.setup({
 			-- Formatters by filetype
 			formatters_by_ft = {
@@ -64,7 +117,7 @@ return {
 					prepend_args = { "--profile", "black" }, -- Compatible with black
 				},
 				mdformat = {
-					prepend_args = { "--sort-front-matter" },
+					prepend_args = mdformat_prepend_args,
 				},
 			},
 		})
