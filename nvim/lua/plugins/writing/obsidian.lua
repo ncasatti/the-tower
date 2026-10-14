@@ -228,6 +228,13 @@ return {
 		-- repos, scratch notes, etc.) don't accidentally pull obsidian-ls in.
 		-- The LspAttach hook above then runs and disables documentSymbol as
 		-- planned, so we don't double up with marksman's symbols.
+		--
+		-- The LSP entry point is `require("obsidian.lsp").start(buf)`, NOT
+		-- `require("obsidian").lsp.start(buf)` — obsidian.nvim exposes its
+		-- LSP module as a submodule (see lua/obsidian/init.lua:5-26, which
+		-- assigns `obsidian.api`, `obsidian.commands`, etc. but never
+		-- `obsidian.lsp`). Calling `.lsp` on the main module returns nil and
+		-- throws inside the BufEnter callback.
 		vim.api.nvim_create_autocmd("FileType", {
 			pattern = "markdown",
 			callback = function(args)
@@ -247,7 +254,15 @@ return {
 						buffer = bufnr,
 						once = true,
 						callback = function()
-							require("obsidian").lsp.start(bufnr)
+							local lsp_ok, lsp_err = pcall(function()
+								require("obsidian.lsp").start(bufnr)
+							end)
+							if not lsp_ok then
+								vim.notify(
+									"[obsidian.nvim] failed to start obsidian-ls: " .. tostring(lsp_err),
+									vim.log.levels.WARN
+								)
+							end
 						end,
 					})
 				end
