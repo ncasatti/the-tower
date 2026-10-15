@@ -50,7 +50,7 @@ const vec3 Balance = vec3(0.6, 1.0, 1.0);
  * @min -1.0
  * @max 1.0
  */
-const float VibranceStrength = 0.25;
+const float VibranceStrength = 0.3;
 
 #define WithQuickAndDirtyLuminancePreservation
 const float LuminancePreservationFactor = 15.0;
