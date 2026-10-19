@@ -51,7 +51,7 @@
     #   2) nix flake lock --update-input herdr
     #   3) sudo nixos-rebuild switch --flake .#<host>
     herdr = {
-      url = "github:ogulcancelik/herdr?ref=v0.9.4";
+      url = "github:ogulcancelik/herdr?ref=v0.9.5";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -65,7 +65,7 @@
     #   2) nix flake lock --update-input hermes-agent
     #   3) sudo nixos-rebuild switch --flake .#<host>
     hermes-agent = {
-      url = "github:NousResearch/hermes-agent?ref=v0.21.7";
+      url = "github:NousResearch/hermes-agent?ref=v0.22.2";
     };
 
     # NixOS-WSL: run full NixOS as a WSL2 distribution (the `wsl` host).
