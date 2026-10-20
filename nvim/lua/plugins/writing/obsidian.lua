@@ -89,6 +89,18 @@ return {
 				folder = "Zettelkasten/references/attachments",
 			},
 
+			-- gitignore-style filters applied to the note scanner. Syncthing drops
+			-- versioned copies of every modified/removed file under `.stversions/`
+			-- and obsidian.nvim picks them up on tags/tasks/backlinks/search as
+			-- ghost duplicates. Pattern must end with `/` to be directory-scoped
+			-- (matches the directory itself + every file inside); without it,
+			-- `.stversions` would only match the literal folder name and miss
+			-- files like `.stversions/foo.md`. `.obsidian/` is also added for
+			-- vault metadata that obsidian.nvim's own scanner otherwise indexes.
+			file = {
+				ignore_filters = { ".stversions/", ".obsidian/" },
+			},
+
 			-- Completion is deprecated, now provided via the built-in obsidian-ls
 			-- completion = {
 			--   nvim_cmp = true,
