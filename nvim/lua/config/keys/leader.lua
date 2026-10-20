@@ -3,17 +3,33 @@
 
 -- Misc
 vim.keymap.set("n", "<leader>,", "<S-i>", { noremap = true, desc = "Insert at line start" })
-vim.keymap.set("n", "<leader>k", "ggVGy", { noremap = true, desc = "Yank entire buffer" })
+vim.keymap.set("n", "<leader>k", "ggVG", { noremap = true, desc = "Yank entire buffer" })
 -- Toggle wrap + linebreak + showbreak together. With `linebreak` off, Vim cuts
 -- at any column (mid-link, mid-word); toggling both keeps wrap behavior sane
 -- for long links and prose.
 vim.keymap.set("n", "<leader>W", function()
-	local next_state = not vim.opt.wrap:get()
-	vim.opt.wrap = next_state
-	vim.opt.linebreak = next_state
-	vim.opt.showbreak = next_state and " " or ""
+	-- Per-window toggle. nvim 0.12.2 leaks vim.wo.X=v to the global for global-local
+	-- options (wrap, linebreak, showbreak). Use the explicit API which keeps the
+	-- global untouched (verified via nvim_get_option_value({scope='global'})).
+	local scope = { scope = "local", win = 0 }
+	local cur = vim.api.nvim_get_option_value("wrap", scope)
+	local next_state = not cur
+	-- nabla.nvim (autogen) snapshots wo.wrap on enable_virt() and restores it on
+	-- every InsertLeave/TextChanged, reverting this toggle. Cycle it around the
+	-- change so its snapshot captures the new state.
+	local nabla = package.loaded["nabla"]
+	local nabla_on = nabla ~= nil and nabla.is_virt_enabled()
+	if nabla_on then
+		nabla.disable_virt()
+	end
+	vim.api.nvim_set_option_value("wrap", next_state, scope)
+	vim.api.nvim_set_option_value("linebreak", next_state, scope)
+	vim.api.nvim_set_option_value("showbreak", next_state and "" or "", scope)
+	if nabla_on then
+		nabla.enable_virt({ autogen = true })
+	end
 	-- vim.notify("wrap: " .. (next_state and "on" or "off"), vim.log.levels.INFO)
-end, { desc = "Toggle wrap + linebreak" })
+end, { desc = "Toggle wrap + linebreak (per-window)" })
 vim.keymap.set("n", "<leader>to", "<cmd>b#<CR>", { noremap = true, desc = "Previous buffer" })
 
 -- Window splits
