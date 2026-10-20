@@ -14,22 +14,31 @@ vim.keymap.set("n", "<leader>W", function()
 	local scope = { scope = "local", win = 0 }
 	local cur = vim.api.nvim_get_option_value("wrap", scope)
 	local next_state = not cur
-	-- nabla.nvim (autogen) snapshots wo.wrap on enable_virt() and restores it on
-	-- every InsertLeave/TextChanged, reverting this toggle. Cycle it around the
-	-- change so its snapshot captures the new state.
-	local nabla = package.loaded["nabla"]
-	local nabla_on = nabla ~= nil and nabla.is_virt_enabled()
-	if nabla_on then
-		nabla.disable_virt()
-	end
 	vim.api.nvim_set_option_value("wrap", next_state, scope)
 	vim.api.nvim_set_option_value("linebreak", next_state, scope)
 	vim.api.nvim_set_option_value("showbreak", next_state and "" or "", scope)
-	if nabla_on then
-		nabla.enable_virt({ autogen = true })
-	end
+	-- Pin the choice per-window and reapply after any autocmd (most notably
+	-- nabla.nvim's InsertLeave/TextChanged which restores its snapshot of
+	-- `saved_wrapsettings[win]` and reverts the toggle). The autocmd is keyed
+	-- by window id (unique per split) and recursive=false so we never echo it
+	-- back into ourselves.
+	local win = vim.api.nvim_get_current_win()
+	local tag = string.format("__leader_w_lock_%d__", win)
+	pcall(vim.api.nvim_del_augroup_by_name, tag)
+	vim.api.nvim_create_augroup(tag, { clear = true })
+	vim.api.nvim_create_autocmd({ "InsertLeave", "BufWinEnter", "WinEnter", "BufEnter" }, {
+		group = tag,
+		callback = function()
+			local s = { scope = "local", win = win }
+			if vim.api.nvim_win_is_valid(win) and vim.api.nvim_get_option_value("wrap", s) ~= next_state then
+				vim.api.nvim_set_option_value("wrap", next_state, s)
+				vim.api.nvim_set_option_value("linebreak", next_state, s)
+				vim.api.nvim_set_option_value("showbreak", next_state and "" or "", s)
+			end
+		end,
+	})
 	-- vim.notify("wrap: " .. (next_state and "on" or "off"), vim.log.levels.INFO)
-end, { desc = "Toggle wrap + linebreak (per-window)" })
+end, { desc = "Toggle wrap + linebreak (per-window, pinned)" })
 vim.keymap.set("n", "<leader>to", "<cmd>b#<CR>", { noremap = true, desc = "Previous buffer" })
 
 -- Window splits
