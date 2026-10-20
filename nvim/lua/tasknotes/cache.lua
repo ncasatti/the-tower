@@ -246,8 +246,16 @@ function M.notes.build(on_done)
 	end
 	M.notes.building = true
 
+	-- Exclude syncthing's `.stversions/` (versioned copies of every modified
+	-- or removed file) so the same note doesn't appear duplicated in tag pickers.
+	-- `.obsidian/` and `Templates/` are app-internal and weren't useful in our
+	-- tag index either, so we drop them all together.
 	local files = vim.fs.find(function(name, dir)
-		return name:match("%.md$") and not dir:find("/.obsidian", 1, true) and not dir:find("/Templates", 1, true)
+		if not name:match("%.md$") then return false end
+		if dir:find("/.obsidian", 1, true) then return false end
+		if dir:find("/.stversions", 1, true) then return false end
+		if dir:find("/Templates", 1, true) then return false end
+		return true
 	end, { path = config.vault_path, type = "file", limit = math.huge })
 
 	local entries = {}
