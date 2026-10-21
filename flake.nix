@@ -18,8 +18,20 @@
     };
 
     # Zen Browser (community flake, recommended by NixOS wiki)
+    #
+    # PINNED to 458cd161 (zen 1.23.2b). Do NOT bump to a newer rev: the
+    # upstream flake bumped to 1.23.3b but its sources.json hash
+    # (sha256-d9cHic…) does not match the tarball GitHub actually serves for
+    # that release tag (sha256-uyBF0+…) — upstream re-uploaded the artifact
+    # without refreshing the hash, which fails the build with
+    # "hash mismatch in fixed-output derivation". Unpin once youwen5 fixes
+    # sources.json.
+    #
+    # Update flow (when that happens):
+    #   git ls-remote https://github.com/youwen5/zen-browser-flake HEAD
+    #   → replace the rev below → nix flake update zen-browser
     zen-browser = {
-      url = "github:youwen5/zen-browser-flake";
+      url = "github:youwen5/zen-browser-flake/458cd16116c362a5e92d5db6bdc3599e4e8b1f4a";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -74,7 +86,7 @@
     # Update flow: git ls-remote https://github.com/nix-community/NixOS-WSL
     #   → pick the newest release tag's SHA → replace below → nix flake lock.
     nixos-wsl = {
-      url = "github:nix-community/NixOS-WSL/add6b01c7ca72240046b5d541a74845423f1ee35";
+      url = "github:nix-community/NixOS-WSL/72c92b11bb8289e6651c7fef29cc0a885fd6a255";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 

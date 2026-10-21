@@ -4,8 +4,10 @@
 # keeps useful boot/session logs while bounding disk pressure.
 { ... }:
 {
-  # services.journald.settings.Journal.SystemMaxUse = "400M";
-  services.journald.extraConfig = ''
-    SystemMaxUse=400M
-  '';
+  # Migrated from `services.journald.extraConfig` (a raw INI string) to
+  # `services.journald.settings.Journal` after nixpkgs made extraConfig a
+  # no-op assertion failure. Same effective config: 400 MiB cap instead of
+  # the default 4 GiB / 15%-of-fs, which is too generous for our root
+  # partitions.
+  services.journald.settings.Journal.SystemMaxUse = "400M";
 }
