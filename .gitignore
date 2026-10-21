@@ -2,6 +2,7 @@
 result
 result-*
 docs/
+.todo.md
 
 # Backup files
 *.backup
