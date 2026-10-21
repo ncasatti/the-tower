@@ -10,8 +10,18 @@ end
 
 # A copy of fish's internal cd function. This makes it possible to use
 # `alias cd=z` without causing an infinite loop.
+#
+# Mirrors zoxide 0.10.0's own `init.fish`. The primary path resolves cd.fish
+# RELATIVE TO THE BINARY (`status list-files`), which survives the fish 4.9
+# layout change that moved share/fish/functions -> etc/fish/functions and left
+# `$__fish_data_dir/functions` empty. The $__fish_data_dir branch is kept only
+# as a fallback for the non-interactive case.
 if ! builtin functions --query __zoxide_cd_internal
-    string replace --regex -- '^function cd\s' 'function __zoxide_cd_internal ' <$__fish_data_dir/functions/cd.fish | source
+    if status list-files functions/cd.fish &>/dev/null
+        status get-file functions/cd.fish | string replace --regex -- '^function cd\s' 'function __zoxide_cd_internal ' | source
+    else
+        string replace --regex -- '^function cd\s' 'function __zoxide_cd_internal ' <$__fish_data_dir/functions/cd.fish | source
+    end
 end
 
 # cd + custom logic based on the value of _ZO_ECHO.
