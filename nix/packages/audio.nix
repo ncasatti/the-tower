@@ -20,6 +20,7 @@
     carla           # Plugin host (LV2, VST, SF2, SFZ)
     qjackctl        # JACK control GUI
     qpwgraph        # PipeWire graph GUI
+    pipewire.jack   # pw-jack: run JACK clients against PipeWire's libjack (see fish/conf.d/39-audio-pw-jack.fish)
 
     # --- LV2/LADSPA Plugins ---
     calf            # LV2 plugin suite (EQ, compressors, reverbs)
