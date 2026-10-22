@@ -21,12 +21,17 @@
   # Override the default quantum (1024 samples = ~21.3ms @ 48kHz) for live
   # monitoring with Decent Sampler and similar hosts. 256 = ~5.3ms.
   # Si aparecen xruns (audio dropouts), subir a 512.
+  #
   # NOTA: `extraConfig.pipewire` serializa a JSON — no sirve para la sintaxis
-  # custom de PipeWire. `configPackages` embebe raw text en `pipewire.conf.d/`.
+  # custom de PipeWire. `configPackages` embebe raw text, pero el layout
+  # importa: el módulo de nixpkgs construye `configs` con
+  # `pathsToLink = [ "/share/pipewire" ]`, así que sólo enlaza lo que esté
+  # bajo `$out/share/pipewire`. Con `$out/pipewire.conf.d` el buildEnv queda
+  # VACÍO y el override se pierde en silencio (sin error, sin warning).
   services.pipewire.configPackages = [
     (pkgs.runCommand "99-low-latency" { } ''
-      mkdir -p $out/pipewire.conf.d
-      cat > $out/pipewire.conf.d/99-low-latency.conf <<'EOF'
+      mkdir -p $out/share/pipewire/pipewire.conf.d
+      cat > $out/share/pipewire/pipewire.conf.d/99-low-latency.conf <<'EOF'
       context.properties = {
         default.clock.quantum = 256
         default.clock.min-quantum = 32
