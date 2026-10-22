@@ -33,6 +33,20 @@
   # boot-lockout-postmortem.md §10.4.
   boot.loader.systemd-boot.configurationLimit = 5;
 
+  # --- KERNEL: TEMPORARY PIN TO 6.12 LTS ---
+  # Since the 2026-10-21 nixpkgs bump (kernel 6.18.26 -> 6.18.57, systemd
+  # 260.1 -> 262) waking from s2idle by opening the lid powers the machine
+  # off: PID 1 logs "Received SIGRTMIN+4." with no sender PID (kernel-origin)
+  # and starts poweroff.target. 184 resumes on 6.18.26 -> 0 poweroffs;
+  # 4 resumes on 6.18.57 -> 4 poweroffs. rtcwake/systemctl-suspend wakes do
+  # NOT reproduce it; only lid-open wake does.
+  # This pin isolates kernel vs systemd. It tracks the 6.12 LTS branch, so
+  # it still receives patch releases. Remove it (back to the default kernel)
+  # once a 6.18.x with the fix lands — candidate upstream fix:
+  # "ACPI: button: Report wakeup key only for power button wakeups"
+  # (fixes 16f70feaabe9). Vault: systems/the-tower (notebook lid poweroff).
+  boot.kernelPackages = pkgs.linuxPackages_6_12;
+
   # --- NETWORKING ---
   networking.hostName            = "the-grid-notebook";
   networking.networkmanager.enable = true;
