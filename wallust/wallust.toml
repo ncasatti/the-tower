@@ -14,7 +14,7 @@ backend = "full"
 # - labmixed: lab + fallback RGB (default robusto)
 # - lch:      lab en coordenadas cilíndricas
 # - lchmixed: igual con fallback
-color_space = "lab"
+color_space = "labmixed"
 
 
 # Use the most prominent colors in a way that makes sense, a scheme:
@@ -22,14 +22,14 @@ color_space = "lab"
 # - harddark/harddark16: igual pero con hues "duros" (sin interpolación), 16-color usa opacity tricks
 # - softdark/softdark16: tonos pastel oscuros
 # - light/softlight:     invertido (claro)
-palette = "harddark16"
+palette = "light"
 
 # Difference between similar colors, used by the colorspace:
 # - 1:     indistinguibles al ojo
 # - 2-10:  perceptibles al vistazo (tu valor)
 # - 11-49: más similares que opuestos
 # - 100:   colores opuestos exactos
-threshold = 20
+threshold = 15
 
 [templates]
 cava.template = 'colors-cava'
