@@ -22,14 +22,14 @@ color_space = "lab"
 # - harddark/harddark16: igual pero con hues "duros" (sin interpolación), 16-color usa opacity tricks
 # - softdark/softdark16: tonos pastel oscuros
 # - light/softlight:     invertido (claro)
-palette = "dark16"
+palette = "harddark16"
 
 # Difference between similar colors, used by the colorspace:
 # - 1:     indistinguibles al ojo
 # - 2-10:  perceptibles al vistazo (tu valor)
 # - 11-49: más similares que opuestos
 # - 100:   colores opuestos exactos
-threshold = 10
+threshold = 20
 
 [templates]
 cava.template = 'colors-cava'
