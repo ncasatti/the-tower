@@ -20,6 +20,7 @@
     ../../modules/docker.nix
     ../../modules/fish.nix
     ../../modules/syncthing.nix
+    ../../modules/gaming.nix   # Steam + GE-Proton + Faugus (Battle.net)
   ];
 
   # --- PLATFORM ---
