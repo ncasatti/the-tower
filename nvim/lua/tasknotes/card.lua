@@ -211,7 +211,9 @@ local function card_buffers()
 end
 
 -- Builds the context of a buffer from the current cache and its lines.
-local function context_for(buf)
+-- Exported so the side panel renders the exact same context as the
+-- inline card.
+function M.context_for(buf)
 	local raw = vim.api.nvim_buf_get_name(buf)
 	if raw == "" then
 		return nil
@@ -283,7 +285,7 @@ function M.refresh(buf)
 		return
 	end
 
-	M.render(buf, context_for(buf))
+	M.render(buf, M.context_for(buf))
 
 	if cache.is_stale() then
 		cache.refresh_async()
@@ -297,7 +299,7 @@ function M.toggle()
 
 	for _, buf in ipairs(card_buffers()) do
 		if M.enabled then
-			M.render(buf, context_for(buf))
+			M.render(buf, M.context_for(buf))
 		else
 			M.clear(buf)
 		end
@@ -362,7 +364,7 @@ function M.attach()
 		callback = function()
 			for _, buf in ipairs(card_buffers()) do
 				if vim.fn.bufwinid(buf) ~= -1 then
-					M.render(buf, context_for(buf))
+					M.render(buf, M.context_for(buf))
 				end
 			end
 		end,

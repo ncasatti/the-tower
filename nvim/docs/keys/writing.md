@@ -18,7 +18,7 @@ Obsidian (Zettelkasten), TaskNotes (task management), Markdown rendering.
 - `<leader>ov` — Open in Obsidian app
 - `<leader>oG` — Visual Graph of Zettelkasten (ideadrop, global)
 - `<leader>og` — Visual Local Graph of current note (ideadrop, 1-hop neighborhood)
-- `<leader>oi` — Project Todo list (.todo.md in cwd, ideadrop)
+- `<leader>,` — Project Todo list (.todo.md in cwd, ideadrop) — `lua/plugins/writing/ideadrop.lua:171`
 
 ## TaskNotes (`<leader>o*`)
 
@@ -44,6 +44,7 @@ Mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses, priorities, 
 ### Views
 
 - `<leader>oc` — Toggle inline task card (virtual card under the frontmatter; global, on by default)
+- `<leader>oi` — Toggle task info panel (read-only right-hand split with the full task context)
 
 ## Markdown rendering (`<leader>m*`, buffer-local in `.md`)
 

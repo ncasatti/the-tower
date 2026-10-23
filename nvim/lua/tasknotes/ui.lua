@@ -107,6 +107,27 @@ function M.get_color_tables(opts)
 	return status_colors, priority_colors
 end
 
+-- Builds value→label maps for status and priority from /api/filter-options.
+-- Mirrors get_color_tables; the label is the human-readable one ("In
+-- Progress"), the value is the key ("in-progress"). opts.cached_only
+-- reads the already-fetched filter-options cache and never touches the
+-- network.
+function M.get_label_tables(opts)
+	local source = filter_options(opts)
+	local status_labels, priority_labels = {}, {}
+	if source and source.statuses then
+		for _, s in ipairs(source.statuses) do
+			status_labels[s.value] = s.label or s.value
+		end
+	end
+	if source and source.priorities then
+		for _, p in ipairs(source.priorities) do
+			priority_labels[p.value] = p.label or p.value
+		end
+	end
+	return status_labels, priority_labels
+end
+
 -- Returns the set of status values the API flags as completed
 -- (`isCompleted` on /api/filter-options). Used to compute progress over
 -- a task's subtasks. opts.cached_only reads the already-fetched cache and

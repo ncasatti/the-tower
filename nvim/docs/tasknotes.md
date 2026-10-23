@@ -18,6 +18,7 @@ work.
 - [Keybindings](#keybindings)
 - [Workflows](#workflows)
 - [Inline task card](#inline-task-card)
+- [Task info panel](#task-info-panel)
 - [Configuration](#configuration)
 - [Row rendering](#row-rendering)
 - [Data model](#data-model)
@@ -66,6 +67,7 @@ point. The lazy spec under `lua/plugins/writing/` does nothing but `require` it.
 | `cache` | Task index (API-sourced, TTL-gated) + the whole-vault notes index (FS-scanned, `owt`) |
 | `context` | Task context builder — parents, subtasks, progress and checklist counts for one task |
 | `card` | The inline task card: a `Context` rendered as extmark virtual lines under the frontmatter |
+| `panel` | The read-only task info side panel: a `Context` rendered as text in a right-hand split |
 | `ui` | Shared Snacks picker view, the live-color engine, status/priority rank tables, row formatter |
 | `pickers` | The `Key → Value → File` drill-down + status/tag shortcuts + the vault tag browser |
 | `query` | Filter builder, the API-backed task finder, and the interactive query builder |
@@ -101,6 +103,7 @@ All bindings are **flat under `<leader>o`** (no chord sub-trees). Registered in
 | `owp` | **Pomodoro / time** | State-aware Pomodoro & time-tracking panel |
 | `owr` | **Refresh** | Force cache rebuild |
 | `oc` | **Toggle inline card** | Show/hide the inline task card under the frontmatter |
+| `oi` | **Info panel** | Toggle the read-only task info side panel |
 
 > The old chord-based design (`oz*` search, `c*` contexts, `d*` dates, `v*` views,
 > `q*` query presets) **no longer exists**. Per-field mutations were collapsed into
@@ -194,6 +197,42 @@ the background and the card is redrawn when it lands (the
 `User TaskNotesCacheRefreshed` event). Notes that are not tasks get no
 card.
 
+## Task info panel
+
+`<leader>oi` toggles a **read-only side panel**: a right-hand split
+(`Snacks.win`, `position = "right"`, width `panel_width`) that shows the
+full context of the task under the cursor.
+
+What the panel shows:
+
+- **Header** — status icon and priority dot (in the live colors from
+  `/api/filter-options`), the title, and the status / priority labels.
+- **Dates** — scheduled, due, created, modified (short dates).
+- **Parents** — the projects the task declares.
+- **Subtasks** — tasks whose `projects` point back at this note, with
+  their status icon, priority and dates, plus a text progress bar
+  (`████░░░░ 2/6`).
+- **Dependencies** — **Blocked by** (the tasks this one waits on) and
+  **Blocking** (the tasks this one holds up). Both come from the API's
+  `blockedBy` / `blocking` fields; a dependency that is not in the task
+  cache is listed by name but cannot be opened.
+- **Checklist** — `done N · doing N · open N` from the note body.
+- **Time** — tracked minutes vs. the estimate (`1h 26m / 1h`).
+
+Empty sections are omitted. A buffer that is not a task shows
+`Not a TaskNotes task`; while the task cache is still empty the panel
+shows `Loading tasks…`.
+
+The panel **follows the buffer**: entering another buffer re-renders it
+for that buffer, while entering the panel window itself never
+re-renders it. It also re-renders on save and when the task cache is
+refreshed.
+
+Inside the panel, `<CR>` opens the note under the cursor **in the
+editing window** (parents, subtasks and dependencies are links);
+`<q>` closes it. The panel never writes to a task and never performs a
+request of its own — it reads the in-memory cache only.
+
 ## Configuration
 
 Tunables live in **`lua/tasknotes/config.lua`** — the single source of truth.
@@ -213,6 +252,7 @@ with no args; to override, pass a table from the spec's `config` function.
 | `default_icon` | `●` | Fallback glyph for unmapped statuses |
 | `priority_icon` | `●` | The priority-dot glyph |
 | `card_max_subtasks` | `5` | Subtask rows drawn in the inline card before `+N more` |
+| `panel_width` | `48` | Width (columns) of the task info side panel |
 | `completed_statuses` | `{ done = true }` | Fallback "completed" status set when the API's filter-options cache is empty |
 
 ## Row rendering

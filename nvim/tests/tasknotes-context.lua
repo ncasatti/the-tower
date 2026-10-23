@@ -252,7 +252,95 @@ assert_equal(no_fm.checklist.done, 0, "no frontmatter → no checklist items")
 assert_equal(no_fm.checklist.open, 0, "no frontmatter → no checklist items")
 
 -- ──────────────────────────────────────────────────────────────────────
--- 5. Require-set guarantee: context only depends on config
+-- 5. Dependencies and time figures
+--
+-- `blockedBy` is a list of { uid, reltype } objects whose uid is a
+-- task basename; `blocking` is a list of vault-relative paths. Both
+-- resolve to Refs; an unresolvable dependency yields is_task = false.
+-- ──────────────────────────────────────────────────────────────────────
+local DEPS = {
+	[ALPHA] = {
+		fm = {
+			path = "TaskNotes/Tasks/Alpha.md",
+			title = "Alpha",
+			status = "in-progress",
+			priority = "high",
+			blockedBy = {
+				{ uid = "Beta", reltype = "FINISHTOSTART" },
+				{ uid = "Ghost Task", reltype = "FINISHTOSTART" },
+			},
+			blocking = { "TaskNotes/Tasks/Beta.md" },
+			totalTrackedTime = 86,
+			timeEstimate = 60,
+		},
+		mtime = 0,
+	},
+	[BETA] = {
+		fm = {
+			path = "TaskNotes/Tasks/Beta.md",
+			title = "Beta",
+			status = "done",
+		},
+		mtime = 0,
+	},
+}
+
+local deps_ctx = context.build(ALPHA, { tasks = DEPS, generation = 1 })
+
+assert_equal(#deps_ctx.blocked_by, 2, "every blockedBy entry becomes a ref")
+assert_equal(deps_ctx.blocked_by[1].name, "Beta", "the blockedBy uid is the ref name")
+assert_equal(deps_ctx.blocked_by[1].is_task, true, "a resolvable blockedBy is a task")
+assert_equal(deps_ctx.blocked_by[1].path, BETA, "a resolvable blockedBy carries the absolute path")
+assert_equal(deps_ctx.blocked_by[1].status, "done", "a resolvable blockedBy carries the status")
+assert_equal(deps_ctx.blocked_by[2].name, "Ghost Task", "an unresolvable blockedBy keeps its name")
+assert_equal(deps_ctx.blocked_by[2].is_task, false, "an unresolvable blockedBy is not a task")
+assert_equal(deps_ctx.blocked_by[2].path, nil, "an unresolvable blockedBy has no path")
+
+assert_equal(#deps_ctx.blocking, 1, "every blocking entry becomes a ref")
+assert_equal(deps_ctx.blocking[1].name, "Beta", "the blocking path resolves to its basename")
+assert_equal(deps_ctx.blocking[1].is_task, true, "a resolvable blocking is a task")
+assert_equal(deps_ctx.blocking[1].path, BETA, "a resolvable blocking carries the absolute path")
+
+assert_equal(deps_ctx.time.tracked_min, 86, "tracked minutes are exposed")
+assert_equal(deps_ctx.time.estimate_min, 60, "the estimate is exposed")
+
+-- A task without time fields reports zero tracked minutes and no estimate.
+local no_time_ctx = context.build(BETA, { tasks = DEPS, generation = 1 })
+assert_equal(no_time_ctx.time.tracked_min, 0, "a task without time has zero tracked minutes")
+assert_equal(no_time_ctx.time.estimate_min, nil, "a task without an estimate has none")
+assert_equal(#no_time_ctx.blocked_by, 0, "a task without blockedBy has none")
+assert_equal(#no_time_ctx.blocking, 0, "a task without blocking has none")
+
+-- A blockedBy uid may also be a wikilink or a path — both normalize.
+local WIKILINK = abs("TaskNotes/Tasks/Wikilink.md")
+local LINKED = {
+	[WIKILINK] = {
+		fm = {
+			path = "TaskNotes/Tasks/Wikilink.md",
+			title = "Wikilink",
+			blockedBy = {
+				{ uid = "[[Beta]]", reltype = "FINISHTOSTART" },
+				{ uid = "TaskNotes/Tasks/Beta.md", reltype = "FINISHTOSTART" },
+			},
+		},
+		mtime = 0,
+	},
+	[BETA] = {
+		fm = {
+			path = "TaskNotes/Tasks/Beta.md",
+			title = "Beta",
+			status = "done",
+		},
+		mtime = 0,
+	},
+}
+local linked_ctx = context.build(WIKILINK, { tasks = LINKED, generation = 1 })
+assert_equal(#linked_ctx.blocked_by, 2, "wikilink and path uids both become refs")
+assert_equal(linked_ctx.blocked_by[1].path, BETA, "a wikilink uid resolves to the task path")
+assert_equal(linked_ctx.blocked_by[2].path, BETA, "a path uid resolves to the task path")
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 6. Require-set guarantee: context only depends on config
 -- ──────────────────────────────────────────────────────────────────────
 local source_path = vim.api.nvim_get_runtime_file("lua/tasknotes/context.lua", false)[1]
 assert_true(source_path ~= nil, "context.lua is on the runtimepath")

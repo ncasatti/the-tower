@@ -13,8 +13,11 @@
 --   path       = <absolute path>,
 --   parents    = { Ref... },   -- from task.projects
 --   subtasks   = { Ref... },   -- tasks whose projects resolve to this note
+--   blocked_by = { Ref... },   -- from task.blockedBy
+--   blocking   = { Ref... },   -- from task.blocking
 --   progress   = { done = n, total = n },            -- over subtasks
 --   checklist  = { done = n, doing = n, open = n },  -- body only
+--   time       = { tracked_min = n, estimate_min = n|nil },
 --   fm_end_row = n|nil,        -- 0-based row of the closing `---`
 -- }
 --
@@ -187,6 +190,81 @@ local function resolve_parent(link, by_basename)
 		due = nil,
 		is_task = false,
 	}
+end
+
+-- ──────────────────────────────────────────────────────────────────────
+-- Dependencies
+--
+-- Two shapes, both observed live:
+--
+--   blockedBy = { { uid = "Hacer rutina de entrenamiento",
+--                   reltype = "FINISHTOSTART" } }
+--   blocking  = { "TaskNotes/Tasks/Empezar el gimnasio.md" }
+--
+-- The uid form carries a basename (sometimes a wikilink, sometimes a
+-- path); the path form carries a vault-relative path. Both are
+-- normalized to a basename and looked up in the basename index. A
+-- dependency that is not in the cache resolves to a Ref with
+-- is_task = false — the panel still shows the name, it just cannot
+-- navigate to it.
+-- ──────────────────────────────────────────────────────────────────────
+local function resolve_dependency(raw, by_basename, tasks)
+	-- The blockedBy form wraps the target in an object.
+	local link = raw
+	if type(raw) == "table" then
+		link = raw.uid or raw.path or raw.id
+	end
+	if type(link) ~= "string" then
+		return nil
+	end
+
+	local name = normalize_link(link)
+	if not name then
+		return nil
+	end
+
+	-- A vault-relative path can be resolved exactly, which avoids the
+	-- basename ambiguity of two same-named notes in different folders.
+	if link:find("/", 1, true) then
+		local abs = config.vault_path .. "/" .. link:gsub("^/", "")
+		local entry = tasks[abs]
+		if entry then
+			local record = entry.fm or entry
+			if type(record) == "table" then
+				return task_ref(name, abs, record)
+			end
+		end
+	end
+
+	local hit = by_basename[name]
+	if hit then
+		return task_ref(name, hit.path, hit.record)
+	end
+
+	return {
+		name = name,
+		path = nil,
+		status = nil,
+		priority = nil,
+		scheduled = nil,
+		due = nil,
+		is_task = false,
+	}
+end
+
+-- Resolves a list of dependency entries to Refs.
+local function resolve_dependencies(list, by_basename, tasks)
+	local refs = {}
+	if type(list) ~= "table" then
+		return refs
+	end
+	for _, raw in ipairs(list) do
+		local ref = resolve_dependency(raw, by_basename, tasks)
+		if ref then
+			refs[#refs + 1] = ref
+		end
+	end
+	return refs
 end
 
 -- ──────────────────────────────────────────────────────────────────────
@@ -371,13 +449,24 @@ function M.build(abs_path, opts)
 	local lines = opts.lines
 	local fm_end_row = find_fm_end_row(lines)
 
+	-- Dependencies: the tasks this one waits on, and the ones it blocks.
+	local blocked_by = resolve_dependencies(record.blockedBy, by_basename, tasks)
+	local blocking = resolve_dependencies(record.blocking, by_basename, tasks)
+
+	-- Time: minutes already tracked, and the optional estimate.
+	local tracked = tonumber(record.totalTrackedTime) or 0
+	local estimate = tonumber(record.timeEstimate)
+
 	return {
 		task = record,
 		path = abs_path,
 		parents = parents,
 		subtasks = subtasks,
+		blocked_by = blocked_by,
+		blocking = blocking,
 		progress = { done = done, total = #subtasks },
 		checklist = count_checklist(lines, fm_end_row),
+		time = { tracked_min = tracked, estimate_min = estimate },
 		fm_end_row = fm_end_row,
 	}
 end

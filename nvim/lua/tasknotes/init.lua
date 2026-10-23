@@ -8,6 +8,7 @@
 --   cache           — task index + whole-vault notes index
 --   context         — task context builder (parents/subtasks/checklist)
 --   card            — inline task card (extmark virtual lines)
+--   panel           — read-only task info side panel (right-hand split)
 --   ui              — Snacks view, color engine, rank tables
 --   pickers         — Key → Value → File drill-down + tag browser
 --   task_ops        — NLP create + multi-field editor
@@ -19,6 +20,7 @@ local config = require("tasknotes.config")
 local api = require("tasknotes.api")
 local cache = require("tasknotes.cache")
 local card = require("tasknotes.card")
+local panel = require("tasknotes.panel")
 local pickers = require("tasknotes.pickers")
 local task_ops = require("tasknotes.task_ops")
 local query = require("tasknotes.query")
@@ -61,6 +63,7 @@ local function register_keymaps()
 	bind("<leader>oe", task_ops.edit_fields.open, "Task: Edit fields")
 	bind("<leader>op", pomodoro.panel, "Task: Pomodoro & time tracking")
 	bind("<leader>oc", card.toggle, "Task: Toggle inline card")
+	bind("<leader>oi", panel.toggle, "Task: Info panel")
 end
 
 -- Entry point. Merges user opts into the config table IN PLACE (never
@@ -92,6 +95,10 @@ function M.setup(opts)
 	-- The inline card is wired only after the health gate passes, like
 	-- the keymaps: the views read the cache, which needs a live API.
 	card.attach()
+
+	-- The info panel shares the `TaskNotesViews` augroup with the card,
+	-- so it attaches after it (the group is created with clear = false).
+	panel.attach()
 end
 
 return M

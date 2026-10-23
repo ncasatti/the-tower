@@ -43,6 +43,10 @@ local M = {
 	-- the card; the rest collapse into a "+N more" line.
 	card_max_subtasks = 5,
 
+	-- Task info side panel (TKT-103). Width of the right-hand split, in
+	-- columns.
+	panel_width = 48,
+
 	-- Fallback set of status values considered "completed" when the API's
 	-- filter-options cache has not been fetched yet (no network allowed on
 	-- the render path). Keys are status `value`s.
