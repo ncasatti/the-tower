@@ -42,10 +42,10 @@
   # 4 resumes on 6.18.57 -> 4 poweroffs. rtcwake/systemctl-suspend wakes do
   # NOT reproduce it; only lid-open wake does.
   # This pin isolates kernel vs systemd. It tracks the 6.12 LTS branch, so
-  # it still receives patch releases. Remove it (back to the default kernel)
-  # once a 6.18.x with the fix lands — candidate upstream fix:
-  # "ACPI: button: Report wakeup key only for power button wakeups"
-  # (fixes 16f70feaabe9). Vault: systems/the-tower (notebook lid poweroff).
+  # it still receives patch releases. Confirmed: 6.12.113 + systemd 262 does
+  # not power off, so the regression is in the kernel between v6.18.26 and
+  # v6.18.57 (not yet bisected). Remove the pin once that commit is fixed.
+  # Vault: systems/the-tower (notebook lid poweroff).
   boot.kernelPackages = pkgs.linuxPackages_6_12;
 
   # --- NETWORKING ---
