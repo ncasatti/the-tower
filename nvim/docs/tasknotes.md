@@ -17,6 +17,7 @@ work.
 - [Prerequisites](#prerequisites)
 - [Keybindings](#keybindings)
 - [Workflows](#workflows)
+- [Inline task card](#inline-task-card)
 - [Configuration](#configuration)
 - [Row rendering](#row-rendering)
 - [Data model](#data-model)
@@ -63,6 +64,8 @@ point. The lazy spec under `lua/plugins/writing/` does nothing but `require` it.
 | `api` | HTTP client for the REST API + the TTL'd API caches (filter-options, task paths) |
 | `util` | Pure helpers (date math, due/scheduled formatting, path↔id) — no Snacks/API at load |
 | `cache` | Task index (API-sourced, TTL-gated) + the whole-vault notes index (FS-scanned, `owt`) |
+| `context` | Task context builder — parents, subtasks, progress and checklist counts for one task |
+| `card` | The inline task card: a `Context` rendered as extmark virtual lines under the frontmatter |
 | `ui` | Shared Snacks picker view, the live-color engine, status/priority rank tables, row formatter |
 | `pickers` | The `Key → Value → File` drill-down + status/tag shortcuts + the vault tag browser |
 | `query` | Filter builder, the API-backed task finder, and the interactive query builder |
@@ -97,6 +100,7 @@ All bindings are **flat under `<leader>o`** (no chord sub-trees). Registered in
 | `owe` | **Edit fields** | Multi-field editor; batches changes into a **single PUT** |
 | `owp` | **Pomodoro / time** | State-aware Pomodoro & time-tracking panel |
 | `owr` | **Refresh** | Force cache rebuild |
+| `oc` | **Toggle inline card** | Show/hide the inline task card under the frontmatter |
 
 > The old chord-based design (`oz*` search, `c*` contexts, `d*` dates, `v*` views,
 > `q*` query presets) **no longer exists**. Per-field mutations were collapsed into
@@ -161,6 +165,35 @@ write the open task buffer is auto-reloaded (with an unsaved-changes guard).
 ### Refresh — `owr`
 Invalidates the caches and forces a full rebuild on the next call.
 
+## Inline task card
+
+Opening a TaskNotes task note draws a dimmed **card** right under the
+closing `---` of the frontmatter — the same place Obsidian draws its own
+card. The card is **virtual text**: it is an extmark (`virt_lines`) in the
+`tasknotes_card` namespace, so the buffer itself is never modified and
+nothing is written to the file.
+
+What the card shows:
+
+- **Header** — status icon and priority dot (in the live colors from
+  `/api/filter-options`), the title, the scheduled/due dates and the tags.
+- **Parents** — the projects the task declares (`↑ project`).
+- **Subtasks** — tasks whose `projects` point back at this note, as tree
+  rows (`├`/`└`) with their status icon. At most `card_max_subtasks` rows
+  are drawn; the rest collapse into a `+N more` line.
+- **Progress** — `subtasks done/total · checklist done/total`. The
+  checklist counts the body of the note only (frontmatter excluded):
+  `[ ]` open, `[x]`/`[X]` done, `[-]`/`[~]` in progress.
+
+`<leader>oc` toggles the card globally (on by default, for the session).
+The toggle redraws every loaded task buffer.
+
+The card is **read-only** and never blocks: it is drawn from the in-memory
+task cache. When the cache is stale an asynchronous refresh is started in
+the background and the card is redrawn when it lands (the
+`User TaskNotesCacheRefreshed` event). Notes that are not tasks get no
+card.
+
 ## Configuration
 
 Tunables live in **`lua/tasknotes/config.lua`** — the single source of truth.
@@ -179,6 +212,8 @@ with no args; to override, pass a table from the spec's `config` function.
 | `status_icons` | per-status glyphs | **User-tunable** status glyph map (see [Row rendering](#row-rendering)) |
 | `default_icon` | `●` | Fallback glyph for unmapped statuses |
 | `priority_icon` | `●` | The priority-dot glyph |
+| `card_max_subtasks` | `5` | Subtask rows drawn in the inline card before `+N more` |
+| `completed_statuses` | `{ done = true }` | Fallback "completed" status set when the API's filter-options cache is empty |
 
 ## Row rendering
 

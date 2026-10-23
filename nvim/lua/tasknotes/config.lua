@@ -39,6 +39,15 @@ local M = {
 	default_icon = "●", -- status fallback (universal, no Nerd Font needed)
 	priority_icon = "●", -- the priority marker (colored by priority)
 
+	-- Inline task card (TKT-102). Maximum number of subtask rows drawn in
+	-- the card; the rest collapse into a "+N more" line.
+	card_max_subtasks = 5,
+
+	-- Fallback set of status values considered "completed" when the API's
+	-- filter-options cache has not been fetched yet (no network allowed on
+	-- the render path). Keys are status `value`s.
+	completed_statuses = { done = true },
+
 	-- Icon shown next to each task binding in which-key's <leader>o* group.
 	-- Single source of truth — change here and all 9 task keymaps pick it up.
 	-- Read by init.lua's `bind()` helper, which passes it to `wk.add` (the

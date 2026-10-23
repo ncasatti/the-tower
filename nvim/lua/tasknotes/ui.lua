@@ -107,6 +107,23 @@ function M.get_color_tables(opts)
 	return status_colors, priority_colors
 end
 
+-- Returns the set of status values the API flags as completed
+-- (`isCompleted` on /api/filter-options). Used to compute progress over
+-- a task's subtasks. opts.cached_only reads the already-fetched cache and
+-- never touches the network; without it the options are fetched.
+function M.get_completed_statuses(opts)
+	local source = filter_options(opts)
+	local completed = {}
+	if source and source.statuses then
+		for _, s in ipairs(source.statuses) do
+			if s.isCompleted and s.value then
+				completed[s.value] = true
+			end
+		end
+	end
+	return completed
+end
+
 -- Resolves the status glyph from config.status_icons (user-tunable),
 -- falling back to config.default_icon for unmapped statuses.
 function M.icon_for_status(value)

@@ -41,6 +41,10 @@ Mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses, priorities, 
 - `<leader>own` — New task (NLP quick-add via `/api/nlp/create`, server-side template)
 - `<leader>owe` — Edit fields (field-selector form: status / priority / contexts / projects / scheduled / due — multi-select fields pre-mark current values with the native Snacks dot, Tab to toggle, all changes accumulate into one PUT on save)
 
+### Views
+
+- `<leader>oc` — Toggle inline task card (virtual card under the frontmatter; global, on by default)
+
 ## Markdown rendering (`<leader>m*`, buffer-local in `.md`)
 
 - `<leader>mr` — Toggle rendering

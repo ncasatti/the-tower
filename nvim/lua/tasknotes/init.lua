@@ -6,6 +6,8 @@
 --   api             — HTTP client + API caches
 --   util            — pure helpers
 --   cache           — task index + whole-vault notes index
+--   context         — task context builder (parents/subtasks/checklist)
+--   card            — inline task card (extmark virtual lines)
 --   ui              — Snacks view, color engine, rank tables
 --   pickers         — Key → Value → File drill-down + tag browser
 --   task_ops        — NLP create + multi-field editor
@@ -16,6 +18,7 @@
 local config = require("tasknotes.config")
 local api = require("tasknotes.api")
 local cache = require("tasknotes.cache")
+local card = require("tasknotes.card")
 local pickers = require("tasknotes.pickers")
 local task_ops = require("tasknotes.task_ops")
 local query = require("tasknotes.query")
@@ -57,6 +60,7 @@ local function register_keymaps()
 	bind("<leader>on", task_ops.create_task, "Task: New")
 	bind("<leader>oe", task_ops.edit_fields.open, "Task: Edit fields")
 	bind("<leader>op", pomodoro.panel, "Task: Pomodoro & time tracking")
+	bind("<leader>oc", card.toggle, "Task: Toggle inline card")
 end
 
 -- Entry point. Merges user opts into the config table IN PLACE (never
@@ -84,6 +88,10 @@ function M.setup(opts)
 	end
 
 	register_keymaps()
+
+	-- The inline card is wired only after the health gate passes, like
+	-- the keymaps: the views read the cache, which needs a live API.
+	card.attach()
 end
 
 return M
