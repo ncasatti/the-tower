@@ -49,23 +49,39 @@ M.picker_view = {
 	},
 }
 
+-- Resolves the filter-options payload used by the rank/color tables.
+-- opts.cached_only → read api's TTL cache directly (no HTTP); an empty
+-- cache yields nil, which the callers render as empty tables.
+local function filter_options(opts)
+	if opts and opts.cached_only then
+		local cached = api._filter_options_cache
+		return cached and cached.data or nil
+	end
+	return api.get_filter_options()
+end
+
 -- ──────────────────────────────────────────────────────────────────────
 -- Rank tables for status/priority display order. Sourced from
 -- /api/filter-options. Used by pick_file (pickers) and find_tasks (query).
+--
+-- opts.cached_only reads the already-fetched filter-options cache and
+-- never touches the network — renderers use it so drawing a view can't
+-- block the editor on an HTTP request (ADR-005). Without the flag the
+-- options are fetched exactly as before.
 -- ──────────────────────────────────────────────────────────────────────
-function M.get_rank_tables()
-	local opts = api.get_filter_options()
+function M.get_rank_tables(opts)
+	local source = filter_options(opts)
 	local status_ranks = {}
 	local priority_ranks = {}
-	if opts and opts.statuses then
-		for i, s in ipairs(opts.statuses) do
+	if source and source.statuses then
+		for i, s in ipairs(source.statuses) do
 			status_ranks[s.value] = s.order or i
 		end
 	end
-	if opts and opts.priorities then
+	if source and source.priorities then
 		-- High priority first → invert the natural order
-		local n = #opts.priorities
-		for i, p in ipairs(opts.priorities) do
+		local n = #source.priorities
+		for i, p in ipairs(source.priorities) do
 			priority_ranks[p.value] = n - (p.order or i) + 1
 		end
 	end
@@ -74,16 +90,17 @@ end
 
 -- Builds value→color maps for status and priority from /api/filter-options.
 -- Mirrors get_rank_tables; colors are hex strings (or nil when unset).
-function M.get_color_tables()
-	local opts = api.get_filter_options()
+-- Accepts the same opts as get_rank_tables (opts.cached_only).
+function M.get_color_tables(opts)
+	local source = filter_options(opts)
 	local status_colors, priority_colors = {}, {}
-	if opts and opts.statuses then
-		for _, s in ipairs(opts.statuses) do
+	if source and source.statuses then
+		for _, s in ipairs(source.statuses) do
 			status_colors[s.value] = s.color
 		end
 	end
-	if opts and opts.priorities then
-		for _, p in ipairs(opts.priorities) do
+	if source and source.priorities then
+		for _, p in ipairs(source.priorities) do
 			priority_colors[p.value] = p.color
 		end
 	end

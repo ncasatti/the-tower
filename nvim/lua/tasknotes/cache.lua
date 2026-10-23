@@ -24,16 +24,18 @@ M.last_full_scan = 0
 M.global_data = {} -- { [filepath] = { fm = table, mtime = number } }
 M.global_keys_index = {} -- { [key] = { [value] = { filepath, ... } } }
 
--- Ensures the task index is fresh by fetching from the API.
-function M.ensure()
-	local now = os.time()
-	if now - M.last_full_scan < config.cache_ttl then
-		return
-	end
+-- Bumped on every successful index swap (both ensure() and refresh_async()).
+-- Views memoize derived state per generation.
+M.generation = 0
 
-	local t_start = vim.fn.reltime()
+-- True while an async refresh is in flight — refresh_async() coalesces
+-- concurrent calls into one request.
+M.refresh_in_flight = false
 
-	local all_tasks = api.query_tasks(nil) or {}
+-- Builds the task index (data + keys_index) from a task list.
+-- Shared by ensure() (sync) and refresh_async() (async) so both paths
+-- produce identical indexes for the same payload.
+local function build_index(all_tasks)
 	local index = {}
 	local cache_data = {}
 
@@ -65,15 +67,82 @@ function M.ensure()
 		end
 	end
 
+	return cache_data, index
+end
+
+-- Announces a cache mutation. Every mutation path must fire this
+-- (ADR-005) or views go stale silently.
+local function fire_refreshed()
+	vim.api.nvim_exec_autocmds("User", { pattern = "TaskNotesCacheRefreshed", modeline = false })
+end
+
+-- True when the task index is older than config.cache_ttl.
+function M.is_stale()
+	return (os.time() - M.last_full_scan) >= config.cache_ttl
+end
+
+-- Ensures the task index is fresh by fetching from the API.
+function M.ensure()
+	if not M.is_stale() then
+		return
+	end
+
+	local t_start = vim.fn.reltime()
+	local now = os.time()
+
+	local all_tasks = api.query_tasks(nil) or {}
+	local cache_data, index = build_index(all_tasks)
+
 	M.data = cache_data
 	M.keys_index = index
 	M.last_full_scan = now
+	M.generation = M.generation + 1
 
 	local elapsed = vim.fn.reltimestr(vim.fn.reltime(t_start))
 	vim.notify(
 		string.format("TaskNotes: cache refreshed from API (%d files, %ss)", #all_tasks, elapsed),
 		vim.log.levels.DEBUG
 	)
+	fire_refreshed()
+end
+
+-- Refreshes the task index asynchronously. Returns immediately — the
+-- editor never blocks on the API. Concurrent calls coalesce into a
+-- single in-flight request. On success the index is swapped, the
+-- generation is bumped and User TaskNotesCacheRefreshed fires exactly
+-- once; on failure the old index is kept and no event fires.
+function M.refresh_async()
+	if M.refresh_in_flight then
+		return
+	end
+	M.refresh_in_flight = true
+
+	-- pcall: a synchronous throw (e.g. plenary missing) must not leave the
+	-- in-flight flag set — that would wedge every later refresh.
+	local ok = pcall(api.query_tasks_async, function(tasks)
+		M.refresh_in_flight = false
+		if not tasks then
+			-- Keep the previous index; the API is down or the payload was
+			-- unusable. Debug-level only — never spam the user.
+			vim.notify("TaskNotes: async cache refresh failed", vim.log.levels.DEBUG)
+			return
+		end
+
+		local cache_data, index = build_index(tasks)
+		M.data = cache_data
+		M.keys_index = index
+		M.last_full_scan = os.time()
+		M.generation = M.generation + 1
+		fire_refreshed()
+	end)
+	if not ok then
+		M.refresh_in_flight = false
+		vim.notify("TaskNotes: async cache refresh failed", vim.log.levels.DEBUG)
+	end
+
+	-- Statuses/priorities (colors, ranks) refresh alongside the tasks so
+	-- views can read them from the cache without a blocking request.
+	pcall(api.refresh_filter_options_async, function() end)
 end
 
 -- Invalidates the cache entry for a single file (after write operations).

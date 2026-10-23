@@ -137,6 +137,56 @@ function M.query_tasks(query)
 	return {}
 end
 
+-- Decodes a GET /tasks response body into a task list.
+-- Returns nil when the response is not a usable success payload.
+local function decode_tasks(res)
+	if not res or not res.status or res.status < 200 or res.status >= 300 then
+		return nil
+	end
+	if not res.body or res.body == "" then
+		return nil
+	end
+	local ok, decoded = pcall(vim.fn.json_decode, res.body)
+	if not ok or type(decoded) ~= "table" then
+		return nil
+	end
+	if not decoded.success or type(decoded.data) ~= "table" or type(decoded.data.tasks) ~= "table" then
+		return nil
+	end
+	return decoded.data.tasks
+end
+
+-- Async variant of M.query_tasks: GET /tasks?limit=1000 with a callback.
+-- Returns immediately — the editor never blocks on the API. cb(tasks) is
+-- invoked with the task list, or nil when the request failed.
+-- plenary's callback runs in the libuv fast-event context, so the
+-- response is decoded on the main loop via vim.schedule.
+function M.query_tasks_async(cb)
+	local curl = require("plenary.curl")
+	local options = {
+		headers = build_headers(),
+		query = { limit = 1000 },
+		-- plenary raises error() from its libuv callback when curl exits
+		-- non-zero; neutralize the throw and report the failure instead.
+		-- (A no-op here would leave the caller's in-flight flag stuck.)
+		on_error = function()
+			vim.schedule(function()
+				cb(nil)
+			end)
+		end,
+		callback = function(res)
+			vim.schedule(function()
+				-- pcall: a malformed payload must degrade to a failure, never
+				-- to an uncaught error inside the scheduled callback (which
+				-- would leave the caller's in-flight flag set forever).
+				local ok, tasks = pcall(decode_tasks, res)
+				cb(ok and tasks or nil)
+			end)
+		end,
+	}
+	curl.get(config.api_url .. "/tasks", options)
+end
+
 -- ──────────────────────────────────────────────────────────────────────
 -- API-backed caches (TTL'd, force-refresh via cache.force_refresh)
 -- ──────────────────────────────────────────────────────────────────────
@@ -159,6 +209,53 @@ function M.get_filter_options(force_refresh)
 		return res.data
 	end
 	return nil
+end
+
+-- Async variant of M.get_filter_options: GET /filter-options with a
+-- callback. Returns immediately; on success the TTL cache is refreshed
+-- with the payload and cb(data) fires on the main loop. On failure the
+-- cache is left untouched and cb(nil) fires.
+function M.refresh_filter_options_async(cb)
+	local curl = require("plenary.curl")
+	local options = {
+		headers = build_headers(),
+		-- See M.health: `on_error` prevents plenary from raising error()
+		-- from its libuv callback when curl exits non-zero.
+		on_error = function()
+			vim.schedule(function()
+				cb(nil)
+			end)
+		end,
+		callback = function(res)
+			vim.schedule(function()
+				local data
+				-- pcall: a malformed payload must degrade to "no data", never
+				-- to an uncaught error inside the scheduled callback.
+				local ok, decoded = pcall(function()
+					if not res or not res.status or res.status < 200 or res.status >= 300 then
+						return nil
+					end
+					if not res.body or res.body == "" then
+						return nil
+					end
+					local decoded_ok, body = pcall(vim.fn.json_decode, res.body)
+					if not decoded_ok or type(body) ~= "table" then
+						return nil
+					end
+					if not body.success or type(body.data) ~= "table" then
+						return nil
+					end
+					return body.data
+				end)
+				if ok and decoded then
+					data = decoded
+					M._filter_options_cache = { data = data, fetched_at = os.time() }
+				end
+				cb(data)
+			end)
+		end,
+	}
+	curl.get(config.api_url .. "/filter-options", options)
 end
 
 -- Returns a set { [vault_relative_path] = true } of all task paths in the vault.
