@@ -1,0 +1,21 @@
+# md2pdf: default metadata. Loaded via `metadata-files`, so any key here
+# is overridden by the document's own YAML front matter, e.g.:
+#
+#   ---
+#   geometry: margin=3cm
+#   fontsize: 11pt
+#   lang: en
+#   ---
+#
+# Keys are pandoc LaTeX template variables: `pandoc -D latex`, or
+# https://pandoc.org/MANUAL.html#variables-for-latex
+geometry: margin=2cm
+# Inert while the template uses `hidelinks` (needs `colorlinks: true` to
+# show); kept so enabling colorlinks yields blue rather than Maroon.
+linkcolor: blue
+# Spanish hyphenation + babel captions. Template loads babel with
+# shorthands=off, so `"`, `<`, `>` stay literal. es-minimal keeps the
+# default layout (no ■ bullets, no "100 %" spacing, no first-line
+# indent); es-tabla says "Tabla" instead of "Cuadro".
+lang: es
+babeloptions: [es-minimal, es-tabla]

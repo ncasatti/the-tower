@@ -1,6 +1,6 @@
 -- nvim/lua/util/md-preview.lua
 -- Pandoc → PDF for markdown buffers (LaTeX math supported).
--- Toolchain: pandoc → pdflatex → zathura. Recompile on save (preview only).
+-- Toolchain: md2pdf (pandoc → pdflatex) → zathura. Recompile on save (preview only).
 --
 -- Two entry points:
 --   preview() — write to /tmp/md-preview-<basename>.pdf, open in zathura,
@@ -30,14 +30,9 @@ local function compile(bufnr, pdf_path, on_success)
   local src = assert(src_path(bufnr))
   local stderr_lines = {}
 
-  vim.fn.jobstart({
-    "pandoc", src,
-    "-o", pdf_path,
-    "--pdf-engine=pdflatex",
-    "--standalone",
-    "-V", "geometry:margin=2cm",
-    "-V", "linkcolor:blue",
-  }, {
+  -- md2pdf (nix/packages/custom/md2pdf/) owns the pandoc defaults, the
+  -- Unicode→LaTeX map and filters; keep this a thin caller so terminal and nvim agree.
+  vim.fn.jobstart({ "md2pdf", "-o", pdf_path, src }, {
     on_stderr = function(_, data)
       if data then
         for _, line in ipairs(data) do
@@ -50,7 +45,7 @@ local function compile(bufnr, pdf_path, on_success)
         if code == 0 then
           if on_success then on_success(pdf_path) end
         else
-          local msg = "md-preview: pandoc exit " .. code
+          local msg = "md-preview: md2pdf exit " .. code
           if #stderr_lines > 0 then
             msg = msg .. "\n" .. table.concat(stderr_lines, "\n")
           end

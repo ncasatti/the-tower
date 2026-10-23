@@ -1,0 +1,122 @@
+% md2pdf: corporate-technical style on top of pandoc's default template.
+% Palette, fonts and panels live here; structure hooks (title promotion,
+% field panel, rules) are emitted by filter.lua.
+%
+% Tweak the look by editing the colour definitions below — every element
+% derives from md-accent / md-ink / md-muted / md-panel.
+
+% --- Palette ----------------------------------------------------------------
+\definecolor{md-accent}{HTML}{1F4E79}  % headings, rules, title band
+\definecolor{md-ink}{HTML}{222222}     % body text
+\definecolor{md-muted}{HTML}{6B7280}   % header/footer, captions
+\definecolor{md-panel}{HTML}{F3F5F8}   % code / metadata background
+\definecolor{md-rule}{HTML}{D0D7E2}    % hairlines, table rules
+\definecolor{md-head}{HTML}{E4EBF3}    % table header row
+\definecolor{md-code}{HTML}{2E4A62}    % inline code text (desaturated accent)
+
+% --- Fonts ------------------------------------------------------------------
+% TeX Gyre Heros (Helvetica metrics) for everything; Inconsolata for code.
+\usepackage{tgheros}
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage[scaled=0.95,noupquote]{zi4}
+\color{md-ink}
+
+% --- Page furniture ---------------------------------------------------------
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\makeatletter
+\pagestyle{fancy}
+\fancyhf{}
+% \maketitle clears \@title after use; keep a copy for the running header.
+\AtBeginDocument{\global\let\mdtitle\@title}
+\fancyhead[L]{\footnotesize\color{md-muted}\mdtitle}
+\fancyfoot[R]{\footnotesize\color{md-muted}Página \thepage\ de \pageref*{LastPage}}
+\renewcommand{\headrule}{{\color{md-rule}\hrule height 0.4pt}}
+\renewcommand{\footrule}{{\color{md-rule}\hrule height 0.4pt}}
+\renewcommand{\footrulewidth}{0.4pt}
+\setlength{\headheight}{14pt}
+% First page: title band carries the identity, no running header.
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrule}{}%
+  \fancyfoot[R]{\footnotesize\color{md-muted}Página \thepage\ de \pageref*{LastPage}}}
+
+% --- Title ------------------------------------------------------------------
+% `subtitle` renders as a small uppercase label ABOVE the title (document
+% type: "Informe técnico", "Propuesta", …). filter.lua fills it from an
+% H1 shaped "Kicker — Title". Defined before pandoc's \providecommand so
+% the template's append-to-\@title fallback never runs.
+\newcommand{\mdkicker}{}
+\newcommand{\subtitle}[1]{\gdef\mdkicker{#1}}
+\renewcommand{\@maketitle}{%
+  \thispagestyle{plain}%
+  {\ifx\mdkicker\@empty\else
+     {\small\bfseries\color{md-accent}\MakeUppercase{\mdkicker}}\par\vspace{4pt}%
+   \fi}%
+  {\LARGE\bfseries\color{md-accent}\raggedright\@title\par}%
+  \ifx\@author\@empty\else\vspace{4pt}{\normalsize\color{md-muted}\@author\par}\fi
+  \ifx\@date\@empty\else\vspace{2pt}{\small\color{md-muted}\@date\par}\fi
+  \vspace{6pt}{\color{md-accent}\rule{\linewidth}{1.5pt}}\par
+  \vspace{10pt}}
+\makeatother
+
+% --- Headings ---------------------------------------------------------------
+\makeatletter
+\renewcommand{\section}{\@startsection{section}{1}{0pt}%
+  {-3ex plus -1ex minus -.2ex}{0.6ex}%
+  {\large\bfseries\color{md-accent}\mdsectionrule}}
+\renewcommand{\subsection}{\@startsection{subsection}{2}{0pt}%
+  {-2.5ex plus -1ex minus -.2ex}{0.4ex}%
+  {\normalsize\bfseries\color{md-accent}}}
+\renewcommand{\subsubsection}{\@startsection{subsubsection}{3}{0pt}%
+  {-2ex plus -.5ex minus -.2ex}{0.2ex}%
+  {\normalsize\bfseries\color{md-ink}}}
+\makeatother
+% Hairline under level-1 sections: \@startsection passes the title as the
+% last token, so wrap it to draw the rule after.
+\newcommand{\mdsectionrule}[1]{#1\par\vspace{-1.6ex}{\color{md-rule}\rule{\linewidth}{0.6pt}}}
+
+% --- Links ------------------------------------------------------------------
+\AtBeginDocument{\hypersetup{colorlinks=true,linkcolor=md-accent,
+  urlcolor=md-accent,citecolor=md-accent}}
+
+% --- Tables -----------------------------------------------------------------
+% Tinted header row; booktabs rules recoloured, no gaps under colortbl.
+% booktabs loaded explicitly: the template only pulls it in when the
+% document has tables, and the \toprule hook below needs it either way.
+\usepackage{booktabs}
+\usepackage{colortbl}
+\setlength{\aboverulesep}{0pt}
+\setlength{\belowrulesep}{0pt}
+\renewcommand{\arraystretch}{1.35}
+\arrayrulecolor{md-rule}
+\let\mdtoprule\toprule
+\renewcommand{\toprule}{\mdtoprule\rowcolor{md-head}}
+
+% --- Panels -----------------------------------------------------------------
+\usepackage{tcolorbox}
+\tcbuselibrary{skins,breakable}
+% Code blocks (verbatim and highlighted).
+\newtcolorbox{mdcode}{enhanced, breakable, colback=md-panel, colframe=md-panel,
+  boxrule=0pt, arc=2pt, left=8pt, right=8pt, top=4pt, bottom=4pt,
+  borderline west={2pt}{0pt}{md-rule}, before skip=8pt, after skip=8pt,
+  fontupper=\small}
+% Key/value header block ("**Fecha:** …").
+\newtcolorbox{mdfields}{enhanced, colback=md-panel, colframe=md-panel,
+  boxrule=0pt, arc=2pt, left=10pt, right=10pt, top=6pt, bottom=6pt,
+  borderline west={3pt}{0pt}{md-accent}, before skip=4pt, after skip=10pt,
+  fontupper=\small}
+% Blockquotes as callouts.
+\renewenvironment{quote}{\begin{tcolorbox}[enhanced, breakable,
+  colback=md-head!45, colframe=md-head!45, boxrule=0pt, arc=2pt,
+  left=10pt, right=10pt, top=6pt, bottom=6pt,
+  borderline west={3pt}{0pt}{md-accent}, before skip=8pt, after skip=8pt]}%
+  {\end{tcolorbox}}
+% Inline code colour (filter.lua wraps Code in \mdinline). \leavevmode:
+% a \color special in vertical mode (start of a table cell) would push the
+% text down a line.
+\newcommand{\mdinline}[1]{\leavevmode{\color{md-code}#1}}
+
+% --- Body -------------------------------------------------------------------
+\usepackage{enumitem}
+\setlist{itemsep=2pt, topsep=4pt}
+\setlist[itemize,1]{label={\color{md-accent}\textbullet}}
+\setlength{\parskip}{5pt plus 1pt}

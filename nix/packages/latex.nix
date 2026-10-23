@@ -33,6 +33,13 @@ let
                   # math as cropped images in markdown. Without it pdflatex
                   # fails silently (convert.notify=false) and math never renders.
       enumitem    # configurable lists
+
+      # md2pdf corporate style (custom/md2pdf/style.tex)
+      tcolorbox   # code / metadata / callout panels
+      tikzfill    # tcolorbox skins dependency
+      pdfcol      # tcolorbox breakable dependency
+      lastpage    # "Página N de M" footer
+      inconsolata # monospace for code (zi4)
       ;
   };
 in
@@ -42,5 +49,11 @@ in
   # snacks.image's math pipeline (pdflatex → PDF → magick/gs → PNG). Without
   # `gs`, math compiles to PDF but magick fails ("gs: command not found") and
   # the equation never becomes a displayable image.
-  home.packages = [ tex pkgs.ghostscript ];
+  # md2pdf: markdown → PDF CLI (pandoc + this same `tex`); also backs nvim's
+  # <leader>mp / <leader>mE (nvim/lua/util/md-preview.lua).
+  home.packages = [
+    tex
+    pkgs.ghostscript
+    (pkgs.callPackage ./custom/md2pdf { inherit tex; })
+  ];
 }

@@ -1,0 +1,51 @@
+% md2pdf: Unicode → LaTeX map for pdflatex.
+% pdflatex/inputenc only knows a Unicode subset; agent-written docs carry
+% −, ✓, ✗, box-drawing, emoji, … which abort the build with
+% "Unicode character X not set up for use with LaTeX". Mapping them here
+% keeps the engine (and Latin Modern) instead of switching to lualatex,
+% which would change metrics and silently drop glyphs the font lacks.
+%
+% Adding a char: one \DeclareUnicodeCharacter{<HEX>}{<latex>} line.
+\usepackage{pifont}
+% Math / typography
+\DeclareUnicodeCharacter{2212}{\ensuremath{-}}
+\DeclareUnicodeCharacter{2264}{\ensuremath{\leq}}
+\DeclareUnicodeCharacter{2265}{\ensuremath{\geq}}
+\DeclareUnicodeCharacter{2260}{\ensuremath{\neq}}
+\DeclareUnicodeCharacter{2248}{\ensuremath{\approx}}
+\DeclareUnicodeCharacter{221E}{\ensuremath{\infty}}
+\DeclareUnicodeCharacter{2208}{\ensuremath{\in}}
+\DeclareUnicodeCharacter{2211}{\ensuremath{\sum}}
+\DeclareUnicodeCharacter{21D2}{\ensuremath{\Rightarrow}}
+\DeclareUnicodeCharacter{21D0}{\ensuremath{\Leftarrow}}
+\DeclareUnicodeCharacter{21D4}{\ensuremath{\Leftrightarrow}}
+\DeclareUnicodeCharacter{2194}{\ensuremath{\leftrightarrow}}
+\DeclareUnicodeCharacter{21A9}{\ensuremath{\hookleftarrow}}
+\DeclareUnicodeCharacter{2026}{\ldots}
+% Marks / dingbats (incl. emoji variants agents emit)
+\DeclareUnicodeCharacter{2713}{\ding{51}}
+\DeclareUnicodeCharacter{2714}{\ding{52}}
+\DeclareUnicodeCharacter{2705}{\ding{52}}
+\DeclareUnicodeCharacter{2717}{\ding{55}}
+\DeclareUnicodeCharacter{2718}{\ding{56}}
+\DeclareUnicodeCharacter{274C}{\ding{56}}
+\DeclareUnicodeCharacter{26A0}{\textbf{!}}
+\DeclareUnicodeCharacter{2605}{\ding{72}}
+\DeclareUnicodeCharacter{2606}{\ding{73}}
+\DeclareUnicodeCharacter{25CF}{\ding{108}}
+\DeclareUnicodeCharacter{25B6}{\ding{228}}
+\DeclareUnicodeCharacter{FE0F}{}
+\DeclareUnicodeCharacter{200B}{}
+% Box drawing (tree/diagram blocks) → ASCII. \mbox stops TeX's `--`
+% ligature from collapsing "──" into a single en-dash.
+\DeclareUnicodeCharacter{2500}{\mbox{-}}
+\DeclareUnicodeCharacter{2502}{|}
+\DeclareUnicodeCharacter{250C}{+}
+\DeclareUnicodeCharacter{2510}{+}
+\DeclareUnicodeCharacter{2514}{+}
+\DeclareUnicodeCharacter{2518}{+}
+\DeclareUnicodeCharacter{251C}{+}
+\DeclareUnicodeCharacter{2524}{+}
+\DeclareUnicodeCharacter{252C}{+}
+\DeclareUnicodeCharacter{2534}{+}
+\DeclareUnicodeCharacter{253C}{+}
