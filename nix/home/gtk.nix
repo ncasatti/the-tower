@@ -9,6 +9,7 @@ in
 
 {
   home.pointerCursor = {
+    enable = true;
     name = "DeppinDark-cursors";
     package = cursor-theme;
     size = 24;

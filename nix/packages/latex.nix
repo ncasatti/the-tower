@@ -4,12 +4,10 @@
 { pkgs, ... }:
 
 let
-  tex = pkgs.texlive.combine {
-    inherit (pkgs.texlive)
-      # Base distribution — covers amsmath, amssymb, amsfonts,
-      # mathtools, amsthm, microtype, beamer, hyperref, geometry.
-      scheme-medium
-
+  # nixpkgs 27.05 removes `texlive.combine` and the combined schemes.
+  # `texliveMedium.withPackages` is the supported API and yields the same
+  # package set: scheme-medium as the base, plus the extras listed below.
+  tex = pkgs.texliveMedium.withPackages (ps: with ps; [
       # Build automation
       latexmk
 
@@ -40,8 +38,13 @@ let
       pdfcol      # tcolorbox breakable dependency
       lastpage    # "Página N de M" footer
       inconsolata # monospace for code (zi4)
-      ;
-  };
+
+      # pdfcol -> listings -> listingsutf8.sty. scheme-medium ships
+      # listings.sty but NOT listingsutf8.sty (separate TeX Live package),
+      # so any document with a code panel died with
+      # "File `listingsutf8.sty' not found".
+      listingsutf8
+    ]);
 in
 {
   # tex: the LaTeX toolchain (above).
