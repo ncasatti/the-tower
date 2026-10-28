@@ -369,11 +369,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1791995402,
-        "narHash": "sha256-hlWVLXVDt5TnaVJwYmq5Q+MnnH8DR8mfCDEb8h7O7tY=",
+        "lastModified": 1793158495,
+        "narHash": "sha256-1ZAA6xHgsy8pbYFikuJTL4wFu/kSJZDF5YRVKMV+hxU=",
         "ref": "refs/heads/main",
-        "rev": "821a7bd53845db2cc25f4c1eed69dd4fc8527ea4",
-        "revCount": 21,
+        "rev": "534502d646715e8a42093b1198090787394ecf45",
+        "revCount": 25,
         "type": "git",
         "url": "file:///home/flyn/.the-grid/systems/github/pylon"
       },
