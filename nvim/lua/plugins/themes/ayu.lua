@@ -50,8 +50,8 @@ Colors = {
 	--   vivid-teal:   63C1CE 51ABBA 4396A6 388193 2F6D80 29596D
 	h1 = "#e65064", -- ayu red (kept)
 	h2 = "#59C2FF", -- blue
-	h3 = "#7FD962", -- green
-	h4 = "#C385FE", -- violet
+	h3 = "#C385FE", -- violet
+	h4 = "#7FD962", -- green
 	h5 = "#FFB454", -- amber
 	h6 = "#6FD0C0", -- teal-mint
 }
