@@ -13,7 +13,7 @@ return {
 		enter = true,
 		fixbuf = false,
 		minimal = false,
-		width = 100,
+		width = 70, -- zen window width (Snacks.zen reads it from this style, not from opts.zen)
 		height = 0,
 		backdrop = { transparent = true, blend = 80 },
 		keys = { q = false },

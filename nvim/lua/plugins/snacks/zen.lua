@@ -1,5 +1,4 @@
 return {
-	width = 70,
 	toggles = {
 		dim = false,
 	},
