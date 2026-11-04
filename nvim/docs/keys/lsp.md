@@ -10,6 +10,12 @@ Neovim detects three filetypes: `.tf` → `terraform`, `.tfvars` → `terraform-
 - **Server** — `terraform-ls` (HashiCorp), configured in
   `lua/plugins/lsp/servers/hcl.lua`. Works without the `terraform` binary;
   provider-backed completion needs `terraform` or `tofu` installed.
+  Two names are in play: mason's `ensure_installed` wants the lspconfig
+  server name `terraformls` (the mason package is `terraform-ls`), while
+  `vim.lsp.config`/`vim.lsp.enable` use our own name `terraform_ls`.
+  `terraformls` is excluded from mason-lspconfig's `automatic_enable` —
+  otherwise the builtin from nvim-lspconfig's runtimepath attaches too,
+  giving two clients on the same binary and duplicated diagnostics.
 - **Outline** — `<leader>ss` lists the file's blocks as a flat index:
   `variable "region"`, `resource "aws_instance" "web"`, `module "vpc"`,
   `output "public_ip"`. This is the same picker markdown uses for headings.
