@@ -8,7 +8,7 @@
     postman
     # bruno
     # posting
-    # postgresql
+    postgresql
     dbeaver-bin
     mariadb.client
   ];
