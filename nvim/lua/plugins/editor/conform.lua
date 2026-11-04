@@ -99,6 +99,15 @@ return {
 				c = { "clang-format" },
 				cpp = { "clang-format" },
 				nix = { "nixfmt" },
+				-- HCL family. conform's builtin formatter named `hcl` runs the
+				-- `hclfmt` binary (hashicorp/hcl) — conform resolves formatters
+				-- by MODULE NAME, not by binary name. One binary covers all
+				-- three filetypes and needs no terraform/tofu installed.
+				-- terraform-ls does not implement formatting, so conform is
+				-- the only path here.
+				terraform = { "hcl" },
+				["terraform-vars"] = { "hcl" },
+				hcl = { "hcl" },
 			},
 
 			-- Format options

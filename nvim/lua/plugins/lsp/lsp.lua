@@ -30,6 +30,7 @@ return {
       'yamlls',
       'bashls',
       'nil_ls',
+      'terraform-ls',
     }
 
     -- Ensure the servers are installed
@@ -60,6 +61,7 @@ return {
       'markdown',
       'bash',
       'nix',
+      'hcl',
     }
 
     -- Configure each server
@@ -89,5 +91,6 @@ return {
     vim.lsp.enable('marksman')
     vim.lsp.enable('bashls')
     vim.lsp.enable('nil_ls')
+    vim.lsp.enable('terraform_ls')
   end,
 }
