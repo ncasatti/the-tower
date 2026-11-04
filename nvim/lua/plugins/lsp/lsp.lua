@@ -30,12 +30,24 @@ return {
       'yamlls',
       'bashls',
       'nil_ls',
-      'terraform-ls',
+      -- mason-lspconfig resolves these through the mason registry's
+      -- `neovim.lspconfig` field: the package is `terraform-ls` but the
+      -- lspconfig server name is `terraformls`. A package name here is
+      -- rejected with "not a valid entry in ensure_installed".
+      'terraformls',
     }
 
     -- Ensure the servers are installed
     require('mason-lspconfig').setup {
       ensure_installed = servers,
+      -- mason-lspconfig auto-enables every installed mason package that maps
+      -- to an lspconfig server, which would enable the builtin `terraformls`
+      -- alongside our own `terraform_ls` config in servers/hcl.lua — two
+      -- clients on the same binary, duplicated diagnostics. Ours is the one
+      -- that covers all three HCL filetypes, so exclude the builtin.
+      automatic_enable = {
+        exclude = { 'terraformls' },
+      },
     }
 
     -- Turn on LSP status information
