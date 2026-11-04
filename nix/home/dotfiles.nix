@@ -1,9 +1,17 @@
 # nix/home/dotfiles.nix
 # Immutable symlinks from ~/.config to dotfile directories at repo root
 
-{ ... }:
+{ config, ... }:
 
 {
+  # nvim's vim.loader bytecode cache (~/.cache/nvim/luac) validates entries by
+  # size + mtime. Store files all have mtime 1, so an edit that keeps a file's
+  # byte size (e.g. swapping equal-length color strings) kept running the stale
+  # bytecode. Drop the cache whenever the config generation is relinked.
+  home.activation.clearNvimLuaCache = config.lib.dag.entryAfter [ "linkGeneration" ] ''
+    $DRY_RUN_CMD rm -rf "$HOME/.cache/nvim/luac"
+  '';
+
   home.file = {
     # --- Core & UI ---
     ".config/nvim"                = { source = ../../nvim;              recursive = true; };
