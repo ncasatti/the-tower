@@ -33,7 +33,7 @@ vim.o.conceallevel = 2
 vim.opt.clipboard = "unnamedplus"
 
 vim.opt.linebreak = true
-vim.opt.wrap = true
+vim.opt.wrap = false
 vim.opt.breakindent = true
 vim.opt.showbreak = "  " -- 
 
