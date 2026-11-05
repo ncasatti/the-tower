@@ -95,6 +95,8 @@
       '';
     });
     engram = prev.callPackage ../packages/custom/engram.nix { };
+    gentle-ai = prev.callPackage ../packages/custom/gentle-ai.nix { };
+    gga = prev.callPackage ../packages/custom/gga.nix { };
     codebase-memory-mcp = prev.callPackage ../packages/custom/codebase-memory-mcp.nix { };
     pdf2md = prev.callPackage ../packages/custom/pdf2md.nix { };
     antigravity-cli = inputs.antigravity.packages.${prev.stdenv.hostPlatform.system}.antigravity-cli;

@@ -2,16 +2,27 @@
 
 buildGoModule rec {
   pname = "engram";
-  version = "1.19.0";
+  version = "3.6.2";
 
   src = fetchFromGitHub {
     owner = "Gentleman-Programming";
     repo = "engram";
     rev = "v${version}";
-    hash = "sha256-EGcxj3GVLP5080oqaNFtK1FFv5gSDDyWXX7H1Pzf5Qs=";
+    hash = "sha256-JANo2rwSFBdbtovLRob4GmESEJ/uS3pUVMZAfwV4+60=";
   };
 
-  vendorHash = "sha256-O+pC4x4DKNUWr7Sx9iZOjK6a64wrQA4/lnjvkNLBX64=";
+  # proxyVendor: the go.mod patch below breaks vendor/modules.txt consistency.
+  proxyVendor = true;
+  vendorHash = "sha256-uNoFAUJfu3SFU9OqT1AJvHKKN6t6oPo6nC6GEbYhYJs=";
+
+  # go.mod pins the patch release (go 1.26.10); nixpkgs ships the same minor.
+  postPatch = ''
+    sed -i -E 's/^go 1\.26\.[0-9]+$/go 1.26/' go.mod
+  '';
+
+  subPackages = [ "cmd/engram" ];
+  env.CGO_ENABLED = 0;
+  ldflags = [ "-s" "-w" "-X main.version=${version}" ];
 
   doCheck = false;
 

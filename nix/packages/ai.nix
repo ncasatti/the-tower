@@ -9,6 +9,8 @@
     opencode
     clingy
     engram # persistent memory MCP
+    gentle-ai # Gentle AI configurator + bounded review CLI
+    gga # Gentleman Guardian Angel: AI code review git hook
     codebase-memory-mcp # code intelligence MCP (knowledge graph + UI)
     antigravity-cli
     # litellm   # proxy for MiniMax-M3 / M2.7-highspeed (runs as a systemd --user service, see modules/ai.nix)
