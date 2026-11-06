@@ -31,6 +31,11 @@
         tree-sitter-markdown-inline
         tree-sitter-latex
         tree-sitter-sql
+        # HCL. Not in pkgs.vimPlugins.nvim-treesitter-parsers (it only carries
+        # the officially supported languages), but the grammar exists in
+        # nixpkgs' tree-sitter-grammars and `withPlugins` accepts it. Needed for
+        # the <leader>ss outline in .hcl files, which have no LSP.
+        tree-sitter-grammars.tree-sitter-hcl
       ]))
     ];
   };

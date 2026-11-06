@@ -104,5 +104,11 @@ return {
     vim.lsp.enable('bashls')
     vim.lsp.enable('nil_ls')
     vim.lsp.enable('terraform_ls')
+
+    -- HCL outline: <leader>ss in HCL buffers lists the file's blocks via
+    -- treesitter. A generic .hcl file has no LSP at all (terraform-ls only
+    -- implements the terraform and terraform-vars language ids), so this is
+    -- the only index available for pylon-style manifests.
+    require('lsp.hcl-outline').setup()
   end,
 }
