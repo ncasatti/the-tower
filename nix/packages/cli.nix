@@ -29,7 +29,10 @@
     lazydocker
     fish
     rclone
-    speedtest-cli
+    # Official Ookla client. Replaces the Python speedtest-cli, whose server
+    # list had no Argentine servers (it picked Brazil, ~2265 km) and which
+    # under-reports on fast links. Unfree (allowUnfree is global).
+    ookla-speedtest
     bind
     tcpdump
     translate-shell
