@@ -25,6 +25,7 @@
 
     # Server-specific
     ./adguard.nix
+    ./network.nix               # Static LAN addressing (192.168.100.4)
     ./htpc.nix                  # Hyprland + greetd autologin + Intel VA-API
   ];
 
