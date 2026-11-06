@@ -24,7 +24,11 @@ Neovim detects three filetypes: `.tf` → `terraform`, `.tfvars` → `terraform-
 - **Outline** — `<leader>ss` lists the file's blocks as a flat index:
   `variable "region"`, `resource "aws_instance" "web"`, `module "vpc"`,
   `output "public_ip"`. This is the same picker markdown uses for headings.
-  Available in `.tf` and `.tfvars`.
+  In HCL buffers it is the **treesitter** outline (`lua/lsp/hcl-outline.lua`),
+  not the LSP picker — a generic `.hcl` file has no LSP, so the LSP picker
+  reports "No results found". The grammar exposes each block's `identifier`
+  (the block type) and `string_lit` (its label); nested blocks are indented by
+  depth. In every other filetype `<leader>ss` stays the LSP symbols picker.
 - **Format** — `<leader>ll` runs conform with the builtin `hcl` formatter,
   which shells out to the `hclfmt` binary (hashicorp/hcl). conform resolves
   formatters by **module name**, not binary name — the entry is `"hcl"` while
