@@ -8,6 +8,7 @@
 #   /nix/store, /etc, /run/current-system, /bin, /usr   read-only
 #   /run/opengl-driver{,-32}, /sys                       read-only (GPU)
 #   /dev/dri, /dev/nvidia*                               GPU devices
+#   /dev/input, /run/udev (ro)                           gamepads (uaccess)
 #   $XDG_RUNTIME_DIR/{wayland,pipewire-0,pulse/native}   display + audio
 #   ~/.local/share/game-jail/<name>  →  $HOME            private home
 #   --ro / --rw PATH                                     extra binds
@@ -74,6 +75,12 @@ writeShellApplication {
       --proc /proc
       --dev /dev
       --dev-bind-try /dev/dri /dev/dri
+      # Gamepads: host permissions still apply inside the jail. logind's
+      # uaccess ACL grants the user joysticks only; keyboards/mice stay
+      # root-only, so this does not enable keylogging. /run/udev lets SDL
+      # enumerate and hotplug them.
+      --dev-bind-try /dev/input /dev/input
+      --ro-bind-try /run/udev /run/udev
       --tmpfs /tmp
 
       --dir "$run"
