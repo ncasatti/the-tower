@@ -35,7 +35,12 @@
         # the officially supported languages), but the grammar exists in
         # nixpkgs' tree-sitter-grammars and `withPlugins` accepts it. Needed for
         # the <leader>ss outline in .hcl files, which have no LSP.
-        tree-sitter-grammars.tree-sitter-hcl
+        #
+        # Qualified with `pkgs.`: `with p;` brings in the set withPlugins
+        # passes to this lambda (tree-sitter-grammars.derivations //
+        # builtGrammars), which has no `tree-sitter-grammars` attribute, so
+        # the unqualified path fails with "undefined variable".
+        pkgs.tree-sitter-grammars.tree-sitter-hcl
       ]))
     ];
   };
