@@ -36,7 +36,8 @@
 
 
     # --- System Reference (keyd config for reference) ---
-    ".config/keyd"                = { source = ../../keyd;             recursive = true; };
+    # Only default.conf: app.conf is linked out-of-store by home/keyd.nix.
+    ".config/keyd/default.conf".source = ../../keyd/default.conf;
 
     # --- Package Managers ---
     ".bunfig.toml".text = ''

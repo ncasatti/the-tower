@@ -8,6 +8,7 @@
   imports = [
     # --- Home modules ---
     ../../home/dotfiles.nix
+    ../../home/keyd.nix         # keyd-application-mapper (per-app bindings)
     ../../home/git.nix
     ../../home/gtk.nix
     ../../home/tmux.nix

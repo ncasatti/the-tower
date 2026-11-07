@@ -24,6 +24,7 @@ in
   imports = [
     # --- Home modules ---
     ../../home/dotfiles.nix
+    ../../home/keyd.nix         # keyd-application-mapper (per-app bindings)
     ../../home/bash.nix
     ../../home/git.nix
     ../../home/gtk.nix
