@@ -8,8 +8,8 @@ return {
   lazy = false,
 
   keys = {
-    { "<leader>E", "<CMD>Oil<CR>", desc = "Open Oil (parent dir)" },
-    { "-", "<CMD>Oil --float<CR>", desc = "Open Oil (floating)" },
+    { "-", "<CMD>Oil<CR>", desc = "Open Oil (parent dir)" },
+    { "<leader>E", "<CMD>Oil --float<CR>", desc = "Open Oil (floating)" },
   },
 
   opts = {
