@@ -159,22 +159,21 @@
         "flake-parts": "flake-parts",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs_3",
-        "npm-lockfile-fix": "npm-lockfile-fix",
         "pyproject-build-systems": "pyproject-build-systems",
         "pyproject-nix": "pyproject-nix",
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1793908658,
-        "narHash": "sha256-PzkocTi9jbkuht4cvpmXu/hTIAUNtE/xyivPoncNq8Y=",
+        "lastModified": 1794270273,
+        "narHash": "sha256-wGv+kNpiOGa1k/QxN7njXSF3wmlwPGtQ02Frnp6hP18=",
         "owner": "NousResearch",
         "repo": "hermes-agent",
-        "rev": "2bd378ed1b8d6bf2192cb26e0a55ff3091e6bd19",
+        "rev": "3b421578588243f920886e6fe79a6faa87ea026e",
         "type": "github"
       },
       "original": {
         "owner": "NousResearch",
-        "ref": "v0.23.0",
+        "ref": "v0.23.1",
         "repo": "hermes-agent",
         "type": "github"
       }
@@ -322,27 +321,6 @@
         "type": "github"
       }
     },
-    "npm-lockfile-fix": {
-      "inputs": {
-        "nixpkgs": [
-          "hermes-agent",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1775903712,
-        "narHash": "sha256-2GV79U6iVH4gKAPWYrxUReB0S41ty/Y3dBLquU8AlaA=",
-        "owner": "jeslie0",
-        "repo": "npm-lockfile-fix",
-        "rev": "c6093acb0c0548e0f9b8b3d82918823721930fe8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jeslie0",
-        "repo": "npm-lockfile-fix",
-        "type": "github"
-      }
-    },
     "opencode-nix": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -369,11 +347,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1793652664,
-        "narHash": "sha256-8qc7C7hZMdC3BB9tcQnaB0wp9ZpnzIvM9qJlVlRx6KY=",
+        "lastModified": 1794511720,
+        "narHash": "sha256-9AlSIiMUTvvXZf6HVAjcJ5CFFXMi9FjLygdxhhoC3rk=",
         "ref": "refs/heads/main",
-        "rev": "7d918560eea013919f12abae4a61f448e3a6acbb",
-        "revCount": 37,
+        "rev": "708513c8748418dfb428a23a51ccf2f39b1feb72",
+        "revCount": 58,
         "type": "git",
         "url": "file:///home/flyn/.the-grid/systems/github/pylon"
       },
