@@ -100,6 +100,12 @@ writeShellApplication {
       --setenv WAYLAND_DISPLAY "$wl"
       --setenv XDG_SESSION_TYPE wayland
       --setenv GAME_JAIL "$name"
+      # NVIDIA EGL looks for its platform plugins (egl-wayland, gbm, x11)
+      # only in /etc/egl and /usr/share/egl. umu's buildFHSEnv does not pass
+      # the host /etc/egl through, so pressure-vessel never captures them and
+      # wine's Wayland driver (EGL) falls back to Mesa llvmpipe: OpenGL games
+      # render on the CPU. Point EGL at the driver's own copy instead.
+      --setenv __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS /run/opengl-driver/share/egl/egl_external_platform.d
     )
 
     for dev in /dev/nvidia*; do
