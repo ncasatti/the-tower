@@ -78,8 +78,13 @@ in
 
   programs.gamemode.enable = true;
 
+  # Gaming mouse configuration (buttons, DPI, LEDs): piper is only a D-Bus
+  # client of the ratbagd system daemon, which talks HID++ to the device.
+  # libratbag's D-Bus policy lets any local user call it; no group needed.
+  services.ratbagd.enable = true;
+
   environment.systemPackages =
-    [ game-jail ]
+    [ game-jail pkgs.piper ]
     ++ pkgs.lib.mapAttrsToList mkLauncher profiles
     ++ pkgs.lib.mapAttrsToList mkDesktop profiles;
 }
