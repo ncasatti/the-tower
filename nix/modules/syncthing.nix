@@ -9,8 +9,9 @@
 # Device IDs are derived from each host's TLS certificate, generated on the
 # service's FIRST start — they cannot be pre-declared. Rollout per host:
 #   1. Rebuild the host with this module (id may still be null here).
-#   2. Read its ID:  syncthing --device-id --home=/home/flyn/.local/state/syncthing/.config/syncthing
-#      (or: journalctl -u syncthing | grep "My ID")
+#   2. Read its ID:  syncthing device-id --home=/home/flyn/.local/state/syncthing/.config/syncthing
+#      (Syncthing v2 subcommand; the v1 `--device-id` flag is gone, and
+#      journalctl does not reliably show "My ID" with this setup.)
 #   3. Paste the ID into `grid` below and rebuild all hosts.
 # Hosts with a null id are skipped, so the config stays valid mid-rollout.
 
@@ -24,10 +25,10 @@ let
     the-grid-server = {
       id = "EA3U4EI-ZNLSIX5-7UILELT-5LKJ4HK-PEAWSXX-V7T6Y5H-JZOCV5X-765SYAQ";
     };
-    # Reinstalled 2026-11-16 on new hardware: the old ID belonged to the
-    # retired notebook. null until the new install's first Syncthing start.
+    # Reinstalled 2026-11-16 on new hardware (Intel i7-1165G7); the previous
+    # ID belonged to the retired AMD notebook.
     the-grid-notebook = {
-      id = null;
+      id = "R5EDNVN-3L6WUI7-ORBX3QS-UR6JOUB-P3QVK3R-7UGTIP4-KZVDF76-5YIYDAF";
     };
     # NixOS-WSL peer. id is generated on the first `nixos-rebuild` INSIDE the
     # distro (null until then → skipped by the `peers` filter). Then paste it
