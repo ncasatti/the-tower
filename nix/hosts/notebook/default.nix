@@ -46,7 +46,25 @@
   # not power off, so the regression is in the kernel between v6.18.26 and
   # v6.18.57 (not yet bisected). Remove the pin once that commit is fixed.
   # Vault: systems/the-tower (notebook lid poweroff).
+  # NOTE 2026-11-16: hardware replaced (AMD -> Intel i7-1165G7). The pin is
+  # kept as a safe LTS default; re-evaluate on this machine (lid-open wake
+  # test on the latest kernel) before removing it.
   boot.kernelPackages = pkgs.linuxPackages_6_12;
+
+  # --- SWAP (zram + randomEncryption on the swap partition) ---
+  # Same two-layer design as main/server: zram is the hot path, the
+  # randomEncryption partition (hardware-configuration.nix) is overflow.
+  # See docs/swap-architecture.md.
+  zramSwap = {
+    enable    = true;
+    algorithm = "zstd";
+  };
+
+  # --- SSD TRIM (batched, replaces continuous discard) ---
+  services.fstrim.enable = true;
+
+  # --- GRAPHICS: Intel Tiger Lake VA-API (iHD driver) ---
+  hardware.graphics.extraPackages = with pkgs; [ intel-media-driver ];
 
   # --- NETWORKING ---
   networking.hostName            = "the-grid-notebook";

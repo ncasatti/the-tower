@@ -24,8 +24,10 @@ let
     the-grid-server = {
       id = "EA3U4EI-ZNLSIX5-7UILELT-5LKJ4HK-PEAWSXX-V7T6Y5H-JZOCV5X-765SYAQ";
     };
+    # Reinstalled 2026-11-16 on new hardware: the old ID belonged to the
+    # retired notebook. null until the new install's first Syncthing start.
     the-grid-notebook = {
-      id = "XXGQNZT-YYMWDPU-7WFQO5I-7RKA5FZ-PQYCT6C-ADEXIU4-GSZWJMG-G4CLTQ2";
+      id = null;
     };
     # NixOS-WSL peer. id is generated on the first `nixos-rebuild` INSIDE the
     # distro (null until then → skipped by the `peers` filter). Then paste it
