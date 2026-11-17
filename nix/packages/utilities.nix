@@ -30,8 +30,8 @@ in
     # zoom-us
     # onlyoffice-desktopeditors
     # qcad
-    # tidal-hifi: declared per-host now — wrapped (no VA-API) on main, stock
-    # elsewhere. GPU env is host-specific, so is this. See ADR-002.
+    # tidal-hifi: nix/home/tidal-hifi.nix, imported per host — wrapped
+    # (no VA-API) on main, stock elsewhere (ADR-002); settings enforced (ADR-008).
   ];
 
   programs.chromium.enable = true;

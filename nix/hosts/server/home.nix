@@ -15,6 +15,7 @@
     ../../home/xdg.nix
     ../../home/polkit.nix
     ../../home/activation.nix   # hy3 plugin load + wallust cache scaffold
+    ../../home/tidal-hifi.nix   # stock package + enforced settings (ADR-008)
 
     # --- Package sets ---
     ../../packages/nvim.nix
@@ -43,7 +44,6 @@
     clingy
     kitty
     zen-browser
-    tidal-hifi
   ];
 
   # --- Per-host Hyprland overrides (sourced last by hypr/hyprland.conf) ---

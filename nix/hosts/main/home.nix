@@ -9,7 +9,6 @@ let
   # (no nvidia-vaapi-driver). Its video-decode path stalls the shared GPU and
   # freezes the compositor + other GPU clients (e.g. Zen). Disable VA-API
   # decode/encode; GPU compositing/rasterization is kept. See ADR-002.
-  # (let-bound name shadows pkgs.tidal-hifi inside `with pkgs` below.)
   tidal-hifi = pkgs.symlinkJoin {
     name = "tidal-hifi-no-vaapi";
     paths = [ pkgs.tidal-hifi ];
@@ -34,6 +33,7 @@ in
     ../../home/sioyek.nix
     ../../home/polkit.nix
     ../../home/moonlight.nix    # Moonlight client + paired config
+    ../../home/tidal-hifi.nix   # package + enforced settings (ADR-008)
     # ../../home/secrets.nix  # agenix — disabled for now
 
     # --- AI module (LiteLLM proxy) ---
@@ -65,13 +65,15 @@ in
   home.file.".config/hypr/configs/monitors.local.conf".source =
     ../../../hypr/configs/hosts/main.conf;
 
+  # tidal-hifi: wrapped above, VA-API decode disabled (ADR-002)
+  the-grid.tidal-hifi.package = tidal-hifi;
+
   # Extra packages specific to main
   home.packages = with pkgs; [
     cool-retro-term
     kitty
     obsidian
     pylon        # local flake input, only present on this host (see flake.nix)
-    tidal-hifi   # wrapped above: VA-API decode disabled (ADR-002)
 
     # Screenshot & Multimedia dependencies
     grim

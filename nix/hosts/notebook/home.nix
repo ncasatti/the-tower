@@ -17,6 +17,7 @@
     ../../home/sioyek.nix
     ../../home/polkit.nix
     ../../home/moonlight.nix    # Moonlight client + paired config
+    ../../home/tidal-hifi.nix   # stock package + enforced settings (ADR-008)
     # ../../home/secrets.nix  # agenix — disabled for now
 
     # --- Hermes Agent (NousResearch) — see nix/modules/hermes.nix ---
@@ -50,7 +51,6 @@
     cool-retro-term
     kitty
     obsidian
-    tidal-hifi   # stock: AMD/radeonsi VA-API works (no wrapper needed)
 
     # Screenshot & Multimedia dependencies
     grim
