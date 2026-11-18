@@ -15,6 +15,12 @@
 -- (with a text progress bar), dependencies (blocked by / blocking),
 -- checklist and time. Empty sections are omitted.
 --
+-- Every row is fitted to the panel width: the optional trailing
+-- segments (a subtask's priority and dates) are dropped first, and a
+-- row that still does not fit is cut with "…" on a character boundary.
+-- The width is the panel window's own width, so a resize re-fits the
+-- rows.
+--
 -- The panel follows the buffer under the cursor: entering another
 -- buffer re-renders it for that buffer, entering the panel itself
 -- never re-renders it.
@@ -68,8 +74,11 @@ local BAR_WIDTH = 8
 -- ──────────────────────────────────────────────────────────────────────
 
 -- A single text segment with an optional highlight group.
-local function seg(text, hl)
-	return { text = text, hl = hl }
+--
+-- `optional` marks the least important segments of a row (a subtask's
+-- priority and dates): the fitter drops them before cutting the text.
+local function seg(text, hl, optional)
+	return { text = text, hl = hl, optional = optional }
 end
 
 -- Normalizes a date field to YYYY-MM-DD (the API sends full ISO
@@ -140,6 +149,231 @@ local function color_hl(prefix, value, color)
 		return "Comment"
 	end
 	return ui.ensure_color_hl(prefix, value, color)
+end
+
+-- The ellipsis that marks a row cut at the panel width.
+local ELLIPSIS = "…"
+
+-- The display name of a wiki link, as shown in the panel:
+--   [[Name]]            -> Name
+--   [[folder/Name]]     -> Name
+--   [[Name|Alias]]      -> Alias
+--   "[[Name]]"          -> Name
+-- The alias wins over the target, and the folder prefix is dropped.
+-- The value sent on edit is never touched: this is display only.
+local function link_label(raw)
+	if type(raw) ~= "string" then
+		return nil
+	end
+
+	local s = vim.trim(raw)
+
+	-- Surrounding quotes (single or double).
+	s = s:gsub('^"(.*)"$', "%1")
+	s = s:gsub("^'(.*)'$", "%1")
+	s = vim.trim(s)
+
+	-- Wiki brackets.
+	s = s:gsub("^%[%[", "")
+	s = s:gsub("%]%]$", "")
+	s = vim.trim(s)
+
+	-- The alias after `|` is the label the user wrote.
+	local target, alias = s:match("^([^|]*)|(.*)$")
+	if alias and vim.trim(alias) ~= "" then
+		s = vim.trim(alias)
+	else
+		s = vim.trim(target or s)
+		-- Heading and folder prefix are not part of the name.
+		s = s:gsub("#.*$", "")
+		s = vim.trim(s)
+		s = s:match("([^/]+)$") or s
+		s = s:gsub("%.md$", "")
+	end
+
+	s = vim.trim(s)
+	if s == "" then
+		return nil
+	end
+	return s
+end
+
+-- The value of a link-valued field as one line ("a, b"), with the
+-- link names instead of the raw wikilinks. nil when empty.
+local function join_links(value)
+	local list = value
+	if type(list) == "string" then
+		list = { list }
+	end
+	if type(list) ~= "table" then
+		return nil
+	end
+
+	local parts = {}
+	for _, raw in ipairs(list) do
+		local label = link_label(raw)
+		if label then
+			parts[#parts + 1] = label
+		end
+	end
+	if #parts == 0 then
+		return nil
+	end
+	return table.concat(parts, ", ")
+end
+
+-- The width the rows were last fitted to. A WinResized event that
+-- changes it means the rows must be fitted again.
+local rendered_width = nil
+
+-- The width available for a row: the panel window's width when the
+-- panel is open, the configured width otherwise. The panel has no
+-- sign column and no line numbers, so the window width IS the text
+-- width.
+local function available_width()
+	if M.win and vim.api.nvim_win_is_valid(M.win) then
+		return vim.api.nvim_win_get_width(M.win)
+	end
+	return config.panel_width or 48
+end
+
+-- The display width of a row (its segments concatenated).
+local function row_width(segments)
+	local parts = {}
+	for _, segment in ipairs(segments) do
+		parts[#parts + 1] = segment.text
+	end
+	return vim.fn.strdisplaywidth(table.concat(parts))
+end
+
+-- A copy of a segment (the fit never mutates its input).
+local function copy_segment(segment)
+	local copy = {}
+	for key, value in pairs(segment) do
+		copy[key] = value
+	end
+	return copy
+end
+
+-- The number of characters of the longest prefix of `text` whose
+-- display width is at most `budget`. The prefix always ends on a
+-- character boundary, so a multibyte glyph is never cut in half.
+--
+-- The display width of a prefix grows monotonically with its length,
+-- so the longest fitting prefix is found by bisection.
+local function prefix_chars(text, budget)
+	if budget <= 0 then
+		return 0
+	end
+
+	local chars = vim.fn.strchars(text)
+	local lo, hi = 0, chars
+	while lo < hi do
+		local mid = math.floor((lo + hi + 1) / 2)
+		if vim.fn.strdisplaywidth(vim.fn.strcharpart(text, 0, mid)) <= budget then
+			lo = mid
+		else
+			hi = mid - 1
+		end
+	end
+	return lo
+end
+
+-- The byte length of the longest prefix of `text` that fits in
+-- `max_bytes` and ends on a character boundary.
+local function head_bytes(text, max_bytes)
+	if max_bytes >= #text then
+		return #text
+	end
+	if max_bytes <= 0 then
+		return 0
+	end
+
+	local chars = vim.fn.strchars(text)
+	local lo, hi = 0, chars
+	while lo < hi do
+		local mid = math.floor((lo + hi + 1) / 2)
+		if #vim.fn.strcharpart(text, 0, mid) <= max_bytes then
+			lo = mid
+		else
+			hi = mid - 1
+		end
+	end
+	return #vim.fn.strcharpart(text, 0, lo)
+end
+
+-- Fits a row to `width` display cells.
+--
+-- The optional trailing segments (the least important ones: a
+-- subtask's priority and dates) are dropped from the end first; only
+-- when the row still does not fit is its text cut, on a character
+-- boundary, and marked with "…".
+--
+-- Pure: the segments it is given are never modified.
+--
+--   M._fit_segments(segments, width) -> segments
+function M._fit_segments(segments, width)
+	width = tonumber(width) or 0
+	if width <= 0 or type(segments) ~= "table" then
+		return segments
+	end
+
+	local kept = {}
+	for _, segment in ipairs(segments) do
+		kept[#kept + 1] = copy_segment(segment)
+	end
+
+	-- 1. Drop the optional trailing segments while the row is too wide:
+	--    the date and the priority go before the name is cut.
+	while row_width(kept) > width do
+		local last = kept[#kept]
+		if not (last and last.optional) then
+			break
+		end
+		table.remove(kept)
+	end
+
+	if row_width(kept) <= width then
+		return kept
+	end
+
+	-- 2. Cut the text and mark the cut with an ellipsis.
+	local parts = {}
+	for _, segment in ipairs(kept) do
+		parts[#parts + 1] = segment.text
+	end
+	local text = table.concat(parts)
+	local cut = prefix_chars(text, width - vim.fn.strdisplaywidth(ELLIPSIS))
+	local cut_bytes = #vim.fn.strcharpart(text, 0, cut)
+
+	local fitted = {}
+	local offset = 0
+	for _, segment in ipairs(kept) do
+		local length = #segment.text
+		if offset >= cut_bytes then
+			-- The segments after the cut are dropped.
+			break
+		end
+		local piece = segment.text
+		if offset + length > cut_bytes then
+			-- The segment is cut: keep its character-aligned head.
+			piece = segment.text:sub(1, head_bytes(segment.text, cut_bytes - offset))
+		end
+		local copy = copy_segment(segment)
+		copy.text = piece
+		fitted[#fitted + 1] = copy
+		offset = offset + length
+	end
+
+	if #fitted == 0 then
+		-- Nothing fits: the ellipsis stands alone.
+		fitted[1] = { text = ELLIPSIS, hl = kept[1].hl }
+	else
+		local last = fitted[#fitted]
+		last.text = last.text .. ELLIPSIS
+	end
+
+	return fitted
 end
 
 -- ──────────────────────────────────────────────────────────────────────
@@ -218,7 +452,9 @@ local function build_rows(ctx)
 		property("Scheduled", "scheduled", short_date(task.scheduled))
 		property("Due", "due", short_date(task.due))
 		property("Contexts", "contexts", join_list(task.contexts))
-		property("Projects", "projects", join_list(task.projects))
+		-- The projects are wiki links: show their names, not the raw
+		-- links. The value sent on edit is untouched.
+		property("Projects", "projects", join_links(task.projects))
 		property("Tags", "tags", join_list(task.tags))
 
 		-- The estimate is stored in minutes; show the raw number so it
@@ -270,16 +506,18 @@ local function build_rows(ctx)
 				seg(ui.icon_for_status(sub.status), color_hl("TaskNotesStatus", sub.status, status_colors[sub.status])),
 				seg(" " .. (sub.name or "")),
 			}
+			-- The priority and the dates are the least important parts
+			-- of the row: they are dropped before the name is cut.
 			if sub.priority then
-				segments[#segments + 1] = seg("  " .. (priority_labels[sub.priority] or sub.priority), "Comment")
+				segments[#segments + 1] = seg("  " .. (priority_labels[sub.priority] or sub.priority), "Comment", true)
 			end
 			local scheduled = short_date(sub.scheduled)
 			local due = short_date(sub.due)
 			if scheduled then
-				segments[#segments + 1] = seg("  sched " .. scheduled, "Comment")
+				segments[#segments + 1] = seg("  sched " .. scheduled, "Comment", true)
 			end
 			if due then
-				segments[#segments + 1] = seg("  due " .. due, "Comment")
+				segments[#segments + 1] = seg("  due " .. due, "Comment", true)
 			end
 			add(segments, sub.path)
 		end
@@ -345,8 +583,9 @@ local function build_rows(ctx)
 
 	-- ── Footer hint ──────────────────────────────────────────────────
 	-- The keys that work in the panel. Only shown for a real task.
+	-- Short enough to fit the default panel width (48) on its own.
 	if ctx then
-		add({ seg("<CR> edit/open · s status · p priority · d due · q close", "Comment") })
+		add({ seg("<CR> edit/open · s/p/d status/prio/due · q", "Comment") })
 	end
 
 	return rows
@@ -371,14 +610,24 @@ end
 -- Writes the rows into a buffer: the text as real lines, the
 -- highlights as extmarks in the panel namespace.
 --
+-- Every row is fitted to the panel width first: the optional trailing
+-- segments are dropped and the text is cut with an ellipsis, so a row
+-- is never cut at the window edge.
+--
 -- The buffer is never left modified — the text is written with
 -- `modifiable` temporarily on, and the modified flag is cleared
 -- afterwards.
 local function apply_rows(buf, rows)
+	local width = available_width()
+	rendered_width = width
+
+	local fitted = {}
 	local lines = {}
 	for i, row in ipairs(rows) do
+		local segments = M._fit_segments(row.segments, width)
+		fitted[i] = segments
 		local parts = {}
-		for _, segment in ipairs(row.segments) do
+		for _, segment in ipairs(segments) do
 			parts[#parts + 1] = segment.text
 		end
 		lines[i] = table.concat(parts)
@@ -392,9 +641,9 @@ local function apply_rows(buf, rows)
 	vim.bo[buf].modifiable = modifiable
 	vim.bo[buf].modified = false
 
-	for i, row in ipairs(rows) do
+	for i, segments in ipairs(fitted) do
 		local col = 0
-		for _, segment in ipairs(row.segments) do
+		for _, segment in ipairs(segments) do
 			local len = #segment.text
 			if segment.hl and len > 0 then
 				vim.api.nvim_buf_set_extmark(buf, M.ns, i - 1, col, {
@@ -760,6 +1009,23 @@ function M.attach()
 		pattern = "TaskNotesCacheRefreshed",
 		callback = function()
 			if not M.is_open() or not M.followed then
+				return
+			end
+			follow(M.followed)
+		end,
+	})
+
+	-- The rows are fitted to the panel width: when the panel window
+	-- is resized, the rows are cut for the new width.
+	vim.api.nvim_create_autocmd("WinResized", {
+		group = group,
+		pattern = "*",
+		callback = function()
+			if not M.is_open() or not M.followed then
+				return
+			end
+			-- Only the panel's own width matters.
+			if available_width() == rendered_width then
 				return
 			end
 			follow(M.followed)

@@ -69,7 +69,7 @@ point. The lazy spec under `lua/plugins/writing/` does nothing but `require` it.
 | `context` | Task context builder — parents, subtasks, progress and checklist counts for one task |
 | `card` | The inline task card: a `Context` rendered as extmark virtual lines under the frontmatter |
 | `frontmatter` | Hidden frontmatter: the rows above the closing `---` concealed with a `conceal_lines` extmark |
-| `panel` | The read-only task info side panel: a `Context` rendered as text in a right-hand split |
+| `panel` | The task info side panel: shows and edits the task properties in a right-hand split |
 | `ui` | Shared Snacks picker view, the live-color engine, status/priority rank tables, row formatter |
 | `pickers` | The `Key → Value → File` drill-down + status/tag shortcuts + the vault tag browser |
 | `query` | Filter builder, the API-backed task finder, and the interactive query builder |
@@ -105,7 +105,7 @@ All bindings are **flat under `<leader>o`** (no chord sub-trees). Registered in
 | `owp` | **Pomodoro / time** | State-aware Pomodoro & time-tracking panel |
 | `owr` | **Refresh** | Force cache rebuild |
 | `oc` | **Toggle inline card** | Show/hide the inline task card under the frontmatter |
-| `oi` | **Info panel** | Toggle the read-only task info side panel |
+| `oi` | **Info panel** | Toggle the task info side panel (shows and edits the task properties) |
 | `oh` | **Toggle frontmatter** | Hide/show the frontmatter rows of task notes (the closing `---` stays visible) |
 
 > The old chord-based design (`oz*` search, `c*` contexts, `d*` dates, `v*` views,
@@ -245,7 +245,9 @@ What the panel shows:
   Scheduled, Due, Contexts, Projects, Tags, Estimate. Each row shows
   the current value (the live label and color for status and priority,
   an em dash `—` when the field is empty). The Estimate row shows the
-  raw minutes — the unit the editor prompts in.
+  raw minutes — the unit the editor prompts in. The Projects row shows
+  the **link names** (`Parent Note`), not the raw wikilinks
+  (`[[Parent Note]]`); the value sent on edit is untouched.
 - **Dates** — created and modified (short dates). Scheduled and due
   live in Properties.
 - **Parents** — the projects the task declares.
@@ -263,6 +265,12 @@ What the panel shows:
 Empty sections are omitted. A buffer that is not a task shows
 `Not a TaskNotes task`; while the task cache is still empty the panel
 shows `Loading tasks…`.
+
+Every row is **fitted to the panel width**: the least important parts
+of a row (a subtask's priority and dates) are dropped first, and a row
+that still does not fit is cut with `…` on a character boundary — never
+in the middle of a word or a glyph. The width follows the panel window,
+so resizing the panel re-fits the rows.
 
 The panel **follows the buffer**: entering another buffer re-renders it
 for that buffer, while entering the panel window itself never

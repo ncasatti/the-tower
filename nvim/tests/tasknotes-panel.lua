@@ -21,6 +21,10 @@
 --   9. The footer hint shows for a task and not for the empty state.
 --  10. <CR> on a property row and the s/p/d keys edit the followed
 --      task through task_ops.edit_field.
+--  11. Width fitting: every row fits the panel width, cut with "…";
+--      the optional trailing segments go before the name is cut.
+--  12. The Projects row shows link names, not raw wikilinks.
+--  13. Resizing the panel window re-renders it.
 --
 -- Run: cd nvim && nvim --headless -u NONE --cmd 'set rtp^=.' -l tests/tasknotes-panel.lua
 
@@ -121,6 +125,9 @@ local BETA = vault .. "/TaskNotes/Tasks/Beta.md"
 local GAMMA = vault .. "/TaskNotes/Tasks/Gamma.md"
 local DELTA = vault .. "/TaskNotes/Tasks/Delta.md"
 local PARENT = vault .. "/Areas/Parent Note.md"
+local LONG = vault .. "/TaskNotes/Tasks/Long.md"
+local LONG_SUB = vault .. "/TaskNotes/Tasks/LongSub.md"
+local MEDIUM_SUB = vault .. "/TaskNotes/Tasks/MediumSub.md"
 
 local ALPHA_LINES = {
 	"---",
@@ -136,7 +143,7 @@ local ALPHA_LINES = {
 }
 
 -- The notes exist on disk so <CR> can open them.
-for _, path in ipairs({ ALPHA, BETA, GAMMA, DELTA, PARENT }) do
+for _, path in ipairs({ ALPHA, BETA, GAMMA, DELTA, PARENT, LONG, LONG_SUB }) do
 	vim.fn.writefile({ "---", "---" }, path)
 end
 
@@ -196,6 +203,39 @@ local TASKS = {
 			title = "Parent Note",
 			status = "done",
 			priority = "normal",
+		},
+		mtime = 0,
+	},
+	-- A task whose subtasks are too wide for the panel: the priority
+	-- and the date are dropped, and a very long name is cut with "…".
+	[LONG] = {
+		fm = {
+			path = "TaskNotes/Tasks/Long.md",
+			title = "Long",
+			status = "in-progress",
+			priority = "normal",
+		},
+		mtime = 0,
+	},
+	[LONG_SUB] = {
+		fm = {
+			path = "TaskNotes/Tasks/LongSub.md",
+			title = "implementar el panel de tareas con soporte de edicion completa",
+			status = "in-progress",
+			priority = "normal",
+			scheduled = "2026-11-07",
+			projects = { "[[Long]]" },
+		},
+		mtime = 0,
+	},
+	[MEDIUM_SUB] = {
+		fm = {
+			path = "TaskNotes/Tasks/MediumSub.md",
+			title = "tarea de longitud media",
+			status = "in-progress",
+			priority = "normal",
+			scheduled = "2026-11-07",
+			projects = { "[[Long]]" },
 		},
 		mtime = 0,
 	},
@@ -377,9 +417,8 @@ assert_not_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "
 -- 9. The footer hint
 -- ──────────────────────────────────────────────────────────────────────
 assert_contains(text, "<CR> edit/open", "the footer hint is rendered for a task")
-assert_contains(text, "s status", "the footer hint lists the status key")
-assert_contains(text, "p priority", "the footer hint lists the priority key")
-assert_contains(text, "d due", "the footer hint lists the due key")
+assert_contains(text, "s/p/d status/prio/due", "the footer hint lists the status/priority/due keys")
+assert_contains(text, "· q", "the footer hint lists the close key")
 
 -- The panel highlights the status icon in the live color.
 local marks = vim.api.nvim_buf_get_extmarks(panel_buf, panel.ns, 0, -1, { details = true })
@@ -683,6 +722,276 @@ if snacks then
 
 	panel.toggle()
 	package.loaded["tasknotes.task_ops"] = real_task_ops
+end
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 11. Width fitting: every row fits the panel width
+-- ──────────────────────────────────────────────────────────────────────
+
+-- The panel is closed here, so the rows are fitted to the configured
+-- panel width.
+local PANEL_WIDTH = config.panel_width
+assert_equal(PANEL_WIDTH, 48, "the configured panel width is 48")
+
+-- The text of a segment list.
+local function segments_text(segments)
+	local parts = {}
+	for _, segment in ipairs(segments) do
+		parts[#parts + 1] = segment.text
+	end
+	return table.concat(parts)
+end
+
+-- True when `text` is valid UTF-8: re-encoding every character must
+-- give the same bytes back.
+local function is_valid_utf8(text)
+	local parts = {}
+	for _, cp in ipairs(vim.fn.str2list(text)) do
+		parts[#parts + 1] = vim.fn.nr2char(cp)
+	end
+	return table.concat(parts) == text
+end
+
+local fit = panel._fit_segments
+assert_true(fit ~= nil, "the panel exposes the row fitter")
+
+-- A row that fits is returned unchanged.
+local fits = {
+	{ text = "  ○ task", hl = "Comment" },
+	{ text = "  Normal", hl = "Comment", optional = true },
+}
+local fitted = fit(fits, PANEL_WIDTH)
+assert_equal(#fitted, 2, "a row that fits keeps every segment")
+assert_equal(fitted[1].text, "  ○ task", "a row that fits keeps its first text")
+assert_equal(fitted[1].hl, "Comment", "a row that fits keeps its first highlight")
+assert_equal(fitted[2].text, "  Normal", "a row that fits keeps its last text")
+assert_equal(fitted[2].hl, "Comment", "a row that fits keeps its last highlight")
+assert_not_contains(segments_text(fitted), "…", "a row that fits is not cut")
+
+-- A row that is too wide is cut with an ellipsis and fits the width.
+local wide = {
+	{ text = "  " },
+	{ text = "a name that is far too long for the panel width" },
+}
+fitted = fit(wide, PANEL_WIDTH)
+assert_true(vim.endswith(segments_text(fitted), "…"), "a wide row ends with an ellipsis")
+assert_true(
+	vim.fn.strdisplaywidth(segments_text(fitted)) <= PANEL_WIDTH,
+	"a wide row fits the panel width"
+)
+
+-- The cut is on a character boundary: a multibyte glyph is never cut
+-- in half.
+local multibyte = {
+	{ text = "  " },
+	{ text = string.rep("áéí", 30) },
+}
+fitted = fit(multibyte, PANEL_WIDTH)
+assert_true(vim.endswith(segments_text(fitted), "…"), "a multibyte row ends with an ellipsis")
+assert_true(is_valid_utf8(segments_text(fitted)), "a multibyte row is cut on a character boundary")
+assert_true(
+	vim.fn.strdisplaywidth(segments_text(fitted)) <= PANEL_WIDTH,
+	"a multibyte row fits the panel width"
+)
+
+-- The cut is on a character boundary even when the cut falls INSIDE a
+-- multibyte segment (the glyph is never split across two segments).
+local split_multibyte = {
+	{ text = string.rep("x", 40) },
+	{ text = string.rep("é", 20) },
+}
+fitted = fit(split_multibyte, PANEL_WIDTH)
+assert_true(vim.endswith(segments_text(fitted), "…"), "the cut multibyte row ends with an ellipsis")
+assert_true(
+	is_valid_utf8(segments_text(fitted)),
+	"a cut multibyte segment keeps its character boundary"
+)
+assert_true(
+	vim.fn.strdisplaywidth(segments_text(fitted)) <= PANEL_WIDTH,
+	"the cut multibyte row fits the panel width"
+)
+
+-- A three-byte glyph whose byte budget would land in the middle of
+-- it: the cut still falls on a character boundary.
+local wide_glyph = {
+	{ text = string.rep("x", 45) },
+	{ text = string.rep("€", 10) },
+}
+fitted = fit(wide_glyph, PANEL_WIDTH)
+assert_true(vim.endswith(segments_text(fitted), "…"), "the wide-glyph row ends with an ellipsis")
+assert_true(
+	is_valid_utf8(segments_text(fitted)),
+	"a three-byte glyph is never cut in half"
+)
+assert_true(
+	vim.fn.strdisplaywidth(segments_text(fitted)) <= PANEL_WIDTH,
+	"the wide-glyph row fits the panel width"
+)
+-- The cut uses the whole width: a glyph is never dropped just to
+-- save a byte.
+assert_equal(
+	vim.fn.strdisplaywidth(segments_text(fitted)),
+	PANEL_WIDTH,
+	"the wide-glyph row uses the whole panel width"
+)
+
+-- The highlights of the kept segments survive the cut.
+local highlighted = {
+	{ text = "  ", hl = "Comment" },
+	{ text = "name", hl = "Title" },
+	{ text = string.rep("x", 200), hl = "Comment" },
+}
+fitted = fit(highlighted, PANEL_WIDTH)
+assert_equal(fitted[1].hl, "Comment", "the first kept segment keeps its highlight")
+assert_equal(fitted[2].hl, "Title", "the cut segment keeps its highlight")
+
+-- A subtask row: the priority and the date are optional, the name is
+-- not. The optional segments go before the name is cut.
+local subtask = {
+	{ text = "  " },
+	{ text = "○", hl = "Status" },
+	{ text = " tarea de longitud media" },
+	{ text = "  Normal", hl = "Comment", optional = true },
+	{ text = "  sched 2026-11-07", hl = "Comment", optional = true },
+}
+fitted = fit(subtask, PANEL_WIDTH)
+assert_contains(segments_text(fitted), "tarea de longitud media", "the subtask name survives")
+assert_contains(segments_text(fitted), "Normal", "the priority survives")
+assert_not_contains(segments_text(fitted), "sched", "the date is dropped before the name is cut")
+assert_not_contains(segments_text(fitted), "…", "the subtask name is not cut")
+
+-- A very long name: the optional segments go first, then the name is
+-- cut with an ellipsis.
+local long_subtask = {
+	{ text = "  " },
+	{ text = "○", hl = "Status" },
+	{ text = " " .. string.rep("nombre larguisimo ", 8) },
+	{ text = "  Normal", hl = "Comment", optional = true },
+	{ text = "  sched 2026-11-07", hl = "Comment", optional = true },
+}
+fitted = fit(long_subtask, PANEL_WIDTH)
+assert_true(vim.endswith(segments_text(fitted), "…"), "a long subtask name ends with an ellipsis")
+assert_not_contains(segments_text(fitted), "sched", "the date is dropped before the name is cut")
+assert_not_contains(segments_text(fitted), "Normal", "the priority is dropped before the name is cut")
+assert_true(
+	vim.fn.strdisplaywidth(segments_text(fitted)) <= PANEL_WIDTH,
+	"the long subtask row fits the panel width"
+)
+
+-- The optional segments are removed from the END of the row only: an
+-- optional segment in the middle survives while the row is cut.
+local middle_optional = {
+	{ text = "  " },
+	{ text = "  Normal", hl = "Comment", optional = true },
+	{ text = "  " .. string.rep("cola larguisima ", 8) },
+}
+fitted = fit(middle_optional, PANEL_WIDTH)
+assert_true(
+	vim.endswith(segments_text(fitted), "…"),
+	"a row with a middle optional segment is cut"
+)
+assert_contains(
+	segments_text(fitted),
+	"Normal",
+	"an optional segment that is not at the end survives"
+)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 11b. The rendered panel: no line is wider than the panel
+-- ──────────────────────────────────────────────────────────────────────
+
+reset_cache()
+
+local long_ctx = context.build(LONG, {
+	tasks = cache.data,
+	lines = { "---", "task: Long", "---" },
+	completed = { done = true },
+	generation = cache.generation,
+})
+assert_true(long_ctx ~= nil, "the long fixture yields a context")
+
+local long_buf = vim.api.nvim_create_buf(false, true)
+panel.render_into(long_buf, long_ctx)
+
+for row, line in ipairs(vim.api.nvim_buf_get_lines(long_buf, 0, -1, false)) do
+	assert_true(
+		vim.fn.strdisplaywidth(line) <= PANEL_WIDTH,
+		string.format("row %d fits the panel width (%d cells)", row, vim.fn.strdisplaywidth(line))
+	)
+end
+
+-- The long subtask name is cut with an ellipsis; the medium one keeps
+-- its priority and drops its date.
+local long_sub_row = row_of(long_buf, "implementar el panel")
+assert_true(long_sub_row ~= nil, "the long subtask row exists")
+assert_true(vim.endswith(row_text(long_buf, long_sub_row), "…"), "the long subtask name ends with an ellipsis")
+
+local medium_sub_row = row_of(long_buf, "tarea de longitud media")
+assert_true(medium_sub_row ~= nil, "the medium subtask row exists")
+assert_contains(row_text(long_buf, medium_sub_row), "Normal", "the medium subtask keeps its priority")
+assert_not_contains(row_text(long_buf, medium_sub_row), "sched", "the medium subtask drops its date")
+
+-- The footer fits the panel width on its own: the fitter does not
+-- shorten it.
+local footer_row = row_of(panel_buf, "<CR> edit/open")
+assert_true(footer_row ~= nil, "the footer row exists")
+assert_not_contains(row_text(panel_buf, footer_row), "…", "the footer is not cut")
+assert_true(
+	vim.fn.strdisplaywidth(row_text(panel_buf, footer_row)) <= PANEL_WIDTH,
+	"the footer fits the panel width"
+)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 12. The Projects row shows link names, not raw wikilinks
+-- ──────────────────────────────────────────────────────────────────────
+
+local projects_row = row_text(panel_buf, row_of_field(panel_buf, "projects"))
+assert_contains(projects_row, "Parent Note", "the Projects row shows the project name")
+assert_not_contains(projects_row, "[[", "the Projects row hides the wiki brackets")
+assert_not_contains(projects_row, "]]", "the Projects row hides the wiki brackets")
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 13. Resizing the panel re-renders it for the new width
+-- ──────────────────────────────────────────────────────────────────────
+
+if snacks then
+	reset_cache()
+
+	local alpha_buf = make_buffer(ALPHA, ALPHA_LINES)
+
+	local edit_win = vim.api.nvim_get_current_win()
+	vim.api.nvim_win_set_buf(edit_win, alpha_buf)
+
+	panel.toggle()
+	assert_true(panel.is_open(), "the panel opens for the resize check")
+
+	local panel_win = panel.window()
+	local panel_width = vim.api.nvim_win_get_width(panel_win)
+	assert_true(panel_width > 0, "the panel window has a width")
+
+	-- Every row fits the panel window.
+	for row, line in ipairs(vim.api.nvim_buf_get_lines(panel.buf, 0, -1, false)) do
+		assert_true(
+			vim.fn.strdisplaywidth(line) <= panel_width,
+			string.format("row %d fits the panel window", row)
+		)
+	end
+
+	-- A narrower panel: the rows are cut for the new width.
+	local renders_before = panel.render_count
+	vim.api.nvim_win_set_width(panel_win, 30)
+	vim.api.nvim_exec_autocmds("WinResized", { pattern = tostring(panel_win) })
+	vim.cmd("sleep 50m")
+
+	assert_true(panel.render_count > renders_before, "a resize re-renders the panel")
+	for row, line in ipairs(vim.api.nvim_buf_get_lines(panel.buf, 0, -1, false)) do
+		assert_true(
+			vim.fn.strdisplaywidth(line) <= 30,
+			string.format("row %d fits the narrowed panel", row)
+		)
+	end
+
+	panel.toggle()
 end
 
 print("tasknotes panel: ok")

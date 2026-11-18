@@ -9,7 +9,8 @@
 --   context         — task context builder (parents/subtasks/checklist)
 --   card            — inline task card (extmark virtual lines)
 --   frontmatter     — hidden frontmatter (conceal_lines extmark)
---   panel           — read-only task info side panel (right-hand split)
+--   panel           — task info side panel: shows and edits the task
+--                     properties (right-hand split)
 --   ui              — Snacks view, color engine, rank tables
 --   pickers         — Key → Value → File drill-down + tag browser
 --   task_ops        — NLP create + multi-field editor
