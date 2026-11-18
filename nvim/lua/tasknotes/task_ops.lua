@@ -60,6 +60,102 @@ M.create_task = function()
 end
 
 -- ──────────────────────────────────────────────────────────────────────
+-- Shared save path.
+--
+-- The API rewrites the task file's frontmatter server-side, so the note
+-- buffer and the file can drift apart. This helper keeps them in sync
+-- without ever losing text the user has not saved:
+--
+--   1. write the note buffer first (its unsaved text must reach the
+--      server before the file is rewritten);
+--   2. PUT the patch;
+--   3. reload the buffer from disk WITHOUT `edit!`, so the new
+--      frontmatter shows up but no local text is discarded.
+--
+-- Used by the field editor (<leader>oe) and — later — by the side
+-- panel, which may act on a buffer that is not the current one.
+-- ──────────────────────────────────────────────────────────────────────
+
+-- True when `buf` is a valid, loaded buffer.
+local function usable_buffer(buf)
+	return buf ~= nil and vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_is_loaded(buf)
+end
+
+-- Finds the loaded buffer holding the task file for `id` (vault-relative
+-- path). Returns nil when the note is not open.
+local function find_task_buffer(id)
+	local target = vim.fs.normalize(config.vault_path .. "/" .. id)
+	for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+		if usable_buffer(buf) then
+			local name = vim.api.nvim_buf_get_name(buf)
+			if name ~= "" and vim.fs.normalize(name) == target then
+				return buf
+			end
+		end
+	end
+	return nil
+end
+
+-- Applies a field patch to a task through the API.
+--
+-- @param id string: vault-relative path of the task (as used by the API)
+-- @param patch table: the fields to update
+-- @param opts table|nil: { buf = number } — the note buffer to keep in
+--        sync. Defaults to the loaded buffer for that task, if any.
+-- @return table|nil: the updated task, or nil when nothing was saved
+M.apply_patch = function(id, patch, opts)
+	opts = opts or {}
+	patch = patch or {}
+
+	local count = 0
+	for _ in pairs(patch) do
+		count = count + 1
+	end
+	if count == 0 then
+		vim.notify("No changes to save", vim.log.levels.INFO)
+		return nil
+	end
+
+	local buf = opts.buf
+	if not buf then
+		buf = find_task_buffer(id)
+	end
+
+	-- The note may hold unsaved text the server has never seen. Write it
+	-- first: the PUT rewrites the file's frontmatter and the reload
+	-- below would otherwise discard that text.
+	if usable_buffer(buf) and vim.bo[buf].modified then
+		local wrote = pcall(vim.api.nvim_buf_call, buf, function()
+			vim.cmd("silent write")
+		end)
+		if not wrote then
+			vim.notify(string.format("Could not save note: %s", id), vim.log.levels.ERROR)
+			return nil
+		end
+	end
+
+	local updated = api.update_task(id, patch)
+	if not updated then
+		vim.notify(string.format("Could not update task: %s", id), vim.log.levels.ERROR)
+		return nil
+	end
+
+	-- Reload from disk WITHOUT a bang so the server's new frontmatter
+	-- shows up — but only when the buffer carries no unsaved changes of
+	-- its own (`:edit` would refuse them, and we must not lose them).
+	if usable_buffer(buf) and not vim.bo[buf].modified then
+		pcall(vim.api.nvim_buf_call, buf, function()
+			vim.cmd("silent edit")
+		end)
+	end
+
+	cache.invalidate_file(config.vault_path .. "/" .. id)
+	cache.refresh_async()
+	vim.notify(string.format("Saved %d field(s)", count), vim.log.levels.INFO)
+	return updated
+end
+
+-- ──────────────────────────────────────────────────────────────────────
 -- Field editor (Stage 1 = field selector, Stage 2 = value picker).
 -- All changes accumulate in a patch table; Save fires a single PUT.
 -- ──────────────────────────────────────────────────────────────────────
@@ -67,6 +163,11 @@ end
 M.edit_fields = {}
 
 M.edit_fields.open = function()
+	-- Capture the buffer the editor was opened from BEFORE anything can
+	-- block: the picker runs in its own window, and by the time Save
+	-- fires the current buffer may be something else entirely. The save
+	-- path must act on THIS note.
+	local buf = vim.api.nvim_get_current_buf()
 	local id = require_task_buffer()
 	if not id then
 		return
@@ -77,10 +178,10 @@ M.edit_fields.open = function()
 		return
 	end
 	local patch = {}
-	M.edit_fields._show(id, task, patch)
+	M.edit_fields._show(id, task, patch, buf)
 end
 
-M.edit_fields._show = function(id, task, patch)
+M.edit_fields._show = function(id, task, patch, buf)
 	local items = {
 		-- API maps `title` to the configured title-source frontmatter field
 		-- (here `task:`); editing it via PUT does not rename the file.
@@ -153,7 +254,7 @@ M.edit_fields._show = function(id, task, patch)
 			picker:close()
 			if not item or item.action == "noop" then
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 				return
 			end
@@ -163,43 +264,46 @@ M.edit_fields._show = function(id, task, patch)
 						vim.notify("No changes to save", vim.log.levels.INFO)
 						return
 					end
-					local updated = api.update_task(id, patch)
-					if updated then
-						vim.notify(string.format("Saved %d field(s)", pending_count), vim.log.levels.INFO)
-						vim.cmd("edit!")
-						cache.invalidate_file(config.vault_path .. "/" .. id)
-					end
+					M.edit_fields._save(id, patch, buf)
 				elseif item.action == "discard" then
 					vim.notify("Changes discarded", vim.log.levels.INFO)
 				elseif item.action == "status" or item.action == "priority" then
-					M.edit_fields._pick_option(id, task, patch, item.action)
+					M.edit_fields._pick_option(id, task, patch, item.action, buf)
 				elseif item.action == "title" then
-					M.edit_fields._pick_text(id, task, patch, item.action)
+					M.edit_fields._pick_text(id, task, patch, item.action, buf)
 				elseif item.action == "contexts" or item.action == "projects" or item.action == "tags" then
-					M.edit_fields._pick_multi(id, task, patch, item.action)
+					M.edit_fields._pick_multi(id, task, patch, item.action, buf)
 				elseif item.action == "scheduled" or item.action == "due" then
-					M.edit_fields._pick_date(id, task, patch, item.action)
+					M.edit_fields._pick_date(id, task, patch, item.action, buf)
 				end
 			end)
 		end,
 	})
 end
 
+-- Save action of the field editor. Extracted so the save path can be
+-- exercised without driving the Snacks picker, and so the panel (T2)
+-- can reuse the same helper.
+-- @param buf number|nil: the note buffer the editor was opened from
+M.edit_fields._save = function(id, patch, buf)
+	return M.apply_patch(id, patch, { buf = buf })
+end
+
 -- Free-text editor for scalar string fields (e.g. `title`, which the API
 -- routes to the configured title-source frontmatter field). Pre-fills the
 -- current value so the user edits in place rather than retyping.
-M.edit_fields._pick_text = function(id, task, patch, field)
+M.edit_fields._pick_text = function(id, task, patch, field, buf)
 	local current = util.effective(task, patch, field)
 	vim.ui.input({ prompt = field .. ": ", default = current or "" }, function(input)
 		-- nil = cancelled (Esc) → leave patch untouched.
 		if input ~= nil then
 			patch[field] = input
 		end
-		M.edit_fields._show(id, task, patch)
+		M.edit_fields._show(id, task, patch, buf)
 	end)
 end
 
-M.edit_fields._pick_option = function(id, task, patch, field)
+M.edit_fields._pick_option = function(id, task, patch, field, buf)
 	local options = api.get_filter_options()
 	local list = options and options[field .. "es"] or options and options[field .. "s"]
 	-- statuses or priorities
@@ -210,7 +314,7 @@ M.edit_fields._pick_option = function(id, task, patch, field)
 	end
 	if not list then
 		vim.notify("Could not fetch " .. field .. " options", vim.log.levels.ERROR)
-		M.edit_fields._show(id, task, patch)
+		M.edit_fields._show(id, task, patch, buf)
 		return
 	end
 	local current = util.effective(task, patch, field)
@@ -231,20 +335,20 @@ M.edit_fields._pick_option = function(id, task, patch, field)
 				patch[field] = item.value
 			end
 			vim.schedule(function()
-				M.edit_fields._show(id, task, patch)
+				M.edit_fields._show(id, task, patch, buf)
 			end)
 		end,
 		on_close = function()
 			if not confirmed then
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			end
 		end,
 	})
 end
 
-M.edit_fields._pick_multi = function(id, task, patch, field)
+M.edit_fields._pick_multi = function(id, task, patch, field, buf)
 	local options = api.get_filter_options()
 	local raw = options and options[field] or {}
 	local current = util.effective(task, patch, field) or {}
@@ -305,7 +409,7 @@ M.edit_fields._pick_multi = function(id, task, patch, field)
 							table.insert(marks, input)
 						end
 						patch[field] = marks
-						M.edit_fields._show(id, task, patch)
+						M.edit_fields._show(id, task, patch, buf)
 					end)
 				end)
 				return
@@ -316,20 +420,20 @@ M.edit_fields._pick_multi = function(id, task, patch, field)
 			picker:close()
 			patch[field] = values
 			vim.schedule(function()
-				M.edit_fields._show(id, task, patch)
+				M.edit_fields._show(id, task, patch, buf)
 			end)
 		end,
 		on_close = function()
 			if not confirmed then
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			end
 		end,
 	})
 end
 
-M.edit_fields._pick_date = function(id, task, patch, field)
+M.edit_fields._pick_date = function(id, task, patch, field, buf)
 	local current = util.effective(task, patch, field)
 	local items = util.build_calendar_items(current, true)
 
@@ -346,14 +450,14 @@ M.edit_fields._pick_date = function(id, task, patch, field)
 			picker:close()
 			if not item then
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 				return
 			end
 			if item.kind == "clear" then
 				patch[field] = ""
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			elseif item.kind == "custom" then
 				vim.schedule(function()
@@ -361,29 +465,29 @@ M.edit_fields._pick_date = function(id, task, patch, field)
 						if input and input:match("^%d%d%d%d%-%d%d%-%d%dT%d%d:%d%d$") then
 							-- Full date+time given inline → set directly, skip time stage.
 							patch[field] = input
-							M.edit_fields._show(id, task, patch)
+							M.edit_fields._show(id, task, patch, buf)
 						elseif input and input:match("^%d%d%d%d%-%d%d%-%d%d$") then
 							-- Date only → advance to the time-of-day picker.
-							M.edit_fields._pick_time(id, task, patch, field, input)
+							M.edit_fields._pick_time(id, task, patch, field, input, buf)
 						elseif input and input ~= "" then
 							vim.notify("Invalid format. Use YYYY-MM-DD or YYYY-MM-DDTHH:MM", vim.log.levels.ERROR)
-							M.edit_fields._show(id, task, patch)
+							M.edit_fields._show(id, task, patch, buf)
 						else
-							M.edit_fields._show(id, task, patch)
+							M.edit_fields._show(id, task, patch, buf)
 						end
 					end)
 				end)
 			else
 				-- A concrete calendar day → choose time (or all-day) in Stage 2.
 				vim.schedule(function()
-					M.edit_fields._pick_time(id, task, patch, field, item.value)
+					M.edit_fields._pick_time(id, task, patch, field, item.value, buf)
 				end)
 			end
 		end,
 		on_close = function()
 			if not confirmed then
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			end
 		end,
@@ -392,7 +496,7 @@ end
 
 -- Stage 2 of date editing: pick the time-of-day for an already-chosen day.
 -- "All-day" stores the bare YYYY-MM-DD; a time stores YYYY-MM-DDTHH:MM.
-M.edit_fields._pick_time = function(id, task, patch, field, date_str)
+M.edit_fields._pick_time = function(id, task, patch, field, date_str, buf)
 	local current = util.effective(task, patch, field)
 	local cur_time = nil
 	if current and current:sub(1, 10) == date_str then
@@ -414,7 +518,7 @@ M.edit_fields._pick_time = function(id, task, patch, field, date_str)
 			if not item or item.kind == "allday" then
 				patch[field] = date_str
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			elseif item.kind == "custom" then
 				vim.schedule(function()
@@ -427,20 +531,20 @@ M.edit_fields._pick_time = function(id, task, patch, field, date_str)
 						else
 							patch[field] = date_str
 						end
-						M.edit_fields._show(id, task, patch)
+						M.edit_fields._show(id, task, patch, buf)
 					end)
 				end)
 			else
 				patch[field] = date_str .. "T" .. item.value
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			end
 		end,
 		on_close = function()
 			if not confirmed then
 				vim.schedule(function()
-					M.edit_fields._show(id, task, patch)
+					M.edit_fields._show(id, task, patch, buf)
 				end)
 			end
 		end,

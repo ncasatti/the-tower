@@ -158,6 +158,10 @@ calendar picker and a 24h / 15-min time-of-day picker.
 > Editing **title** updates the configured title-source frontmatter field (e.g.
 > `task:`); it does **not** rename the file.
 
+On Save the note buffer is **written first** (so unsaved note text reaches the
+server) and reloaded afterwards **without `edit!`** (so the server's new
+frontmatter shows up and no local text is lost).
+
 ### Pomodoro & time tracking — `owp`
 State-aware panel (idle / running / paused) over `/api/pomodoro/*`: start, pause,
 resume, stop. Per-task time tracking over `/api/tasks/{id}/time/*` (start, start
