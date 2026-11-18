@@ -47,6 +47,11 @@ local M = {
 	-- columns.
 	panel_width = 48,
 
+	-- Hidden frontmatter (ADR-010). When true, the frontmatter rows of
+	-- task notes are concealed (the closing `---` stays visible); toggle
+	-- with <leader>oh.
+	frontmatter_hidden = true,
+
 	-- Fallback set of status values considered "completed" when the API's
 	-- filter-options cache has not been fetched yet (no network allowed on
 	-- the render path). Keys are status `value`s.

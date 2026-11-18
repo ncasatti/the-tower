@@ -8,6 +8,7 @@
 --   cache           — task index + whole-vault notes index
 --   context         — task context builder (parents/subtasks/checklist)
 --   card            — inline task card (extmark virtual lines)
+--   frontmatter     — hidden frontmatter (conceal_lines extmark)
 --   panel           — read-only task info side panel (right-hand split)
 --   ui              — Snacks view, color engine, rank tables
 --   pickers         — Key → Value → File drill-down + tag browser
@@ -20,6 +21,7 @@ local config = require("tasknotes.config")
 local api = require("tasknotes.api")
 local cache = require("tasknotes.cache")
 local card = require("tasknotes.card")
+local frontmatter = require("tasknotes.frontmatter")
 local panel = require("tasknotes.panel")
 local pickers = require("tasknotes.pickers")
 local task_ops = require("tasknotes.task_ops")
@@ -64,6 +66,7 @@ local function register_keymaps()
 	bind("<leader>op", pomodoro.panel, "Task: Pomodoro & time tracking")
 	bind("<leader>oc", card.toggle, "Task: Toggle inline card")
 	bind("<leader>oi", panel.toggle, "Task: Info panel")
+	bind("<leader>oh", frontmatter.toggle, "Task: Toggle frontmatter")
 end
 
 -- Entry point. Merges user opts into the config table IN PLACE (never
@@ -79,6 +82,11 @@ function M.setup(opts)
 			config[k] = v
 		end
 	end
+
+	-- The hidden-frontmatter view starts from the configured default
+	-- (`config.frontmatter_hidden`), so `setup({ frontmatter_hidden = false })`
+	-- is honoured. The toggle owns the state afterwards.
+	frontmatter.hidden = config.frontmatter_hidden ~= false
 
 	if not api.health() then
 		vim.notify(
@@ -99,6 +107,10 @@ function M.setup(opts)
 	-- The info panel shares the `TaskNotesViews` augroup with the card,
 	-- so it attaches after it (the group is created with clear = false).
 	panel.attach()
+
+	-- The hidden frontmatter shares the same augroup, so it attaches
+	-- last (the card creates the group with clear = true).
+	frontmatter.attach()
 end
 
 return M

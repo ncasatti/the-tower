@@ -18,6 +18,7 @@ work.
 - [Keybindings](#keybindings)
 - [Workflows](#workflows)
 - [Inline task card](#inline-task-card)
+- [Hidden frontmatter](#hidden-frontmatter)
 - [Task info panel](#task-info-panel)
 - [Configuration](#configuration)
 - [Row rendering](#row-rendering)
@@ -67,6 +68,7 @@ point. The lazy spec under `lua/plugins/writing/` does nothing but `require` it.
 | `cache` | Task index (API-sourced, TTL-gated) + the whole-vault notes index (FS-scanned, `owt`) |
 | `context` | Task context builder — parents, subtasks, progress and checklist counts for one task |
 | `card` | The inline task card: a `Context` rendered as extmark virtual lines under the frontmatter |
+| `frontmatter` | Hidden frontmatter: the rows above the closing `---` concealed with a `conceal_lines` extmark |
 | `panel` | The read-only task info side panel: a `Context` rendered as text in a right-hand split |
 | `ui` | Shared Snacks picker view, the live-color engine, status/priority rank tables, row formatter |
 | `pickers` | The `Key → Value → File` drill-down + status/tag shortcuts + the vault tag browser |
@@ -104,6 +106,7 @@ All bindings are **flat under `<leader>o`** (no chord sub-trees). Registered in
 | `owr` | **Refresh** | Force cache rebuild |
 | `oc` | **Toggle inline card** | Show/hide the inline task card under the frontmatter |
 | `oi` | **Info panel** | Toggle the read-only task info side panel |
+| `oh` | **Toggle frontmatter** | Hide/show the frontmatter rows of task notes (the closing `---` stays visible) |
 
 > The old chord-based design (`oz*` search, `c*` contexts, `d*` dates, `v*` views,
 > `q*` query presets) **no longer exists**. Per-field mutations were collapsed into
@@ -201,6 +204,32 @@ the background and the card is redrawn when it lands (the
 `User TaskNotesCacheRefreshed` event). Notes that are not tasks get no
 card.
 
+## Hidden frontmatter
+
+A task note opens on its **body**: the YAML block at the top is concealed
+with a `conceal_lines` extmark in the `tasknotes_frontmatter` namespace.
+Like the card, the conceal is virtual — the buffer is never modified
+(`modified` stays false), nothing is written to the file and
+`'conceallevel'` is not lowered.
+
+What is hidden:
+
+- Every row **above** the closing `---` of the frontmatter.
+- The **closing `---` stays visible** — concealing it would also hide
+  the inline card, whose virtual lines are anchored on that row.
+
+Notes that are not tasks (not in the task cache) are never touched.
+
+`<leader>oh` toggles the conceal globally (on by default, for the
+session) and re-applies it to every loaded note. With the frontmatter
+shown you edit the YAML by hand as usual; with it hidden, moving the
+cursor into a hidden row reveals that row, so one keystroke is enough to
+reach a field.
+
+The conceal follows the fence: it is re-applied when the note is
+entered, on save, while the note is edited and whenever the task cache
+is refreshed (the cache may land after the note was opened).
+
 ## Task info panel
 
 `<leader>oi` toggles a **side panel**: a right-hand split
@@ -284,6 +313,7 @@ with no args; to override, pass a table from the spec's `config` function.
 | `priority_icon` | `●` | The priority-dot glyph |
 | `card_max_subtasks` | `5` | Subtask rows drawn in the inline card before `+N more` |
 | `panel_width` | `48` | Width (columns) of the task info side panel |
+| `frontmatter_hidden` | `true` | Hide the frontmatter rows of task notes (toggle with `oh`) |
 | `completed_statuses` | `{ done = true }` | Fallback "completed" status set when the API's filter-options cache is empty |
 
 ## Row rendering
