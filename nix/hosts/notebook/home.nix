@@ -46,6 +46,10 @@
   home.file.".config/hypr/configs/monitors.local.conf".source =
     ../../../hypr/configs/hosts/notebook.conf;
 
+  # Hermes desktop connects to main's gateway (Settings -> Gateways), not to
+  # the local backend: don't pin it via HERMES_DESKTOP_REMOTE_URL.
+  the-grid.hermes.desktop.pinLocalBackend = false;
+
   # Extra packages specific to the notebook
   home.packages = with pkgs; [
     cool-retro-term

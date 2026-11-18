@@ -12,9 +12,11 @@
 #
 # IMPORTANT: the NixOS host config must set `users.users.flyn.linger = true`
 # so systemd keeps the user slice alive after logout.
-{ inputs, pkgs, lib, ... }:
+{ inputs, config, pkgs, lib, ... }:
 
 let
+  cfgGrid = config.the-grid.hermes;
+
   # Session token shared by hermes-backend and the hermes-desktop wrapper.
   # Runtime path (never a Nix path literal: that would copy the secret into
   # the world-readable store).
@@ -52,15 +54,41 @@ let
   # (and every terminal/CLI it spawns) stays read-only even though the
   # services and the marker say "false". Wrap override so our value lands
   # last in extraEnv.
+  #
+  # With backend.sessionTokenFile set, upstream also exports
+  # HERMES_DESKTOP_REMOTE_URL=http://127.0.0.1:9119. The desktop treats that
+  # env var as a launch-time override that beats the saved connection, so
+  # Settings -> Gateways is locked ("set outside Hermes"). Hosts whose desktop
+  # must reach ANOTHER host's gateway drop it (pinLocalBackend = false); the
+  # token export that remains in extraRun is ignored without the URL.
   hermesDesktopBase = hermesPkg.hermesDesktop;
   hermesDesktopUnmanaged = hermesDesktopBase // {
     override = args: hermesDesktopBase.override (args // {
-      extraEnv = (args.extraEnv or { }) // { HERMES_MANAGED = "false"; };
+      extraEnv =
+        (builtins.removeAttrs (args.extraEnv or { })
+          (lib.optional (!cfgGrid.desktop.pinLocalBackend) "HERMES_DESKTOP_REMOTE_URL"))
+        // { HERMES_MANAGED = "false"; };
     });
   };
 in
 {
-  imports = [ inputs.hermes-agent.homeManagerModules.default ];
+  imports = [
+    inputs.hermes-agent.homeManagerModules.default
+    # Inline module: declaring `options` here would force the rest of this
+    # file under `config = { ... }`.
+    {
+      options.the-grid.hermes.desktop.pinLocalBackend = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = ''
+          Pin the desktop app to this host's own backend via
+          HERMES_DESKTOP_REMOTE_URL. Set false on hosts whose desktop connects
+          to a remote gateway, so the saved connection in Settings -> Gateways
+          applies.
+        '';
+      };
+    }
+  ];
 
   # ── CLI + Desktop app ─────────────────────────────────────────────────
   programs.hermes-agent = {
