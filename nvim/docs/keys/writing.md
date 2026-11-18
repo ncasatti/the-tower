@@ -44,7 +44,22 @@ Mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses, priorities, 
 ### Views
 
 - `<leader>oc` — Toggle inline task card (virtual card under the frontmatter; global, on by default)
-- `<leader>oi` — Toggle task info panel (read-only right-hand split with the full task context)
+- `<leader>oi` — Toggle task info panel (right-hand split with the full task context)
+
+### Task info panel (inside the panel)
+
+The panel's own buffer carries these keys; they act on the task the
+panel follows.
+
+- `<CR>` — On a link row (parents, subtasks, dependencies): open that note in the editing window. On a property row: edit that field.
+- `s` — Edit the status
+- `p` — Edit the priority
+- `d` — Edit the due date
+- `<q>` — Close the panel
+
+The edits go through the same path as `<leader>oe` (`task_ops.edit_field`
+→ `apply_patch` → `PUT /api/tasks/{id}`); the pickers are the ones
+`<leader>oe` uses.
 
 ## Markdown rendering (`<leader>m*`, buffer-local in `.md`)
 

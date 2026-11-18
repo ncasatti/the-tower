@@ -1,4 +1,4 @@
--- TKT-103 — task info side panel (read-only).
+-- TKT-103 — task info side panel.
 --
 -- Headless contract test. plenary.curl is stubbed to error, so any
 -- request that escapes the render path fails the test loudly.
@@ -16,6 +16,11 @@
 --      panel window behind.
 --   6. Rendering the card AND the panel performs zero requests.
 --   7. Require-set: context/card/panel never require the HTTP layer.
+--   8. Properties: one editable row per field, with the field name
+--      the row edits and the current value rendered.
+--   9. The footer hint shows for a task and not for the empty state.
+--  10. <CR> on a property row and the s/p/d keys edit the followed
+--      task through task_ops.edit_field.
 --
 -- Run: cd nvim && nvim --headless -u NONE --cmd 'set rtp^=.' -l tests/tasknotes-panel.lua
 
@@ -61,6 +66,15 @@ local card = require("tasknotes.card")
 local config = require("tasknotes.config")
 local context = require("tasknotes.context")
 local panel = require("tasknotes.panel")
+
+-- The panel must not load the write path at load time (ADR-009 / S6a):
+-- `task_ops` is required lazily, inside the edit handler. Nothing
+-- else in the plugin pulls it in, so this proves the panel's own
+-- require is lazy.
+assert_true(
+	package.loaded["tasknotes.task_ops"] == nil,
+	"the panel does not load task_ops at load time"
+)
 
 -- The panel edits real files on <CR>; point the vault at a throwaway
 -- directory so the test never touches the real one.
@@ -210,10 +224,21 @@ local function reset_cache()
 	http.calls = 0
 end
 
--- A scratch buffer that looks like a task note.
+-- A scratch buffer that looks like a task note. Reuses the buffer of
+-- that name when it already exists, so a later section can ask for
+-- the same note without colliding.
 local function make_buffer(path, lines)
-	local buf = vim.api.nvim_create_buf(true, false)
-	vim.api.nvim_buf_set_name(buf, path)
+	local buf
+	for _, existing in ipairs(vim.api.nvim_list_bufs()) do
+		if vim.api.nvim_buf_get_name(existing) == path then
+			buf = existing
+			break
+		end
+	end
+	if not buf then
+		buf = vim.api.nvim_create_buf(true, false)
+		vim.api.nvim_buf_set_name(buf, path)
+	end
 	vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
 	vim.bo[buf].modified = false
 	return buf
@@ -231,6 +256,31 @@ local function row_of(buf, needle)
 		end
 	end
 	return nil
+end
+
+-- The row (1-based) carrying `field` in the Properties section.
+local function row_of_field(buf, field)
+	for row = 1, vim.api.nvim_buf_line_count(buf) do
+		if panel.field_at(buf, row) == field then
+			return row
+		end
+	end
+	return nil
+end
+
+-- The row (1-based) whose navigable path is `path`.
+local function row_of_path(buf, path)
+	for row = 1, vim.api.nvim_buf_line_count(buf) do
+		if panel.path_at(buf, row) == path then
+			return row
+		end
+	end
+	return nil
+end
+
+-- The text of a single row.
+local function row_text(buf, row)
+	return vim.api.nvim_buf_get_lines(buf, row - 1, row, false)[1] or ""
 end
 
 -- ──────────────────────────────────────────────────────────────────────
@@ -253,13 +303,9 @@ local text = buf_text(panel_buf)
 
 -- Header: title, status label, priority label.
 assert_contains(text, "Alpha", "the header shows the title")
-assert_contains(text, "In Progress", "the header shows the status label")
-assert_contains(text, "High", "the header shows the priority label")
 
--- Dates.
+-- Dates (created and modified only — scheduled/due moved to Properties).
 assert_contains(text, "Dates", "the Dates section is rendered")
-assert_contains(text, "2026-10-20", "the scheduled date is rendered")
-assert_contains(text, "2026-10-25", "the due date is rendered")
 assert_contains(text, "2025-11-21", "the created date is rendered")
 assert_contains(text, "2026-08-26", "the modified date is rendered")
 
@@ -288,6 +334,52 @@ assert_contains(text, "open 1", "the checklist counts are rendered")
 -- Time.
 assert_contains(text, "Time", "the Time section is rendered")
 assert_contains(text, "1h 26m / 1h", "the tracked/estimate time is rendered")
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 8. Properties: one editable row per field
+-- ──────────────────────────────────────────────────────────────────────
+assert_contains(text, "Properties", "the Properties section is rendered")
+
+-- Every editable field has its own row, and the row knows which field
+-- it edits.
+for _, field in ipairs({
+	"title",
+	"status",
+	"priority",
+	"scheduled",
+	"due",
+	"contexts",
+	"projects",
+	"tags",
+	"timeEstimate",
+}) do
+	local row = row_of_field(panel_buf, field)
+	assert_true(row ~= nil, "the Properties section has a row for " .. field)
+	assert_equal(panel.field_at(panel_buf, row), field, "the " .. field .. " row maps to the " .. field .. " field")
+end
+
+-- The rows show the current values (labels for status/priority).
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "title")), "Alpha", "the Task row shows the title")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "status")), "In Progress", "the Status row shows the live label")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "priority")), "High", "the Priority row shows the live label")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "2026-10-20", "the Scheduled row shows the date")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "due")), "2026-10-25", "the Due row shows the date")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "contexts")), "—", "an empty field shows an em dash")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "projects")), "Parent Note", "the Projects row shows the project")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "tags")), "work", "the Tags row shows the tags")
+assert_contains(row_text(panel_buf, row_of_field(panel_buf, "timeEstimate")), "60", "the Estimate row shows the minutes")
+
+-- Scheduled and due live in Properties only — the Dates section does
+-- not repeat them.
+assert_not_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "2025-11-21", "the Dates section is separate")
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 9. The footer hint
+-- ──────────────────────────────────────────────────────────────────────
+assert_contains(text, "<CR> edit/open", "the footer hint is rendered for a task")
+assert_contains(text, "s status", "the footer hint lists the status key")
+assert_contains(text, "p priority", "the footer hint lists the priority key")
+assert_contains(text, "d due", "the footer hint lists the due key")
 
 -- The panel highlights the status icon in the live color.
 local marks = vim.api.nvim_buf_get_extmarks(panel_buf, panel.ns, 0, -1, { details = true })
@@ -336,11 +428,13 @@ reset_cache()
 local empty_buf = vim.api.nvim_create_buf(false, true)
 panel.render_into(empty_buf, nil)
 assert_contains(buf_text(empty_buf), "Not a TaskNotes task", "a non-task buffer shows the empty state")
+assert_not_contains(buf_text(empty_buf), "<CR> edit/open", "the empty state has no footer hint")
 
 cache.data = {}
 local loading_buf = vim.api.nvim_create_buf(false, true)
 panel.render_into(loading_buf, nil)
 assert_contains(buf_text(loading_buf), "Loading tasks", "an empty cache shows the loading state")
+assert_not_contains(buf_text(loading_buf), "<CR> edit/open", "the loading state has no footer hint")
 
 -- ──────────────────────────────────────────────────────────────────────
 -- 4. Following + <CR> navigation (window layer)
@@ -400,7 +494,9 @@ else
 	assert_contains(buf_text(panel.buf), "Alpha", "the panel keeps the followed task after a special buffer")
 
 	-- <CR> on a Ref row opens that file in the editing window.
-	local target_row = row_of(panel.buf, "Parent Note")
+	-- The Parents row is found by its path: the Properties section
+	-- also mentions the project by name.
+	local target_row = row_of_path(panel.buf, PARENT)
 	assert_true(target_row ~= nil, "the parent row exists in the panel")
 	vim.api.nvim_win_set_cursor(panel_win, { target_row, 0 })
 
@@ -466,10 +562,15 @@ assert_equal(http.calls, 0, "card + panel rendering performs no request")
 
 -- ──────────────────────────────────────────────────────────────────────
 -- 6. Require-set guarantee
+--
+-- context/card never mention the HTTP layer at all. The panel may
+-- require `task_ops` — but only lazily, from inside its edit
+-- handler, never at module level: its own require must stay out of
+-- the load path.
 -- ──────────────────────────────────────────────────────────────────────
 local forbidden = { ["tasknotes.api"] = true, ["tasknotes.task_ops"] = true, ["plenary.curl"] = true }
 
-for _, module_path in ipairs({ "lua/tasknotes/context.lua", "lua/tasknotes/card.lua", "lua/tasknotes/panel.lua" }) do
+for _, module_path in ipairs({ "lua/tasknotes/context.lua", "lua/tasknotes/card.lua" }) do
 	local source_path = vim.api.nvim_get_runtime_file(module_path, false)[1]
 	assert_true(source_path ~= nil, module_path .. " is on the runtimepath")
 
@@ -477,6 +578,111 @@ for _, module_path in ipairs({ "lua/tasknotes/context.lua", "lua/tasknotes/card.
 	for module in source:gmatch('require%s*%(%s*["\']?([%w_%.]+)') do
 		assert_true(forbidden[module] ~= true, module_path .. " must not require " .. module)
 	end
+end
+
+-- The panel: the API and curl are off limits everywhere; `task_ops`
+-- is allowed only inside a function body (a lazy require).
+local panel_source_path = vim.api.nvim_get_runtime_file("lua/tasknotes/panel.lua", false)[1]
+assert_true(panel_source_path ~= nil, "lua/tasknotes/panel.lua is on the runtimepath")
+
+local panel_source = table.concat(vim.fn.readfile(panel_source_path), "\n")
+for module in panel_source:gmatch('require%s*%(%s*["\']?([%w_%.]+)') do
+	assert_true(
+		module ~= "tasknotes.api" and module ~= "plenary.curl",
+		"the panel must not require " .. module
+	)
+end
+
+-- A module-level require sits at the start of a line; a lazy one is
+-- indented inside a function.
+for line in panel_source:gmatch("[^\n]+") do
+	if line:match("^local%s") then
+		for module in line:gmatch('require%s*%(%s*["\']?([%w_%.]+)') do
+			assert_true(
+				forbidden[module] ~= true,
+				"the panel must not require " .. module .. " at module level"
+			)
+		end
+	end
+end
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 10. The edit keys reach task_ops.edit_field
+--
+-- The panel must not require task_ops at load time, so the stub is
+-- installed HERE — after the require-set assertions above have run.
+-- The panel's lazy `require("tasknotes.task_ops")` then picks the
+-- stub up.
+-- ──────────────────────────────────────────────────────────────────────
+if snacks then
+	reset_cache()
+
+	-- The stub records what the panel asks to edit.
+	local calls = {}
+	local stub = {
+		edit_field = function(id, field, opts)
+			calls[#calls + 1] = { id = id, field = field, opts = opts }
+		end,
+	}
+	local real_task_ops = package.loaded["tasknotes.task_ops"]
+	package.loaded["tasknotes.task_ops"] = stub
+
+	panel.attach()
+
+	local alpha_buf = make_buffer(ALPHA, ALPHA_LINES)
+	local plain_buf = make_buffer(vault .. "/Notes/Plain.md", { "# not a task" })
+
+	local edit_win = vim.api.nvim_get_current_win()
+	vim.api.nvim_win_set_buf(edit_win, alpha_buf)
+	panel.toggle()
+
+	local panel_win = panel.window()
+	assert_true(panel_win ~= nil, "the panel is open for the edit keys")
+
+	-- <CR> on a property row edits THAT field of the followed task.
+	local status_row = row_of_field(panel.buf, "status")
+	assert_true(status_row ~= nil, "the panel shows a Status property row")
+	vim.api.nvim_win_set_cursor(panel_win, { status_row, 0 })
+
+	local function press(lhs)
+		for _, map in ipairs(vim.api.nvim_buf_get_keymap(panel.buf, "n")) do
+			if map.lhs == lhs then
+				map.callback()
+				return true
+			end
+		end
+		return false
+	end
+
+	assert_true(press("<CR>"), "the panel buffer maps <CR>")
+	assert_equal(#calls, 1, "<CR> on a property row edits one field")
+	assert_equal(calls[1].id, "TaskNotes/Tasks/Alpha.md", "the edit targets the followed task by its vault-relative id")
+	assert_equal(calls[1].field, "status", "<CR> edits the field of the row under the cursor")
+	assert_equal(calls[1].opts.buf, alpha_buf, "the edit keeps the followed note buffer in sync")
+
+	-- s / p / d edit status / priority / due from any row.
+	vim.api.nvim_win_set_cursor(panel_win, { 1, 0 })
+	assert_true(press("s"), "the panel buffer maps s")
+	assert_true(press("p"), "the panel buffer maps p")
+	assert_true(press("d"), "the panel buffer maps d")
+
+	assert_equal(#calls, 4, "the s/p/d keys edit three more fields")
+	assert_equal(calls[2].field, "status", "s edits the status")
+	assert_equal(calls[3].field, "priority", "p edits the priority")
+	assert_equal(calls[4].field, "due", "d edits the due date")
+	for i = 2, 4 do
+		assert_equal(calls[i].id, "TaskNotes/Tasks/Alpha.md", "the s/p/d keys act on the followed task")
+		assert_equal(calls[i].opts.buf, alpha_buf, "the s/p/d keys keep the followed note buffer in sync")
+	end
+
+	-- A panel that follows a non-task buffer edits nothing.
+	vim.api.nvim_win_set_buf(edit_win, plain_buf)
+	vim.api.nvim_exec_autocmds("BufEnter", { buffer = plain_buf })
+	press("s")
+	assert_equal(#calls, 4, "a panel following a non-task buffer edits nothing")
+
+	panel.toggle()
+	package.loaded["tasknotes.task_ops"] = real_task_ops
 end
 
 print("tasknotes panel: ok")

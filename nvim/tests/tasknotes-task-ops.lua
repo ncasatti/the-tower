@@ -13,6 +13,13 @@
 --      is not the current one.
 --   5. The <leader>oe Save path goes through apply_patch with the buffer
 --      the editor was opened from.
+--   6. Without opts.buf the note buffer is found by its path.
+--   7. A failing write aborts the save before any request.
+--   8. edit_field edits a single field and saves it through apply_patch.
+--   9. A cancelled edit sends no request and notifies nothing.
+--  10. An invalid time estimate sends no request.
+--  11. The estimate is saved in minutes; an empty one clears it.
+--  12. _pick_text without a continuation still returns to the editor.
 --
 -- Run: cd nvim && nvim --headless -u NONE --cmd 'set rtp^=.' -l tests/tasknotes-task-ops.lua
 
@@ -361,6 +368,164 @@ section("7 a failing write sends no PUT", function()
 	assert_equal(vim.bo[ro_buf].modified, true, "the buffer keeps its unsaved changes after a failed write")
 
 	vim.bo[ro_buf].readonly = false
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 8. edit_field edits a single field and saves it through apply_patch
+-- ──────────────────────────────────────────────────────────────────────
+section("8 edit_field saves a single field", function()
+	reset_http()
+	reset_task_file()
+
+	local task_buf = open_dirty_task()
+
+	-- The task is fetched from the API (one GET), the new value is
+	-- typed in (no picker UI), the result is saved with one PUT.
+	local original_get_task = api.get_task
+	local original_input = vim.ui.input
+	api.get_task = function()
+		return { title = "Task", status = "inbox" }
+	end
+	vim.ui.input = function(_, on_confirm)
+		on_confirm("Renamed")
+	end
+
+	task_ops.edit_field(TASK_ID, "title", { buf = task_buf })
+
+	api.get_task = original_get_task
+	vim.ui.input = original_input
+
+	assert_equal(#http.puts, 1, "exactly one PUT is sent")
+	local sent = vim.fn.json_decode(http.puts[1].body)
+	assert_equal(sent.title, "Renamed", "the PUT carries the new title")
+	assert_equal(sent.status, nil, "the PUT carries only the edited field")
+	assert_true(http.unsaved_at_put, "the note buffer was written before the PUT")
+	assert_true(
+		http.puts[1].url:find("TaskNotes%2FTasks%2FTask.md", 1, true) ~= nil,
+		"the PUT targets the task id"
+	)
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 9. A cancelled edit sends no request and notifies nothing
+-- ──────────────────────────────────────────────────────────────────────
+section("9 a cancelled edit sends no request", function()
+	reset_http()
+	reset_task_file()
+
+	local task_buf = open_dirty_task()
+
+	local original_get_task = api.get_task
+	local original_input = vim.ui.input
+	api.get_task = function()
+		return { title = "Task", status = "inbox" }
+	end
+	vim.ui.input = function(_, on_confirm)
+		on_confirm(nil) -- Esc
+	end
+
+	local before = #notifications
+	task_ops.edit_field(TASK_ID, "title", { buf = task_buf })
+
+	api.get_task = original_get_task
+	vim.ui.input = original_input
+
+	assert_equal(#http.puts, 0, "a cancelled edit sends no PUT")
+	assert_equal(#notifications, before, "a cancelled edit notifies nothing")
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 10. An invalid time estimate sends no request
+-- ──────────────────────────────────────────────────────────────────────
+section("10 an invalid estimate sends no request", function()
+	reset_http()
+	reset_task_file()
+
+	local task_buf = open_dirty_task()
+
+	local original_get_task = api.get_task
+	local original_input = vim.ui.input
+	api.get_task = function()
+		return { title = "Task", timeEstimate = 30 }
+	end
+	vim.ui.input = function(_, on_confirm)
+		on_confirm("not a number")
+	end
+
+	local before = #notifications
+	task_ops.edit_field(TASK_ID, "timeEstimate", { buf = task_buf })
+
+	api.get_task = original_get_task
+	vim.ui.input = original_input
+
+	assert_equal(#http.puts, 0, "an invalid estimate sends no PUT")
+	assert_true(#notifications > before, "the invalid estimate is reported")
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 11. The estimate is saved in minutes and an empty one clears it
+-- ──────────────────────────────────────────────────────────────────────
+section("11 the estimate is saved in minutes", function()
+	reset_http()
+	reset_task_file()
+
+	local task_buf = open_dirty_task()
+
+	local original_get_task = api.get_task
+	local original_input = vim.ui.input
+	api.get_task = function()
+		return { title = "Task", timeEstimate = 30 }
+	end
+
+	vim.ui.input = function(_, on_confirm)
+		on_confirm("90")
+	end
+	task_ops.edit_field(TASK_ID, "timeEstimate", { buf = task_buf })
+
+	assert_equal(#http.puts, 1, "the estimate is saved with one PUT")
+	local sent = vim.fn.json_decode(http.puts[1].body)
+	assert_equal(sent.timeEstimate, 90, "the estimate is saved in minutes")
+
+	reset_http()
+	vim.ui.input = function(_, on_confirm)
+		on_confirm("") -- empty input clears the estimate
+	end
+	task_ops.edit_field(TASK_ID, "timeEstimate", { buf = task_buf })
+
+	assert_equal(#http.puts, 1, "the cleared estimate is saved with one PUT")
+	local cleared = vim.fn.json_decode(http.puts[1].body)
+	assert_equal(cleared.timeEstimate, "", "an empty estimate clears the field")
+
+	api.get_task = original_get_task
+	vim.ui.input = original_input
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 12. A picker without a continuation still returns to the editor
+-- ──────────────────────────────────────────────────────────────────────
+section("12 a picker without a continuation returns to the editor", function()
+	local original_show = task_ops.edit_fields._show
+	local original_input = vim.ui.input
+	local captured = nil
+
+	task_ops.edit_fields._show = function(id, task, patch, buf)
+		captured = { id = id, task = task, patch = patch, buf = buf }
+	end
+	vim.ui.input = function(_, on_confirm)
+		on_confirm("Renamed")
+	end
+
+	local patch = {}
+	local buf = vim.api.nvim_get_current_buf()
+	task_ops.edit_fields._pick_text(TASK_ID, { title = "Task" }, patch, "title", buf)
+
+	task_ops.edit_fields._show = original_show
+	vim.ui.input = original_input
+
+	assert_true(captured ~= nil, "the picker returns to the field editor")
+	assert_equal(captured.id, TASK_ID, "the editor keeps the task id")
+	assert_equal(captured.buf, buf, "the editor keeps the buffer")
+	assert_equal(patch.title, "Renamed", "the patch carries the new value")
 end)
 
 -- ──────────────────────────────────────────────────────────────────────

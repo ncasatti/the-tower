@@ -1,28 +1,33 @@
 -- TaskNotes — task info side panel (leaf renderer).
 --
 -- Renders the full context of the current task in a right-hand split
--- (Snacks.win, position = "right"). The panel is READ-ONLY: it never
--- mutates a task and never performs a request of its own — it reads
--- the in-memory cache only (ADR-005) and asks for a background refresh
--- when the cache is stale, exactly like the inline card does.
+-- (Snacks.win, position = "right"). Rendering performs ZERO requests:
+-- it reads the in-memory cache only (ADR-005) and asks for a background
+-- refresh when the cache is stale, exactly like the inline card does.
 --
--- Sections: header (status icon + priority dot + title + labels),
--- dates, parents, subtasks (with a text progress bar), dependencies
--- (blocked by / blocking), checklist and time. Empty sections are
--- omitted.
+-- The panel is editable, but only through explicit keys: a property
+-- row plus `<CR>` on it, or `s`/`p`/`d`. Those keys go through
+-- `task_ops.edit_field` → `task_ops.apply_patch` (ADR-009), which
+-- writes the note buffer, PUTs the field and reloads the note.
+--
+-- Sections: header (status icon + priority dot + title), properties
+-- (one editable row per field), dates (read-only), parents, subtasks
+-- (with a text progress bar), dependencies (blocked by / blocking),
+-- checklist and time. Empty sections are omitted.
 --
 -- The panel follows the buffer under the cursor: entering another
 -- buffer re-renders it for that buffer, entering the panel itself
 -- never re-renders it.
 --
--- The panel's keys (<CR> to open a Ref, q to close) are buffer-local
--- on the panel's own scratch buffer, which only ever lives in the panel
--- window — Neovim 0.12 removed the window-local mapping API, so this is
--- the equivalent scope.
+-- The panel's keys (<CR> to open a Ref or edit a property, s/p/d to
+-- edit status/priority/due, q to close) are buffer-local on the
+-- panel's own scratch buffer, which only ever lives in the panel
+-- window — Neovim 0.12 removed the window-local mapping API, so this
+-- is the equivalent scope.
 --
 -- It must not require `tasknotes.api`, `tasknotes.task_ops` or
--- `plenary.curl` directly: its only path to the API is `ui` in
--- cached-only mode.
+-- `plenary.curl` at load time: its only path to the API is
+-- `task_ops`, required lazily inside the edit handlers.
 
 local cache = require("tasknotes.cache")
 local card = require("tasknotes.card")
@@ -43,12 +48,14 @@ M.ns = vim.api.nvim_create_namespace("tasknotes_panel")
 --   edit_win — the window the task note lives in (where <CR> edits)
 --   followed — the buffer the panel currently renders
 --   rows     — { [buf] = { [row] = absolute path } }
+--   fields   — { [buf] = { [row] = api field name } }
 M.buf = nil
 M.win = nil
 M.snacks = nil
 M.edit_win = nil
 M.followed = nil
 M.rows = {}
+M.fields = {}
 
 -- Number of renders performed. Exposed for the headless tests.
 M.render_count = 0
@@ -91,6 +98,26 @@ local function fmt_minutes(minutes)
 	return string.format("%dh %dm", h, m)
 end
 
+-- The value of a list-valued field as one line ("a, b"). nil when empty.
+local function join_list(value)
+	if type(value) == "table" then
+		local parts = {}
+		for _, v in ipairs(value) do
+			if type(v) == "string" and v ~= "" then
+				parts[#parts + 1] = v
+			end
+		end
+		if #parts == 0 then
+			return nil
+		end
+		return table.concat(parts, ", ")
+	end
+	if type(value) == "string" and value ~= "" then
+		return value
+	end
+	return nil
+end
+
 -- The text progress bar: `████░░░░ 2/6`.
 local function progress_bar(done, total)
 	if total <= 0 then
@@ -118,14 +145,15 @@ end
 -- ──────────────────────────────────────────────────────────────────────
 -- Layout
 --
--- Rows are lists of segments; a row may carry a path, which makes it
--- a navigable row (<CR> opens it).
+-- Rows are lists of segments; a row may carry a path (navigable:
+-- <CR> opens it) and/or a field (editable: <CR> edits that field of
+-- the followed task).
 -- ──────────────────────────────────────────────────────────────────────
 local function build_rows(ctx)
 	local rows = {}
 
-	local function add(segments, path)
-		rows[#rows + 1] = { segments = segments, path = path }
+	local function add(segments, path, field)
+		rows[#rows + 1] = { segments = segments, path = path, field = field }
 	end
 
 	local function heading(text)
@@ -136,7 +164,6 @@ local function build_rows(ctx)
 	if ctx then
 		local task = ctx.task or {}
 		local status_colors, priority_colors = ui.get_color_tables({ cached_only = true })
-		local status_labels, priority_labels = ui.get_label_tables({ cached_only = true })
 
 		local status = task.status
 		local priority = task.priority
@@ -148,29 +175,65 @@ local function build_rows(ctx)
 			seg("  "),
 			seg(util.task_title(task, ctx.path)),
 		})
+	end
 
-		add({
-			seg("status: ", "Comment"),
-			seg(status_labels[status] or status or "—"),
-			seg("  ·  priority: ", "Comment"),
-			seg(priority_labels[priority] or priority or "—"),
-		})
+	-- ── Properties ────────────────────────────────────────────────────
+	-- One editable row per field: the label, the current value (the
+	-- live label and color for status/priority), and the API field
+	-- name the row edits.
+	if ctx then
+		local task = ctx.task or {}
+		local status_colors, priority_colors = ui.get_color_tables({ cached_only = true })
+		local status_labels, priority_labels = ui.get_label_tables({ cached_only = true })
+
+		heading("Properties")
+
+		-- An empty field shows an em dash, dimmed.
+		local function property(label, field, value, hl)
+			if value == nil or value == "" then
+				value = nil
+			end
+			add({
+				seg(string.format("  %-10s", label), "Comment"),
+				seg(value or "—", value and hl or "Comment"),
+			}, nil, field)
+		end
+
+		local status = task.status
+		local priority = task.priority
+
+		property("Task", "title", util.task_title(task, ctx.path))
+		property(
+			"Status",
+			"status",
+			status_labels[status] or status,
+			color_hl("TaskNotesStatus", status, status_colors[status])
+		)
+		property(
+			"Priority",
+			"priority",
+			priority_labels[priority] or priority,
+			color_hl("TaskNotesPriority", priority, priority_colors[priority])
+		)
+		property("Scheduled", "scheduled", short_date(task.scheduled))
+		property("Due", "due", short_date(task.due))
+		property("Contexts", "contexts", join_list(task.contexts))
+		property("Projects", "projects", join_list(task.projects))
+		property("Tags", "tags", join_list(task.tags))
+
+		-- The estimate is stored in minutes; show the raw number so it
+		-- round-trips into the editor's minute prompt.
+		local estimate = ctx.time and ctx.time.estimate_min
+		property("Estimate", "timeEstimate", estimate and tostring(estimate) or nil)
 	end
 
 	-- ── Dates ─────────────────────────────────────────────────────────
+	-- Created and modified only: scheduled and due live in Properties.
 	local dates = {}
 	if ctx then
 		local task = ctx.task or {}
-		local scheduled = short_date(task.scheduled)
-		local due = short_date(task.due)
 		local created = short_date(task.dateCreated)
 		local modified = short_date(task.dateModified)
-		if scheduled then
-			dates[#dates + 1] = { "scheduled", scheduled }
-		end
-		if due then
-			dates[#dates + 1] = { "due", due }
-		end
 		if created then
 			dates[#dates + 1] = { "created", created }
 		end
@@ -280,6 +343,12 @@ local function build_rows(ctx)
 		end
 	end
 
+	-- ── Footer hint ──────────────────────────────────────────────────
+	-- The keys that work in the panel. Only shown for a real task.
+	if ctx then
+		add({ seg("<CR> edit/open · s status · p priority · d due · q close", "Comment") })
+	end
+
 	return rows
 end
 
@@ -352,12 +421,17 @@ function M.render_into(buf, ctx)
 	apply_rows(buf, rows)
 
 	local paths = {}
+	local fields = {}
 	for i, row in ipairs(rows) do
 		if row.path then
 			paths[i] = row.path
 		end
+		if row.field then
+			fields[i] = row.field
+		end
 	end
 	M.rows[buf] = paths
+	M.fields[buf] = fields
 	M.render_count = M.render_count + 1
 
 	return paths
@@ -371,6 +445,16 @@ function M.path_at(buf, row)
 		return nil
 	end
 	return paths[row]
+end
+
+-- The API field the row under `row` in `buf` edits, or nil when the
+-- row is not an editable property row.
+function M.field_at(buf, row)
+	local fields = M.fields[buf]
+	if not fields then
+		return nil
+	end
+	return fields[row]
 end
 
 -- Renders a context into the panel buffer (or into opts.buf).
@@ -465,6 +549,68 @@ local function open_ref_under_cursor()
 	end)
 end
 
+-- ──────────────────────────────────────────────────────────────────────
+-- Editing (ADR-009)
+--
+-- The panel's edit keys act on the task the panel FOLLOWS, not on the
+-- buffer under the cursor. The write path (task_ops → api) is loaded
+-- lazily, inside the handler: the panel must not pull the HTTP layer
+-- in at load time, and rendering must stay request-free (ADR-005).
+-- ──────────────────────────────────────────────────────────────────────
+
+-- The vault-relative id of the task the panel follows — the API's task
+-- id — or nil when the panel does not follow a task.
+local function followed_task_id()
+	if not M.followed or not vim.api.nvim_buf_is_valid(M.followed) then
+		return nil
+	end
+	-- Only a known task can be edited.
+	local name = vim.api.nvim_buf_get_name(M.followed)
+	if name == "" then
+		return nil
+	end
+	local tasks = cache.data or {}
+	if not tasks[vim.fs.normalize(name)] and not tasks[name] then
+		return nil
+	end
+	-- The id is the buffer's path relative to the vault — the same id
+	-- the API knows the task by.
+	local id
+	pcall(vim.api.nvim_buf_call, M.followed, function()
+		id = util.buffer_to_id()
+	end)
+	return id
+end
+
+-- Edits one property of the followed task and saves it through the API.
+local function edit_field(field)
+	local id = followed_task_id()
+	if not id then
+		return
+	end
+	require("tasknotes.task_ops").edit_field(id, field, { buf = M.followed })
+end
+
+-- <CR> on a row: opens the Ref it points at, or edits the property it
+-- shows.
+local function activate_row()
+	if not M.buf or not M.win or not vim.api.nvim_win_is_valid(M.win) then
+		return
+	end
+
+	local row = vim.api.nvim_win_get_cursor(M.win)[1]
+	local path = M.path_at(M.buf, row)
+	if path then
+		open_ref_under_cursor()
+		return
+	end
+
+	local field = M.field_at(M.buf, row)
+	if field then
+		edit_field(field)
+	end
+end
+
 -- Opens the panel in a right-hand split. Returns true when the panel
 -- is open afterwards.
 function M.open()
@@ -503,7 +649,16 @@ function M.open()
 		},
 		keys = {
 			["<CR>"] = function()
-				open_ref_under_cursor()
+				activate_row()
+			end,
+			s = function()
+				edit_field("status")
+			end,
+			p = function()
+				edit_field("priority")
+			end,
+			d = function()
+				edit_field("due")
 			end,
 		},
 		on_close = function()

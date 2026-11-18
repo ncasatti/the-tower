@@ -203,15 +203,22 @@ card.
 
 ## Task info panel
 
-`<leader>oi` toggles a **read-only side panel**: a right-hand split
+`<leader>oi` toggles a **side panel**: a right-hand split
 (`Snacks.win`, `position = "right"`, width `panel_width`) that shows the
-full context of the task under the cursor.
+full context of the task under the cursor and lets you edit its
+properties.
 
 What the panel shows:
 
 - **Header** — status icon and priority dot (in the live colors from
-  `/api/filter-options`), the title, and the status / priority labels.
-- **Dates** — scheduled, due, created, modified (short dates).
+  `/api/filter-options`) and the title.
+- **Properties** — one row per editable field: Task, Status, Priority,
+  Scheduled, Due, Contexts, Projects, Tags, Estimate. Each row shows
+  the current value (the live label and color for status and priority,
+  an em dash `—` when the field is empty). The Estimate row shows the
+  raw minutes — the unit the editor prompts in.
+- **Dates** — created and modified (short dates). Scheduled and due
+  live in Properties.
 - **Parents** — the projects the task declares.
 - **Subtasks** — tasks whose `projects` point back at this note, with
   their status icon, priority and dates, plus a text progress bar
@@ -222,6 +229,7 @@ What the panel shows:
   cache is listed by name but cannot be opened.
 - **Checklist** — `done N · doing N · open N` from the note body.
 - **Time** — tracked minutes vs. the estimate (`1h 26m / 1h`).
+- **Footer hint** — the keys that work in the panel.
 
 Empty sections are omitted. A buffer that is not a task shows
 `Not a TaskNotes task`; while the task cache is still empty the panel
@@ -232,10 +240,29 @@ for that buffer, while entering the panel window itself never
 re-renders it. It also re-renders on save and when the task cache is
 refreshed.
 
-Inside the panel, `<CR>` opens the note under the cursor **in the
-editing window** (parents, subtasks and dependencies are links);
-`<q>` closes it. The panel never writes to a task and never performs a
-request of its own — it reads the in-memory cache only.
+### Panel keys
+
+The keys are local to the panel's own buffer.
+
+| Key | Action |
+|---|---|
+| `<CR>` | On a link row (parents, subtasks, dependencies): open that note **in the editing window**. On a property row: edit that field. |
+| `s` | Edit the **status** of the followed task. |
+| `p` | Edit the **priority** of the followed task. |
+| `d` | Edit the **due date** of the followed task. |
+| `<q>` | Close the panel. |
+
+The edits always act on the task the panel **follows** — not on the
+buffer under the cursor — and they go through the same path as
+`<leader>oe`: `task_ops.edit_field` → `task_ops.apply_patch`, which
+writes the note buffer if it has unsaved changes, PUTs the field to the
+API and reloads the note afterwards (ADR-009). The value pickers are
+the ones `<leader>oe` uses; the estimate is typed in minutes and an
+empty value clears it.
+
+Rendering never touches the network: the panel reads the in-memory
+cache only. Only an explicit edit key reaches the API, and the write
+path (`task_ops`) is loaded lazily, inside the key handler.
 
 ## Configuration
 
