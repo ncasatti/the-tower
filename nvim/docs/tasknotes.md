@@ -106,6 +106,7 @@ All bindings are **flat under `<leader>o`** (no chord sub-trees). Registered in
 | `owr` | **Refresh** | Force cache rebuild |
 | `oc` | **Toggle inline card** | Show/hide the inline task card under the frontmatter |
 | `oi` | **Info panel** | Toggle the task info side panel (shows and edits the task properties) |
+| `oI` | **Info panel (top)** | Same panel as a full-width top split, note below |
 | `oh` | **Toggle frontmatter** | Hide/show the frontmatter rows of task notes (the closing `---` stays visible) |
 
 > The old chord-based design (`oz*` search, `c*` contexts, `d*` dates, `v*` views,
@@ -236,7 +237,10 @@ is refreshed (the cache may land after the note was opened).
 (`Snacks.win`, `position = "right"`, width `panel_width`, 40% of the
 editor by default) that shows the
 full context of the task under the cursor and lets you edit its
-properties.
+properties. `<leader>oI` opens the same panel as a **top split** over
+the full editor width with the note below (height `panel_height`, 40%
+of the editor by default) — for narrow portrait screens. Either key
+closes an open panel. Opening the panel moves the cursor into it.
 
 What the panel shows:
 
@@ -329,6 +333,7 @@ with no args; to override, pass a table from the spec's `config` function.
 | `priority_icon` | `●` | The priority-dot glyph |
 | `card_max_subtasks` | `5` | Subtask rows drawn in the inline card before `+N more` |
 | `panel_width` | `0.4` | Width of the task info side panel: below `1` a share of the editor width (`0.4` = 40%, kept when the terminal is resized), `1` or more a fixed column count |
+| `panel_height` | `0.4` | Height of the top panel (`oI`), same rule over the editor height |
 | `frontmatter_hidden` | `true` | Hide the frontmatter rows of task notes (toggle with `oh`) |
 | `completed_statuses` | `{ done = true }` | Fallback "completed" status set when the API's filter-options cache is empty |
 

@@ -67,6 +67,7 @@ local function register_keymaps()
 	bind("<leader>op", pomodoro.panel, "Task: Pomodoro & time tracking")
 	bind("<leader>oc", card.toggle, "Task: Toggle inline card")
 	bind("<leader>oi", panel.toggle, "Task: Info panel")
+	bind("<leader>oI", panel.toggle_top, "Task: Info panel (top)")
 	bind("<leader>oh", frontmatter.toggle, "Task: Toggle frontmatter")
 end
 

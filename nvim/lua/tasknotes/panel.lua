@@ -60,6 +60,8 @@ M.win = nil
 M.snacks = nil
 M.edit_win = nil
 M.followed = nil
+-- "right" or "top": where the open panel sits.
+M.position = nil
 M.rows = {}
 M.fields = {}
 
@@ -244,6 +246,16 @@ local function panel_columns()
 		return math.max(1, math.floor(vim.o.columns * width))
 	end
 	return math.floor(width)
+end
+
+-- The height of the top panel in rows: `config.panel_height` below 1
+-- is a share of the editor height, 1 or more a fixed row count.
+local function panel_rows()
+	local height = tonumber(config.panel_height) or 0.4
+	if height > 0 and height < 1 then
+		return math.max(1, math.floor(vim.o.lines * height))
+	end
+	return math.floor(height)
 end
 
 -- The width available for a row: the panel window's width when the
@@ -870,15 +882,24 @@ local function activate_row()
 	end
 end
 
--- Opens the panel in a right-hand split. Returns true when the panel
--- is open afterwards.
-function M.open()
+-- Opens the panel in a split and moves the cursor into it. Returns
+-- true when the panel is open afterwards.
+--
+-- opts.position — "right" (default, <leader>oi) or "top" (<leader>oI:
+-- a full-width split above the note, for narrow portrait screens).
+function M.open(opts)
+	opts = opts or {}
 	if M.is_open() then
 		return true
 	end
 
 	local buf = ensure_buffer()
 	M.edit_win = vim.api.nvim_get_current_win()
+	-- The note the panel opens on: captured before the split takes the
+	-- cursor, so the panel never follows itself.
+	local note_buf = vim.api.nvim_get_current_buf()
+	local position = opts.position == "top" and "top" or "right"
+	M.position = position
 
 	local snacks = _G.Snacks
 	if not snacks then
@@ -890,9 +911,10 @@ function M.open()
 	end
 
 	local win = snacks.win.new({
-		position = "right",
-		width = panel_columns(),
-		enter = false,
+		position = position,
+		width = position == "right" and panel_columns() or nil,
+		height = position == "top" and panel_rows() or nil,
+		enter = true,
 		buf = buf,
 		bo = {
 			filetype = "tasknotes-panel",
@@ -936,8 +958,8 @@ function M.open()
 	M.snacks = win
 	M.win = win.win
 
-	-- Render the buffer the panel was opened on.
-	follow(vim.api.nvim_get_current_buf())
+	-- Render the note the panel was opened on.
+	follow(note_buf)
 
 	return M.is_open()
 end
@@ -965,13 +987,23 @@ function M.window()
 	return M.win
 end
 
--- Toggles the panel.
+-- Toggles the panel (<leader>oi): closes it whatever its position,
+-- otherwise opens it on the right.
 function M.toggle()
 	if M.is_open() then
 		M.close()
 		return false
 	end
-	return M.open()
+	return M.open({ position = "right" })
+end
+
+-- Toggles the panel as a top split with the note below (<leader>oI).
+function M.toggle_top()
+	if M.is_open() then
+		M.close()
+		return false
+	end
+	return M.open({ position = "top" })
 end
 
 -- Registers the autocmds that keep the panel in sync. They live in the
@@ -1057,9 +1089,16 @@ function M.attach()
 			if not M.is_open() then
 				return
 			end
-			local width = panel_columns()
-			if vim.api.nvim_win_get_width(M.win) ~= width then
-				vim.api.nvim_win_set_width(M.win, width)
+			if M.position == "top" then
+				local height = panel_rows()
+				if vim.api.nvim_win_get_height(M.win) ~= height then
+					vim.api.nvim_win_set_height(M.win, height)
+				end
+			else
+				local width = panel_columns()
+				if vim.api.nvim_win_get_width(M.win) ~= width then
+					vim.api.nvim_win_set_width(M.win, width)
+				end
 			end
 			if M.followed and available_width() ~= rendered_width then
 				follow(M.followed)

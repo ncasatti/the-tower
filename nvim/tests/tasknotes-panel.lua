@@ -1111,4 +1111,51 @@ end
 
 config.panel_width = 48
 
+-- ──────────────────────────────────────────────────────────────────────
+-- 16. Opening moves the cursor into the panel; `toggle_top`
+--     (<leader>oI) opens it as a top split with the note below.
+-- ──────────────────────────────────────────────────────────────────────
+
+if snacks then
+	reset_cache()
+	vim.cmd("silent! only")
+	local alpha_buf = make_buffer(ALPHA, ALPHA_LINES)
+	local note_win = vim.api.nvim_get_current_win()
+	vim.api.nvim_win_set_buf(note_win, alpha_buf)
+
+	-- Right panel: the cursor lands in it, and it shows the note.
+	panel.toggle()
+	assert_equal(vim.api.nvim_get_current_win(), panel.window(), "opening the panel moves the cursor into it")
+	assert_equal(panel.followed, alpha_buf, "the panel follows the note it was opened from")
+	assert_contains(buf_text(panel.buf), "Alpha", "the panel shows the note's task")
+	panel.toggle()
+	assert_true(not panel.is_open(), "the toggle closes the right panel")
+
+	-- Top panel: full width above the note, cursor in the panel.
+	vim.api.nvim_set_current_win(note_win)
+	local opened = panel.toggle_top()
+	assert_true(opened, "toggle_top opens the panel")
+	local top_win = panel.window()
+	assert_equal(vim.api.nvim_get_current_win(), top_win, "the top panel takes the cursor")
+	assert_equal(vim.api.nvim_win_get_position(top_win)[1], 0, "the top panel sits at the top")
+	assert_true(vim.api.nvim_win_get_position(note_win)[1] > 0, "the note window is below the panel")
+	assert_equal(vim.api.nvim_win_get_width(top_win), vim.o.columns, "the top panel spans the editor width")
+	assert_equal(panel.followed, alpha_buf, "the top panel follows the note")
+	assert_true(vim.wo[top_win].winfixheight, "the top panel keeps its height")
+
+	-- <leader>oi closes an open panel whatever its position.
+	panel.toggle()
+	assert_true(not panel.is_open(), "<leader>oi closes the top panel")
+	vim.api.nvim_set_current_win(note_win)
+	panel.toggle_top()
+	panel.toggle_top()
+	assert_true(not panel.is_open(), "toggle_top twice leaves no panel")
+
+	-- The right toggle after a top one opens on the right again.
+	vim.api.nvim_set_current_win(note_win)
+	panel.toggle()
+	assert_true(vim.api.nvim_win_get_position(panel.window())[2] > 0, "<leader>oi opens on the right")
+	panel.toggle()
+end
+
 print("tasknotes panel: ok")

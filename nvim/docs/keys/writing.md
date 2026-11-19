@@ -44,7 +44,8 @@ Mutations go through `PUT /api/tasks/{url-encoded-path}`. Statuses, priorities, 
 ### Views
 
 - `<leader>oc` — Toggle inline task card (virtual card under the frontmatter; global, on by default)
-- `<leader>oi` — Toggle task info panel (right-hand split with the full task context)
+- `<leader>oi` — Toggle task info panel (right-hand split with the full task context; the cursor moves into it)
+- `<leader>oI` — Toggle the same panel as a full-width top split, note below (portrait screens)
 - `<leader>oh` — Toggle hidden frontmatter (in task notes the rows above the closing `---` are concealed; the fence stays visible so the card keeps its anchor; global, on by default)
 
 ### Task info panel (inside the panel)
