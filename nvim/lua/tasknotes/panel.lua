@@ -241,7 +241,7 @@ local rendered_width = nil
 -- The panel width in columns: `config.panel_width` below 1 is a share
 -- of the editor width, 1 or more a fixed column count.
 local function panel_columns()
-	local width = tonumber(config.panel_width) or 0.4
+	local width = tonumber(config.panel_width) or 0.5
 	if width > 0 and width < 1 then
 		return math.max(1, math.floor(vim.o.columns * width))
 	end
@@ -251,7 +251,7 @@ end
 -- The height of the top panel in rows: `config.panel_height` below 1
 -- is a share of the editor height, 1 or more a fixed row count.
 local function panel_rows()
-	local height = tonumber(config.panel_height) or 0.4
+	local height = tonumber(config.panel_height) or 0.25
 	if height > 0 and height < 1 then
 		return math.max(1, math.floor(vim.o.lines * height))
 	end

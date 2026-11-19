@@ -69,10 +69,11 @@ local cache = require("tasknotes.cache")
 local card = require("tasknotes.card")
 local config = require("tasknotes.config")
 
--- The default panel width is a share of the editor (0.4); section 15
+-- The default panel width is a share of the editor (0.5); section 15
 -- covers it. The fitting sections pin a fixed width of 48 columns so
 -- their expectations do not depend on the headless screen size.
 local DEFAULT_PANEL_WIDTH = config.panel_width
+local DEFAULT_PANEL_HEIGHT = config.panel_height
 config.panel_width = 48
 local context = require("tasknotes.context")
 local panel = require("tasknotes.panel")
@@ -1063,11 +1064,13 @@ if snacks then
 end
 
 -- ──────────────────────────────────────────────────────────────────────
--- 15. Width as a share of the editor: the default is 40% of the
---     columns, and a fraction follows the editor when it is resized.
+-- 15. Width as a share of the editor: the default is half of the
+--     columns (the top panel: a quarter of the lines), and a fraction
+--     follows the editor when it is resized (checked with 0.4).
 -- ──────────────────────────────────────────────────────────────────────
 
-assert_equal(DEFAULT_PANEL_WIDTH, 0.4, "the default panel width is 40% of the editor")
+assert_equal(DEFAULT_PANEL_WIDTH, 0.5, "the default panel width is 50% of the editor")
+assert_equal(DEFAULT_PANEL_HEIGHT, 0.25, "the default top panel height is 25% of the editor")
 
 local columns = vim.o.columns
 config.panel_width = 0.4
@@ -1140,6 +1143,11 @@ if snacks then
 	assert_equal(vim.api.nvim_win_get_position(top_win)[1], 0, "the top panel sits at the top")
 	assert_true(vim.api.nvim_win_get_position(note_win)[1] > 0, "the note window is below the panel")
 	assert_equal(vim.api.nvim_win_get_width(top_win), vim.o.columns, "the top panel spans the editor width")
+	assert_equal(
+		vim.api.nvim_win_get_height(top_win),
+		math.floor(vim.o.lines * config.panel_height),
+		"the top panel takes its share of the editor height"
+	)
 	assert_equal(panel.followed, alpha_buf, "the top panel follows the note")
 	assert_true(vim.wo[top_win].winfixheight, "the top panel keeps its height")
 
