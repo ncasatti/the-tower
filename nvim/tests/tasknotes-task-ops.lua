@@ -78,13 +78,25 @@ reset_task_file()
 -- ──────────────────────────────────────────────────────────────────────
 -- plenary.curl stub — no network, the PUT simulates the server
 -- ──────────────────────────────────────────────────────────────────────
-local http = { puts = {}, gets = 0, unsaved_at_put = false, fail = false }
+-- get_tasks — the task list GET /tasks answers with
+-- put_task  — the task the PUT answers with (nil = a minimal default)
+-- defer_get — when true, async GET callbacks are queued in `deferred`
+--             instead of answered at once (a request still in flight)
+local http = { puts = {}, gets = 0, unsaved_at_put = false, fail = false, get_tasks = {}, deferred = {} }
 
 local function reset_http()
 	http.puts = {}
 	http.gets = 0
 	http.unsaved_at_put = false
 	http.fail = false
+	http.get_tasks = {}
+	http.put_task = nil
+	http.defer_get = false
+	http.deferred = {}
+end
+
+local function tasks_response(tasks)
+	return { status = 200, body = vim.fn.json_encode({ success = true, data = { tasks = tasks } }) }
 end
 
 -- Splits a note into its frontmatter lines and its body lines.
@@ -110,9 +122,17 @@ end
 package.loaded["plenary.curl"] = {
 	get = function(url, opts)
 		http.gets = http.gets + 1
-		local res = { status = 200, body = vim.fn.json_encode({ success = true, data = { tasks = {} } }) }
+		-- The answer is taken when the request is SENT: a deferred
+		-- request answers with what the server held at that moment.
+		local res = tasks_response(vim.deepcopy(http.get_tasks))
 		if opts and opts.callback then
-			opts.callback(res)
+			if http.defer_get then
+				table.insert(http.deferred, function()
+					opts.callback(res)
+				end)
+			else
+				opts.callback(res)
+			end
 		end
 		return res
 	end,
@@ -134,7 +154,7 @@ package.loaded["plenary.curl"] = {
 			status = 200,
 			body = vim.fn.json_encode({
 				success = true,
-				data = { path = TASK_ID, title = "Task", status = "done" },
+				data = http.put_task or { path = TASK_ID, title = "Task", status = "done" },
 			}),
 		}
 	end,
@@ -526,6 +546,130 @@ section("12 a picker without a continuation returns to the editor", function()
 	assert_equal(captured.id, TASK_ID, "the editor keeps the task id")
 	assert_equal(captured.buf, buf, "the editor keeps the buffer")
 	assert_equal(patch.title, "Renamed", "the patch carries the new value")
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 13. A saved field shows up in the cache (and so in the panel and the
+--     card) even when the task list still answers with the old task:
+--     a refresh already in flight when the PUT is sent, or a server
+--     index that lags behind its own write.
+-- ──────────────────────────────────────────────────────────────────────
+local cache = require("tasknotes.cache")
+local ABS = vault .. "/" .. TASK_ID
+local OLD = { path = TASK_ID, title = "Task", status = "inbox", scheduled = "2026-11-09", dateModified = "2026-11-09T10:00:00.000-03:00" }
+local NEW = { path = TASK_ID, title = "Task", status = "inbox", scheduled = "2026-11-20", dateModified = "2026-11-19T10:00:00.000-03:00" }
+
+local function scheduled_in_cache()
+	local entry = cache.data[ABS]
+	return entry and entry.fm and entry.fm.scheduled
+end
+
+local function drain()
+	vim.wait(50, function()
+		return false
+	end)
+end
+
+local function seed_cache(task)
+	-- Earlier sections leave async answers scheduled; let them land now
+	-- so they cannot rewrite the cache in the middle of this case.
+	drain()
+	cache.data = { [ABS] = { fm = vim.deepcopy(task), mtime = 0 } }
+	cache.pending = {}
+	cache.last_full_scan = os.time()
+	cache.refresh_in_flight = false
+end
+
+section("13a a refresh answered with the old task does not undo the saved field", function()
+	reset_http()
+	reset_task_file()
+	seed_cache(OLD)
+	http.get_tasks = { OLD }
+	http.put_task = NEW
+
+	local refreshed = 0
+	local au = vim.api.nvim_create_autocmd("User", {
+		pattern = "TaskNotesCacheRefreshed",
+		callback = function()
+			refreshed = refreshed + 1
+		end,
+	})
+
+	task_ops.apply_patch(TASK_ID, { scheduled = "2026-11-20" })
+	drain()
+	vim.api.nvim_del_autocmd(au)
+
+	assert_equal(scheduled_in_cache(), "2026-11-20", "the cache holds the saved value")
+	assert_true(refreshed >= 1, "the views are told to re-render")
+end)
+
+section("13b a refresh in flight before the PUT does not undo the saved field", function()
+	reset_http()
+	reset_task_file()
+	seed_cache(OLD)
+	http.get_tasks = { OLD }
+	http.defer_get = true
+
+	cache.refresh_async() -- sent before the PUT: answers with OLD
+	http.put_task = NEW
+	http.get_tasks = { NEW }
+	task_ops.apply_patch(TASK_ID, { scheduled = "2026-11-20" })
+
+	for _, answer in ipairs(http.deferred) do
+		answer()
+	end
+	drain()
+
+	assert_equal(scheduled_in_cache(), "2026-11-20", "the late answer does not overwrite the saved value")
+end)
+
+section("13c a later change made elsewhere still reaches the cache", function()
+	reset_http()
+	reset_task_file()
+	seed_cache(OLD)
+	http.get_tasks = { OLD }
+	http.put_task = NEW
+	task_ops.apply_patch(TASK_ID, { scheduled = "2026-11-20" })
+	drain()
+
+	-- Obsidian changes the task afterwards: newer dateModified.
+	local LATER = vim.tbl_extend("force", NEW, { scheduled = "2026-12-01", dateModified = "2026-11-20T09:00:00.000-03:00" })
+	http.get_tasks = { LATER }
+	cache.refresh_async()
+	drain()
+
+	assert_equal(scheduled_in_cache(), "2026-12-01", "the newer server value wins")
+end)
+
+section("13d a saved task missing from the server list is forgotten", function()
+	reset_http()
+	reset_task_file()
+	seed_cache(OLD)
+	http.get_tasks = { OLD }
+	http.put_task = NEW
+	-- The refresh that apply_patch starts answers while the server is
+	-- still behind, so the saved task stays in the overlay.
+	http.defer_get = true
+	task_ops.apply_patch(TASK_ID, { scheduled = "2026-11-20" })
+	for _, answer in ipairs(http.deferred) do
+		answer()
+	end
+	drain()
+	assert_true(cache.pending[ABS] ~= nil, "the saved task waits in the overlay while the server is behind")
+
+	-- The task is renamed or deleted: the list no longer has it.
+	http.defer_get = false
+	http.get_tasks = {}
+	cache.refresh_async()
+	drain()
+	assert_equal(cache.pending[ABS], nil, "the overlay forgets a task the server no longer lists")
+
+	-- A file shows up again at that path with older data: the stale
+	-- saved value is not brought back.
+	http.get_tasks = { OLD }
+	cache.refresh_async()
+	drain()
+	assert_equal(scheduled_in_cache(), "2026-11-09", "the server value is shown, not the forgotten save")
 end)
 
 -- ──────────────────────────────────────────────────────────────────────

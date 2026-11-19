@@ -11,7 +11,7 @@
 -- writes the note buffer, PUTs the field and reloads the note.
 --
 -- Sections: header (status icon + priority dot + title), properties
--- (one editable row per field), dates (read-only), parents, subtasks
+-- (one editable row per field), parents, subtasks
 -- (with a text progress bar), dependencies (blocked by / blocking),
 -- checklist and time. Empty sections are omitted.
 --
@@ -461,30 +461,6 @@ local function build_rows(ctx)
 		-- round-trips into the editor's minute prompt.
 		local estimate = ctx.time and ctx.time.estimate_min
 		property("Estimate", "timeEstimate", estimate and tostring(estimate) or nil)
-	end
-
-	-- ── Dates ─────────────────────────────────────────────────────────
-	-- Created and modified only: scheduled and due live in Properties.
-	local dates = {}
-	if ctx then
-		local task = ctx.task or {}
-		local created = short_date(task.dateCreated)
-		local modified = short_date(task.dateModified)
-		if created then
-			dates[#dates + 1] = { "created", created }
-		end
-		if modified then
-			dates[#dates + 1] = { "modified", modified }
-		end
-	end
-	if #dates > 0 then
-		heading("Dates")
-		for _, entry in ipairs(dates) do
-			add({
-				seg(string.format("  %-10s", entry[1]), "Comment"),
-				seg(entry[2]),
-			})
-		end
 	end
 
 	-- ── Parents ───────────────────────────────────────────────────────

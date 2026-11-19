@@ -149,7 +149,11 @@ M.apply_patch = function(id, patch, opts)
 		end)
 	end
 
-	cache.invalidate_file(config.vault_path .. "/" .. id)
+	-- The PUT answers with the saved task: show it right away instead of
+	-- waiting for a task list that may still hold the old values.
+	if not cache.apply_task(updated) then
+		cache.invalidate_file(config.vault_path .. "/" .. id)
+	end
 	cache.refresh_async()
 	vim.notify(string.format("Saved %d field(s)", count), vim.log.levels.INFO)
 	return updated

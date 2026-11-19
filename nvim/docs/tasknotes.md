@@ -247,9 +247,9 @@ What the panel shows:
   an em dash `—` when the field is empty). The Estimate row shows the
   raw minutes — the unit the editor prompts in. The Projects row shows
   the **link names** (`Parent Note`), not the raw wikilinks
-  (`[[Parent Note]]`); the value sent on edit is untouched.
-- **Dates** — created and modified (short dates). Scheduled and due
-  live in Properties.
+  (`[[Parent Note]]`); the value sent on edit is untouched. A saved
+  field shows up at once: the cache takes the task the API answers
+  with and keeps it until the server's task list catches up.
 - **Parents** — the projects the task declares.
 - **Subtasks** — tasks whose `projects` point back at this note, with
   their status icon, priority and dates, plus a text progress bar

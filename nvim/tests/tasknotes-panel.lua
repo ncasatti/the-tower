@@ -344,10 +344,10 @@ local text = buf_text(panel_buf)
 -- Header: title, status label, priority label.
 assert_contains(text, "Alpha", "the header shows the title")
 
--- Dates (created and modified only — scheduled/due moved to Properties).
-assert_contains(text, "Dates", "the Dates section is rendered")
-assert_contains(text, "2025-11-21", "the created date is rendered")
-assert_contains(text, "2026-08-26", "the modified date is rendered")
+-- No created / modified dates: the panel shows what can be edited.
+assert_not_contains(text, "Dates", "the Dates section is gone")
+assert_not_contains(text, "2025-11-21", "the created date is not rendered")
+assert_not_contains(text, "2026-08-26", "the modified date is not rendered")
 
 -- Parents.
 assert_contains(text, "Parents", "the Parents section is rendered")
@@ -409,9 +409,8 @@ assert_contains(row_text(panel_buf, row_of_field(panel_buf, "projects")), "Paren
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "tags")), "work", "the Tags row shows the tags")
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "timeEstimate")), "60", "the Estimate row shows the minutes")
 
--- Scheduled and due live in Properties only — the Dates section does
--- not repeat them.
-assert_not_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "2025-11-21", "the Dates section is separate")
+-- Scheduled and due live in Properties only.
+assert_not_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "2025-11-21", "the Scheduled row shows only scheduled")
 
 -- ──────────────────────────────────────────────────────────────────────
 -- 9. The footer hint

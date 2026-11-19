@@ -70,10 +70,83 @@ local function build_index(all_tasks)
 	return cache_data, index
 end
 
+-- Tasks saved from Neovim, by absolute path, kept until the server's
+-- task list catches up with them. The PUT answers with the saved task,
+-- but GET /tasks may still answer with the previous one for a while:
+-- a refresh already in flight when the PUT was sent, or a server index
+-- that lags behind its own write. Without this overlay that late answer
+-- would put the old values back in the panel and the card.
+M.pending = {}
+
+-- True when the server's copy of a task is at least as new as the one
+-- saved locally. ISO timestamps from the same server compare as text.
+local function caught_up(fetched, saved)
+	local a, b = fetched.dateModified, saved.dateModified
+	if type(a) ~= "string" or type(b) ~= "string" then
+		return true
+	end
+	return a >= b
+end
+
+-- Replaces stale tasks of a fetched list with the locally saved ones,
+-- and forgets each saved task once the server has caught up with it
+-- or no longer lists it (renamed or deleted): a forgotten save must
+-- never come back over a later file at the same path.
+local function overlay_pending(all_tasks)
+	if next(M.pending) == nil then
+		return all_tasks
+	end
+	local out = {}
+	local seen = {}
+	for i, task in ipairs(all_tasks) do
+		local filepath = config.vault_path .. "/" .. tostring(task.path)
+		seen[filepath] = true
+		local saved = M.pending[filepath]
+		if saved and not caught_up(task, saved) then
+			out[i] = saved
+		else
+			M.pending[filepath] = nil
+			out[i] = task
+		end
+	end
+	for filepath in pairs(M.pending) do
+		if not seen[filepath] then
+			M.pending[filepath] = nil
+		end
+	end
+	return out
+end
+
 -- Announces a cache mutation. Every mutation path must fire this
 -- (ADR-005) or views go stale silently.
 local function fire_refreshed()
 	vim.api.nvim_exec_autocmds("User", { pattern = "TaskNotesCacheRefreshed", modeline = false })
+end
+
+-- Puts a task the API just saved (the PUT response) into the cache at
+-- once and tells the views to re-render. The task stays in the overlay
+-- until a task list from the server is at least as new.
+function M.apply_task(task)
+	if type(task) ~= "table" or type(task.path) ~= "string" then
+		return false
+	end
+	local filepath = config.vault_path .. "/" .. task.path
+	M.pending[filepath] = task
+
+	local all_tasks = {}
+	for path, entry in pairs(M.data) do
+		if path ~= filepath and entry.fm then
+			all_tasks[#all_tasks + 1] = entry.fm
+		end
+	end
+	all_tasks[#all_tasks + 1] = task
+
+	local cache_data, index = build_index(all_tasks)
+	M.data = cache_data
+	M.keys_index = index
+	M.generation = M.generation + 1
+	fire_refreshed()
+	return true
 end
 
 -- True when the task index is older than config.cache_ttl.
@@ -90,7 +163,7 @@ function M.ensure()
 	local t_start = vim.fn.reltime()
 	local now = os.time()
 
-	local all_tasks = api.query_tasks(nil) or {}
+	local all_tasks = overlay_pending(api.query_tasks(nil) or {})
 	local cache_data, index = build_index(all_tasks)
 
 	M.data = cache_data
@@ -128,7 +201,7 @@ function M.refresh_async()
 			return
 		end
 
-		local cache_data, index = build_index(tasks)
+		local cache_data, index = build_index(overlay_pending(tasks))
 		M.data = cache_data
 		M.keys_index = index
 		M.last_full_scan = os.time()
