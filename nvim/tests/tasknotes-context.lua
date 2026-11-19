@@ -116,8 +116,9 @@ local ALPHA_LINES = {
 	"- [ ] open item",
 	"  - [x] nested done item",
 	"> - [-] doing item inside a callout",
-	"  - [~] doing item, two-space indent",
+	"  - [~] on-hold item, two-space indent",
 	"- [X] done item, uppercase",
+	"- [>] waiting item",
 	"",
 	"Some prose that is not a checklist.",
 }
@@ -225,8 +226,11 @@ assert_equal(ctx_no_completed.progress.done, 1, "config fallback marks done as c
 -- ──────────────────────────────────────────────────────────────────────
 assert_equal(ctx.fm_end_row, 3, "fm_end_row is the 0-based row of the closing fence")
 assert_equal(ctx.checklist.done, 2, "[x] and [X] count as done")
-assert_equal(ctx.checklist.doing, 2, "[-] and [~] count as doing")
+assert_equal(ctx.checklist.doing, 1, "[-] counts as doing")
+assert_equal(ctx.checklist.on_hold, 1, "[~] counts as on-hold")
+assert_equal(ctx.checklist.waiting, 1, "[>] counts as waiting")
 assert_equal(ctx.checklist.open, 1, "[ ] counts as open")
+assert_equal(ctx.checklist.total, 6, "the total counts every state")
 
 -- Frontmatter must never contribute: a checkbox-looking frontmatter line
 -- is ignored.

@@ -6,7 +6,7 @@
 -- refresh when the cache is stale, exactly like the inline card does.
 --
 -- The panel is editable, but only through explicit keys: a property
--- row plus `<CR>` on it, or `s`/`p`/`d`. Those keys go through
+-- row plus `<CR>` on it, or `s`/`p`/`c`/`d`. Those keys go through
 -- `task_ops.edit_field` → `task_ops.apply_patch` (ADR-009), which
 -- writes the note buffer, PUTs the field and reloads the note.
 --
@@ -25,8 +25,8 @@
 -- buffer re-renders it for that buffer, entering the panel itself
 -- never re-renders it.
 --
--- The panel's keys (<CR> to open a Ref or edit a property, s/p/d to
--- edit status/priority/due, q to close) are buffer-local on the
+-- The panel's keys (<CR> to open a Ref or edit a property, s/p/c/d to
+-- edit status/priority/scheduled/due, q to close) are buffer-local on the
 -- panel's own scratch buffer, which only ever lives in the panel
 -- window — Neovim 0.12 removed the window-local mapping API, so this
 -- is the equivalent scope.
@@ -68,6 +68,16 @@ M.render_count = 0
 
 -- Width of the text progress bar (in block characters).
 local BAR_WIDTH = 8
+
+-- The checklist rows, in order: the context key, the label the USER
+-- uses, and the task status whose icon and color the row borrows.
+local CHECKLIST_ROWS = {
+	{ key = "open", label = "open", status = "inbox" },
+	{ key = "doing", label = "doing", status = "in-progress" },
+	{ key = "on_hold", label = "on-hold", status = "on-hold" },
+	{ key = "waiting", label = "waiting", status = "waiting" },
+	{ key = "done", label = "done", status = "done" },
+}
 
 -- ──────────────────────────────────────────────────────────────────────
 -- Formatting helpers
@@ -229,9 +239,13 @@ local rendered_width = nil
 -- The width available for a row: the panel window's width when the
 -- panel is open, the configured width otherwise. The panel has no
 -- sign column and no line numbers, so the window width IS the text
--- width.
+-- width. With 'wrap' on in the panel window the window wraps long
+-- rows itself, so nothing is cut (nil = no limit).
 local function available_width()
 	if M.win and vim.api.nvim_win_is_valid(M.win) then
+		if vim.wo[M.win].wrap then
+			return nil
+		end
 		return vim.api.nvim_win_get_width(M.win)
 	end
 	return config.panel_width or 48
@@ -521,18 +535,27 @@ local function build_rows(ctx)
 	end
 
 	-- ── Checklist ─────────────────────────────────────────────────────
+	-- One row per state in use, with the icon and live color of the
+	-- matching task status, so a checklist reads like a task list.
 	if ctx then
 		local checklist = ctx.checklist or {}
-		local total = (checklist.done or 0) + (checklist.doing or 0) + (checklist.open or 0)
-		if total > 0 then
+		if (checklist.total or 0) > 0 then
 			heading("Checklist")
-			add({
-				seg(string.format("  done %d", checklist.done or 0)),
-				seg("  ·  ", "Comment"),
-				seg(string.format("doing %d", checklist.doing or 0)),
-				seg("  ·  ", "Comment"),
-				seg(string.format("open %d", checklist.open or 0)),
-			})
+			local status_colors = ui.get_color_tables({ cached_only = true })
+			for _, state in ipairs(CHECKLIST_ROWS) do
+				local n = checklist[state.key] or 0
+				if n > 0 then
+					add({
+						seg("  "),
+						seg(
+							ui.icon_for_status(state.status),
+							color_hl("TaskNotesStatus", state.status, status_colors[state.status])
+						),
+						seg(string.format(" %-8s", state.label)),
+						seg(string.format("%d", n), "Comment"),
+					})
+				end
+			end
 		end
 	end
 
@@ -559,9 +582,10 @@ local function build_rows(ctx)
 
 	-- ── Footer hint ──────────────────────────────────────────────────
 	-- The keys that work in the panel. Only shown for a real task.
-	-- Short enough to fit the default panel width (48) on its own.
+	-- Two rows, each short enough to fit the default panel width (48).
 	if ctx then
-		add({ seg("<CR> edit/open · s/p/d status/prio/due · q", "Comment") })
+		add({ seg("<CR> edit/open · q close", "Comment") })
+		add({ seg("s status · p prio · c sched · d due", "Comment") })
 	end
 
 	return rows
@@ -869,7 +893,10 @@ function M.open()
 		wo = {
 			number = false,
 			signcolumn = "no",
-			wrap = false,
+			-- Inherit the global wrap settings (config.lua); <leader>W
+			-- toggles them per window, the panel included.
+			wrap = vim.go.wrap,
+			linebreak = vim.go.linebreak,
 			cursorline = true,
 		},
 		keys = {
@@ -881,6 +908,9 @@ function M.open()
 			end,
 			p = function()
 				edit_field("priority")
+			end,
+			c = function()
+				edit_field("scheduled")
 			end,
 			d = function()
 				edit_field("due")
@@ -1002,6 +1032,22 @@ function M.attach()
 			end
 			-- Only the panel's own width matters.
 			if available_width() == rendered_width then
+				return
+			end
+			follow(M.followed)
+		end,
+	})
+
+	-- Toggling wrap in the panel window (<leader>W) switches between
+	-- wrapped rows and rows cut with an ellipsis: render again.
+	vim.api.nvim_create_autocmd("OptionSet", {
+		group = group,
+		pattern = "wrap",
+		callback = function()
+			if not M.is_open() or not M.followed then
+				return
+			end
+			if vim.api.nvim_get_current_win() ~= M.win then
 				return
 			end
 			follow(M.followed)

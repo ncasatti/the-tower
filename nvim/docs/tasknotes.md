@@ -258,7 +258,10 @@ What the panel shows:
   **Blocking** (the tasks this one holds up). Both come from the API's
   `blockedBy` / `blocking` fields; a dependency that is not in the task
   cache is listed by name but cannot be opened.
-- **Checklist** — `done N · doing N · open N` from the note body.
+- **Checklist** — one row per checklist state in use in the note body,
+  with the icon and color of the matching task status: `[ ]` open
+  (inbox), `[-]` doing (in-progress), `[~]` on-hold, `[>]` waiting,
+  `[x]` done. The inline card's `checklist done/total` counts all five.
 - **Time** — tracked minutes vs. the estimate (`1h 26m / 1h`).
 - **Footer hint** — the keys that work in the panel.
 
@@ -266,11 +269,14 @@ Empty sections are omitted. A buffer that is not a task shows
 `Not a TaskNotes task`; while the task cache is still empty the panel
 shows `Loading tasks…`.
 
-Every row is **fitted to the panel width**: the least important parts
-of a row (a subtask's priority and dates) are dropped first, and a row
-that still does not fit is cut with `…` on a character boundary — never
-in the middle of a word or a glyph. The width follows the panel window,
-so resizing the panel re-fits the rows.
+The panel **inherits the global `wrap` and `linebreak`** settings, and
+`<leader>W` toggles wrap in the panel window like in any other window.
+With wrap on, long rows wrap. With wrap off, every row is **fitted to
+the panel width**: the least important parts of a row (a subtask's
+priority and dates) are dropped first, and a row that still does not
+fit is cut with `…` on a character boundary — never in the middle of a
+word or a glyph. The width follows the panel window, so resizing the
+panel re-fits the rows.
 
 The panel **follows the buffer**: entering another buffer re-renders it
 for that buffer, while entering the panel window itself never
@@ -286,6 +292,7 @@ The keys are local to the panel's own buffer.
 | `<CR>` | On a link row (parents, subtasks, dependencies): open that note **in the editing window**. On a property row: edit that field. |
 | `s` | Edit the **status** of the followed task. |
 | `p` | Edit the **priority** of the followed task. |
+| `c` | Edit the **scheduled date** of the followed task. |
 | `d` | Edit the **due date** of the followed task. |
 | `<q>` | Close the panel. |
 

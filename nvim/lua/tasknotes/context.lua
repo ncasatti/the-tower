@@ -16,7 +16,7 @@
 --   blocked_by = { Ref... },   -- from task.blockedBy
 --   blocking   = { Ref... },   -- from task.blocking
 --   progress   = { done = n, total = n },            -- over subtasks
---   checklist  = { done = n, doing = n, open = n },  -- body only
+--   checklist  = { open, doing, on_hold, waiting, done, total = n },  -- body only
 --   time       = { tracked_min = n, estimate_min = n|nil },
 --   fm_end_row = n|nil,        -- 0-based row of the closing `---`
 -- }
@@ -269,9 +269,21 @@ end
 
 -- ──────────────────────────────────────────────────────────────────────
 -- Checklist parsing (body only — everything after the frontmatter fence)
+--
+-- The markers mirror the task statuses the USER uses:
+--   [ ] open · [-] doing · [~] on-hold · [>] waiting · [x]/[X] done
 -- ──────────────────────────────────────────────────────────────────────
+local CHECKLIST_STATE = {
+	[" "] = "open",
+	["-"] = "doing",
+	["~"] = "on_hold",
+	[">"] = "waiting",
+	["x"] = "done",
+	["X"] = "done",
+}
+
 local function count_checklist(lines, fm_end_row)
-	local counts = { done = 0, doing = 0, open = 0 }
+	local counts = { open = 0, doing = 0, on_hold = 0, waiting = 0, done = 0, total = 0 }
 	if not lines then
 		return counts
 	end
@@ -294,12 +306,10 @@ local function count_checklist(lines, fm_end_row)
 			end
 
 			local marker = body:match("^%-%s*%[(.)%]")
-			if marker == " " then
-				counts.open = counts.open + 1
-			elseif marker == "x" or marker == "X" then
-				counts.done = counts.done + 1
-			elseif marker == "-" or marker == "~" then
-				counts.doing = counts.doing + 1
+			local state = marker and CHECKLIST_STATE[marker]
+			if state then
+				counts[state] = counts[state] + 1
+				counts.total = counts.total + 1
 			end
 		end
 	end

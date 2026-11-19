@@ -138,6 +138,9 @@ local ALPHA_LINES = {
 	"- [ ] open item",
 	"- [x] done item",
 	"- [-] doing item",
+	"- [~] on-hold item",
+	"- [>] waiting item",
+	"- [>] another waiting item",
 	"",
 	"Body prose.",
 }
@@ -366,10 +369,23 @@ assert_contains(text, "Dependencies", "the Dependencies section is rendered")
 assert_contains(text, "Blocked by", "the blocked-by group is rendered")
 assert_contains(text, "Blocking", "the blocking group is rendered")
 
--- Checklist.
+-- Checklist: one row per state in use, with the task status icon.
 assert_contains(text, "Checklist", "the Checklist section is rendered")
-assert_contains(text, "done 1", "the checklist counts are rendered")
-assert_contains(text, "open 1", "the checklist counts are rendered")
+local function checklist_row(label)
+	for _, line in ipairs(vim.api.nvim_buf_get_lines(panel_buf, 0, -1, false)) do
+		if line:match("^%s+%S+%s+" .. vim.pesc(label) .. "%s+%d+$") then
+			return line
+		end
+	end
+	return nil
+end
+for label, n in pairs({ open = 1, doing = 1, ["on-hold"] = 1, waiting = 2, done = 1 }) do
+	local line = checklist_row(label)
+	assert_true(line ~= nil, "the checklist has a row for " .. label)
+	assert_true(line:match("%s" .. n .. "$") ~= nil, "the " .. label .. " row counts " .. n .. ": " .. tostring(line))
+end
+assert_contains(checklist_row("on-hold") or "", config.status_icons["on-hold"], "the on-hold row uses the on-hold status icon")
+assert_contains(checklist_row("waiting") or "", config.status_icons.waiting, "the waiting row uses the waiting status icon")
 
 -- Time.
 assert_contains(text, "Time", "the Time section is rendered")
@@ -416,8 +432,8 @@ assert_not_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "
 -- 9. The footer hint
 -- ──────────────────────────────────────────────────────────────────────
 assert_contains(text, "<CR> edit/open", "the footer hint is rendered for a task")
-assert_contains(text, "s/p/d status/prio/due", "the footer hint lists the status/priority/due keys")
-assert_contains(text, "· q", "the footer hint lists the close key")
+assert_contains(text, "s status · p prio · c sched · d due", "the footer hint lists the field keys")
+assert_contains(text, "q close", "the footer hint lists the close key")
 
 -- The panel highlights the status icon in the live color.
 local marks = vim.api.nvim_buf_get_extmarks(panel_buf, panel.ns, 0, -1, { details = true })
@@ -698,26 +714,29 @@ if snacks then
 	assert_equal(calls[1].field, "status", "<CR> edits the field of the row under the cursor")
 	assert_equal(calls[1].opts.buf, alpha_buf, "the edit keeps the followed note buffer in sync")
 
-	-- s / p / d edit status / priority / due from any row.
+	-- s / p / c / d edit status / priority / scheduled / due from any row.
 	vim.api.nvim_win_set_cursor(panel_win, { 1, 0 })
 	assert_true(press("s"), "the panel buffer maps s")
 	assert_true(press("p"), "the panel buffer maps p")
 	assert_true(press("d"), "the panel buffer maps d")
+	assert_true(press("c"), "the panel buffer maps c")
 
-	assert_equal(#calls, 4, "the s/p/d keys edit three more fields")
+	assert_equal(#calls, 5, "the s/p/d/c keys edit four more fields")
 	assert_equal(calls[2].field, "status", "s edits the status")
 	assert_equal(calls[3].field, "priority", "p edits the priority")
 	assert_equal(calls[4].field, "due", "d edits the due date")
-	for i = 2, 4 do
-		assert_equal(calls[i].id, "TaskNotes/Tasks/Alpha.md", "the s/p/d keys act on the followed task")
-		assert_equal(calls[i].opts.buf, alpha_buf, "the s/p/d keys keep the followed note buffer in sync")
+	assert_equal(calls[5].field, "scheduled", "c edits the scheduled date")
+	for i = 2, 5 do
+		assert_equal(calls[i].id, "TaskNotes/Tasks/Alpha.md", "the s/p/d/c keys act on the followed task")
+		assert_equal(calls[i].opts.buf, alpha_buf, "the s/p/d/c keys keep the followed note buffer in sync")
 	end
 
 	-- A panel that follows a non-task buffer edits nothing.
 	vim.api.nvim_win_set_buf(edit_win, plain_buf)
 	vim.api.nvim_exec_autocmds("BufEnter", { buffer = plain_buf })
 	press("s")
-	assert_equal(#calls, 4, "a panel following a non-task buffer edits nothing")
+	press("c")
+	assert_equal(#calls, 5, "a panel following a non-task buffer edits nothing")
 
 	panel.toggle()
 	package.loaded["tasknotes.task_ops"] = real_task_ops
@@ -961,6 +980,10 @@ if snacks then
 	local edit_win = vim.api.nvim_get_current_win()
 	vim.api.nvim_win_set_buf(edit_win, alpha_buf)
 
+	-- The fit only applies without wrap (section 14 covers wrap).
+	local global_wrap = vim.go.wrap
+	vim.go.wrap = false
+
 	panel.toggle()
 	assert_true(panel.is_open(), "the panel opens for the resize check")
 
@@ -991,6 +1014,46 @@ if snacks then
 	end
 
 	panel.toggle()
+	vim.go.wrap = global_wrap
+end
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 14. Wrap: the panel inherits the global 'wrap' (and 'linebreak') and
+--     follows a per-window toggle (<leader>W). With wrap on, rows are
+--     not cut: the window wraps them.
+-- ──────────────────────────────────────────────────────────────────────
+
+if snacks then
+	reset_cache()
+	local long_buf = make_buffer(LONG, { "---", "task: Long", "---" })
+	local edit_win = vim.api.nvim_get_current_win()
+	vim.api.nvim_win_set_buf(edit_win, long_buf)
+
+	local global_wrap, global_lbr = vim.go.wrap, vim.go.linebreak
+	vim.go.wrap = true
+	vim.go.linebreak = true
+
+	panel.toggle()
+	local panel_win = panel.window()
+	assert_equal(vim.wo[panel_win].wrap, true, "the panel inherits wrap = true")
+	assert_equal(vim.wo[panel_win].linebreak, true, "the panel inherits linebreak = true")
+	assert_not_contains(buf_text(panel.buf), "…", "with wrap on, no row is cut")
+
+	-- The per-window toggle, as <leader>W does it.
+	local renders = panel.render_count
+	vim.api.nvim_win_call(panel_win, function()
+		vim.api.nvim_set_option_value("wrap", false, { scope = "local", win = 0 })
+	end)
+	assert_true(panel.render_count > renders, "turning wrap off re-renders the panel")
+	assert_contains(buf_text(panel.buf), "…", "with wrap off, long rows are cut again")
+	panel.toggle()
+
+	vim.go.wrap = false
+	panel.toggle()
+	assert_equal(vim.wo[panel.window()].wrap, false, "the panel inherits wrap = false")
+	panel.toggle()
+
+	vim.go.wrap, vim.go.linebreak = global_wrap, global_lbr
 end
 
 print("tasknotes panel: ok")

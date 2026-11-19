@@ -70,6 +70,7 @@ local ALPHA_LINES = {
 	"- [ ] open item",
 	"- [x] done item",
 	"- [-] doing item",
+	"- [>] waiting item",
 	"",
 	"Body prose.",
 }
@@ -199,7 +200,7 @@ assert_true(text[2]:find("Parent Note", 1, true) ~= nil, "the parents line shows
 assert_true(text[3]:find("Gamma", 1, true) ~= nil, "the first subtask row is drawn: " .. (text[3] or ""))
 assert_true(text[4]:find("Beta", 1, true) ~= nil, "the second subtask row is drawn: " .. (text[4] or ""))
 assert_true(text[#text]:find("subtasks 1/2", 1, true) ~= nil, "the footer shows subtask progress: " .. text[#text])
-assert_true(text[#text]:find("checklist 1/3", 1, true) ~= nil, "the footer shows checklist progress: " .. text[#text])
+assert_true(text[#text]:find("checklist 1/4", 1, true) ~= nil, "the footer counts every checklist state: " .. text[#text])
 
 -- The buffer itself is untouched.
 assert_equal(vim.deep_equal(vim.api.nvim_buf_get_lines(buf, 0, -1, false), before), true, "the buffer text is unchanged")

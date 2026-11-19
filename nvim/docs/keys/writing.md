@@ -55,8 +55,10 @@ panel follows.
 - `<CR>` — On a link row (parents, subtasks, dependencies): open that note in the editing window. On a property row: edit that field.
 - `s` — Edit the status
 - `p` — Edit the priority
+- `c` — Edit the scheduled date
 - `d` — Edit the due date
 - `<q>` — Close the panel
+- `<leader>W` — Toggle wrap in the panel (it starts with the global `wrap`)
 
 The edits go through the same path as `<leader>oe` (`task_ops.edit_field`
 → `apply_patch` → `PUT /api/tasks/{id}`); the pickers are the ones

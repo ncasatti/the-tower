@@ -172,7 +172,7 @@ local function build_lines(ctx)
 		footer[#footer + 1] = string.format("subtasks %d/%d", ctx.progress.done, ctx.progress.total)
 	end
 	if ctx.checklist then
-		local checklist_total = ctx.checklist.done + ctx.checklist.doing + ctx.checklist.open
+		local checklist_total = ctx.checklist.total or 0
 		if checklist_total > 0 then
 			footer[#footer + 1] = string.format("checklist %d/%d", ctx.checklist.done, checklist_total)
 		end
