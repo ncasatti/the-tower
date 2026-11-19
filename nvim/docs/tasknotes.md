@@ -233,7 +233,8 @@ is refreshed (the cache may land after the note was opened).
 ## Task info panel
 
 `<leader>oi` toggles a **side panel**: a right-hand split
-(`Snacks.win`, `position = "right"`, width `panel_width`) that shows the
+(`Snacks.win`, `position = "right"`, width `panel_width`, 40% of the
+editor by default) that shows the
 full context of the task under the cursor and lets you edit its
 properties.
 
@@ -327,7 +328,7 @@ with no args; to override, pass a table from the spec's `config` function.
 | `default_icon` | `●` | Fallback glyph for unmapped statuses |
 | `priority_icon` | `●` | The priority-dot glyph |
 | `card_max_subtasks` | `5` | Subtask rows drawn in the inline card before `+N more` |
-| `panel_width` | `48` | Width (columns) of the task info side panel |
+| `panel_width` | `0.4` | Width of the task info side panel: below `1` a share of the editor width (`0.4` = 40%, kept when the terminal is resized), `1` or more a fixed column count |
 | `frontmatter_hidden` | `true` | Hide the frontmatter rows of task notes (toggle with `oh`) |
 | `completed_statuses` | `{ done = true }` | Fallback "completed" status set when the API's filter-options cache is empty |
 

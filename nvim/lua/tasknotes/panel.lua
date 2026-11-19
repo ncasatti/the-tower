@@ -236,6 +236,16 @@ end
 -- changes it means the rows must be fitted again.
 local rendered_width = nil
 
+-- The panel width in columns: `config.panel_width` below 1 is a share
+-- of the editor width, 1 or more a fixed column count.
+local function panel_columns()
+	local width = tonumber(config.panel_width) or 0.4
+	if width > 0 and width < 1 then
+		return math.max(1, math.floor(vim.o.columns * width))
+	end
+	return math.floor(width)
+end
+
 -- The width available for a row: the panel window's width when the
 -- panel is open, the configured width otherwise. The panel has no
 -- sign column and no line numbers, so the window width IS the text
@@ -248,7 +258,7 @@ local function available_width()
 		end
 		return vim.api.nvim_win_get_width(M.win)
 	end
-	return config.panel_width or 48
+	return panel_columns()
 end
 
 -- The display width of a row (its segments concatenated).
@@ -881,7 +891,7 @@ function M.open()
 
 	local win = snacks.win.new({
 		position = "right",
-		width = config.panel_width or 48,
+		width = panel_columns(),
 		enter = false,
 		buf = buf,
 		bo = {
@@ -1035,6 +1045,25 @@ function M.attach()
 				return
 			end
 			follow(M.followed)
+		end,
+	})
+
+	-- A share-of-the-editor width follows the editor: when the terminal
+	-- is resized, give the panel its share again (the split has a fixed
+	-- width otherwise) and fit the rows to it.
+	vim.api.nvim_create_autocmd("VimResized", {
+		group = group,
+		callback = function()
+			if not M.is_open() then
+				return
+			end
+			local width = panel_columns()
+			if vim.api.nvim_win_get_width(M.win) ~= width then
+				vim.api.nvim_win_set_width(M.win, width)
+			end
+			if M.followed and available_width() ~= rendered_width then
+				follow(M.followed)
+			end
 		end,
 	})
 

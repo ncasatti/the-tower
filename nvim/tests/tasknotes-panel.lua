@@ -68,6 +68,12 @@ local api = require("tasknotes.api")
 local cache = require("tasknotes.cache")
 local card = require("tasknotes.card")
 local config = require("tasknotes.config")
+
+-- The default panel width is a share of the editor (0.4); section 15
+-- covers it. The fitting sections pin a fixed width of 48 columns so
+-- their expectations do not depend on the headless screen size.
+local DEFAULT_PANEL_WIDTH = config.panel_width
+config.panel_width = 48
 local context = require("tasknotes.context")
 local panel = require("tasknotes.panel")
 
@@ -747,9 +753,9 @@ end
 -- ──────────────────────────────────────────────────────────────────────
 
 -- The panel is closed here, so the rows are fitted to the configured
--- panel width.
+-- panel width (pinned to 48 at the top of this file).
 local PANEL_WIDTH = config.panel_width
-assert_equal(PANEL_WIDTH, 48, "the configured panel width is 48")
+assert_equal(PANEL_WIDTH, 48, "the pinned panel width is 48")
 
 -- The text of a segment list.
 local function segments_text(segments)
@@ -1055,5 +1061,54 @@ if snacks then
 
 	vim.go.wrap, vim.go.linebreak = global_wrap, global_lbr
 end
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 15. Width as a share of the editor: the default is 40% of the
+--     columns, and a fraction follows the editor when it is resized.
+-- ──────────────────────────────────────────────────────────────────────
+
+assert_equal(DEFAULT_PANEL_WIDTH, 0.4, "the default panel width is 40% of the editor")
+
+local columns = vim.o.columns
+config.panel_width = 0.4
+
+-- Closed panel: the rows are fitted to 40% of the editor.
+local share_buf = vim.api.nvim_create_buf(false, true)
+panel.render_into(share_buf, long_ctx)
+local share_width = math.floor(columns * 0.4)
+for row, line in ipairs(vim.api.nvim_buf_get_lines(share_buf, 0, -1, false)) do
+	assert_true(
+		vim.fn.strdisplaywidth(line) <= share_width,
+		string.format("closed panel: row %d fits 40%% of the editor (%d)", row, share_width)
+	)
+end
+
+if snacks then
+	reset_cache()
+	local alpha_buf = make_buffer(ALPHA, ALPHA_LINES)
+	vim.api.nvim_win_set_buf(vim.api.nvim_get_current_win(), alpha_buf)
+
+	panel.toggle()
+	assert_equal(
+		vim.api.nvim_win_get_width(panel.window()),
+		math.floor(vim.o.columns * 0.4),
+		"the open panel is 40% of the editor"
+	)
+
+	-- The editor gets wider: the panel keeps its share.
+	vim.o.columns = columns + 50
+	vim.api.nvim_exec_autocmds("VimResized", {})
+	vim.cmd("sleep 50m")
+	assert_equal(
+		vim.api.nvim_win_get_width(panel.window()),
+		math.floor(vim.o.columns * 0.4),
+		"after a resize the panel is still 40% of the editor"
+	)
+
+	panel.toggle()
+	vim.o.columns = columns
+end
+
+config.panel_width = 48
 
 print("tasknotes panel: ok")

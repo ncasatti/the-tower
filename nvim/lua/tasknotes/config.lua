@@ -43,9 +43,10 @@ local M = {
 	-- the card; the rest collapse into a "+N more" line.
 	card_max_subtasks = 5,
 
-	-- Task info side panel (TKT-103). Width of the right-hand split, in
-	-- columns.
-	panel_width = 48,
+	-- Task info side panel (TKT-103). Width of the right-hand split:
+	-- a number below 1 is a share of the editor width (0.4 = 40% of
+	-- the columns, kept on resize); 1 or more is a fixed column count.
+	panel_width = 0.4,
 
 	-- Hidden frontmatter (ADR-010). When true, the frontmatter rows of
 	-- task notes are concealed (the closing `---` stays visible); toggle
