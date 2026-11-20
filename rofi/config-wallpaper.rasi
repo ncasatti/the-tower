@@ -9,6 +9,7 @@ configuration {
 }
 
 window {
+  /* Base theme forces a height; 65% fits 2 rows of 20% tiles on 1080 and 768. */
   width: 85%;
   height: 65%;
 }
@@ -34,9 +35,9 @@ entry {
 
 /* ---- Listview ---- */
 listview {
-  columns: 4;
+  columns: 5;
   lines: 2;
-  spacing: 15px;
+  spacing: 10px;
   padding: 0px;
   flow: horizontal;
   fixed-width: false;
@@ -47,8 +48,8 @@ listview {
 /* ---- Element ---- */
 element {
   orientation: vertical;
-  padding: 8px;
-  spacing: 5px;
+  padding: 6px;
+  spacing: 4px;
   border-radius: 2px;
   margin: 0px;
 }
@@ -62,15 +63,20 @@ element selected.normal {
 /* element-icon { text-color:                  inherit; size:                        10%; margin:                      -30px; cursor:                      inherit; } */
 
 element-icon {
-  /* Relative to screen width so thumbnails fit 4 columns on any panel.
-     Fixed 20em (~320px) overflowed the ~265px columns on 1366x768. */
-  size: 14%;
+  /* Percent of screen HEIGHT (measured: 14% = 151px on 1080, 107px on 768),
+     so tiles scale per panel. Fixed 20em overflowed columns on 1366x768. */
+  size: 20%;
   border: 0px;
   padding: 0px;
   border-radius: 2px;
   background-color: transparent;
 }
 
+
+/* Theme pads selected text by 16px, which grows the selected tile. */
+element-text selected {
+  padding: 5px;
+}
 
 element-text {
   vertical-align: 0.5;
