@@ -62,7 +62,9 @@ element selected.normal {
 /* element-icon { text-color:                  inherit; size:                        10%; margin:                      -30px; cursor:                      inherit; } */
 
 element-icon {
-  size: 20em;
+  /* Relative to screen width so thumbnails fit 4 columns on any panel.
+     Fixed 20em (~320px) overflowed the ~265px columns on 1366x768. */
+  size: 14%;
   border: 0px;
   padding: 0px;
   border-radius: 2px;
