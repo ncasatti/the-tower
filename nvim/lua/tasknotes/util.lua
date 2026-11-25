@@ -24,26 +24,40 @@ function M.get_days_until(date_str)
 	return days
 end
 
+-- The days-left label of one date, worded as in the pickers and menus,
+-- plus its highlight. `kind` is "due" or "scheduled".
+-- @return string|nil label (no leading space; nil without a valid date), string highlight group
+function M.date_label(kind, date)
+	local days = M.get_days_until(date)
+	if not days then
+		return nil, "Comment"
+	end
+	if kind == "due" then
+		if days == 0 then
+			return "(DUE TODAY)", "DiagnosticError"
+		elseif days < 0 then
+			return string.format("(%dd OVERDUE)", math.abs(days)), "DiagnosticError"
+		end
+		return string.format("(%dd until due)", days), "Comment"
+	end
+	if days == 0 then
+		return "(Sched: Today)", "DiagnosticWarn"
+	elseif days < 0 then
+		return string.format("(%dd ago)", math.abs(days)), "Comment"
+	end
+	return string.format("(%dd until sched)", days), "Comment"
+end
+
 -- Renders the due/scheduled suffix for a task row plus the highlight to use.
 -- Faithful to the legacy strings; adds an emphasis hl for urgent dates.
+-- A valid due date wins over scheduled.
 -- @return string suffix (leading space, or ""), string highlight group
 function M.due_info(due, scheduled)
-	local days_due = M.get_days_until(due)
-	local days_sched = M.get_days_until(scheduled)
-	if days_due then
-		if days_due == 0 then
-			return " (DUE TODAY)", "DiagnosticError"
-		elseif days_due < 0 then
-			return string.format(" (%dd OVERDUE)", math.abs(days_due)), "DiagnosticError"
+	for _, pair in ipairs({ { "due", due }, { "scheduled", scheduled } }) do
+		local label, hl = M.date_label(pair[1], pair[2])
+		if label then
+			return " " .. label, hl
 		end
-		return string.format(" (%dd until due)", days_due), "Comment"
-	elseif days_sched then
-		if days_sched == 0 then
-			return " (Sched: Today)", "DiagnosticWarn"
-		elseif days_sched < 0 then
-			return string.format(" (%dd ago)", math.abs(days_sched)), "Comment"
-		end
-		return string.format(" (%dd until sched)", days_sched), "Comment"
 	end
 	return "", "Comment"
 end

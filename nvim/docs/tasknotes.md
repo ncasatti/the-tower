@@ -187,14 +187,20 @@ nothing is written to the file.
 What the card shows:
 
 - **Header** — status icon and priority dot (in the live colors from
-  `/api/filter-options`), the title, the scheduled/due dates and the tags.
+  `/api/filter-options`) and the title, alone on its line.
 - **Parents** — the projects the task declares (`↑ project`).
 - **Subtasks** — tasks whose `projects` point back at this note, as tree
   rows (`├`/`└`) with their status icon. At most `card_max_subtasks` rows
   are drawn; the rest collapse into a `+N more` line.
+- **Dates and tags** — right above the progress line:
+  `sched 2026-11-25 (Sched: Today) · due 2026-12-16 (21d until due)   #task`.
+  Each date carries its days left, worded and colored as in the pickers
+  and menus (`DUE TODAY`, `Nd OVERDUE`, `Nd until due`, `Sched: Today`,
+  `Nd ago`, `Nd until sched`). The line is omitted when the task has
+  neither dates nor tags.
 - **Progress** — `subtasks done/total · checklist done/total`. The
-  checklist counts the body of the note only (frontmatter excluded):
-  `[ ]` open, `[x]`/`[X]` done, `[-]`/`[~]` in progress.
+  checklist counts the body of the note only (frontmatter excluded), in
+  all five states (see the panel's Checklist section).
 
 `<leader>oc` toggles the card globally (on by default, for the session).
 The toggle redraws every loaded task buffer.

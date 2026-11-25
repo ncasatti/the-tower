@@ -17,6 +17,7 @@ local cache = require("tasknotes.cache")
 local config = require("tasknotes.config")
 local context = require("tasknotes.context")
 local ui = require("tasknotes.ui")
+local util = require("tasknotes.util")
 
 local M = {}
 
@@ -85,11 +86,12 @@ end
 -- ──────────────────────────────────────────────────────────────────────
 -- Card layout
 --
---   <status icon> <priority dot>  <title>   <scheduled/due>  #tag #tag
+--   <status icon> <priority dot>  <title>
 --   ↑ parentA, parentB
 --   ├ <icon> <subtask>
 --   └ <icon> <subtask>
 --     +3 more
+--   sched <date> (<days left>) · due <date> (<days left>)   #tag #tag
 --   subtasks 1/4 · checklist 2/5
 -- ──────────────────────────────────────────────────────────────────────
 local function build_lines(ctx)
@@ -100,7 +102,7 @@ local function build_lines(ctx)
 	local status_hl = color_hl("TaskNotesStatus", status, status_colors[status])
 	local priority_hl = color_hl("TaskNotesPriority", task.priority, priority_colors[task.priority])
 
-	-- Header.
+	-- Header: the title stands alone.
 	local header = {
 		chunk(ui.icon_for_status(status), status_hl),
 		chunk(" "),
@@ -109,30 +111,32 @@ local function build_lines(ctx)
 		chunk(task_title(ctx)),
 	}
 
-	-- Dates: scheduled and/or due.
-	local dates = {}
-	local scheduled = short_date(task.scheduled)
-	local due = short_date(task.due)
-	if scheduled then
-		dates[#dates + 1] = "sched " .. scheduled
+	-- Dates (each with its days left, worded as in the menus) and tags:
+	-- one line, drawn right above the progress footer.
+	local meta = {}
+	for _, pair in ipairs({ { "sched", "scheduled", task.scheduled }, { "due", "due", task.due } }) do
+		local date = short_date(pair[3])
+		if date then
+			if #meta > 0 then
+				meta[#meta + 1] = chunk(" · ")
+			end
+			meta[#meta + 1] = chunk(pair[1] .. " " .. date)
+			local label, label_hl = util.date_label(pair[2], date)
+			if label then
+				meta[#meta + 1] = chunk(" " .. label, label_hl)
+			end
+		end
 	end
-	if due then
-		dates[#dates + 1] = "due " .. due
-	end
-	if #dates > 0 then
-		header[#header + 1] = chunk("   ")
-		header[#header + 1] = chunk(table.concat(dates, " · "))
-	end
-
-	-- Tags.
 	local tags = task_tags(task)
 	if #tags > 0 then
 		local rendered = {}
 		for _, tag in ipairs(tags) do
 			rendered[#rendered + 1] = "#" .. tag
 		end
-		header[#header + 1] = chunk("  ")
-		header[#header + 1] = chunk(table.concat(rendered, " "))
+		if #meta > 0 then
+			meta[#meta + 1] = chunk("   ")
+		end
+		meta[#meta + 1] = chunk(table.concat(rendered, " "))
 	end
 
 	local lines = { header }
@@ -164,6 +168,11 @@ local function build_lines(ctx)
 	end
 	if truncated then
 		lines[#lines + 1] = { chunk(string.format("  +%d more", #ctx.subtasks - shown)) }
+	end
+
+	-- Dates and tags, above the progress footer.
+	if #meta > 0 then
+		lines[#lines + 1] = meta
 	end
 
 	-- Progress footer: omit the parts that are empty.

@@ -194,8 +194,14 @@ assert_equal(marks[1][4].virt_lines_above, false, "the card renders below the fe
 local text = card_text(buf)
 assert_true(#text >= 3, "the card has several lines")
 assert_true(text[1]:find("Alpha", 1, true) ~= nil, "the header shows the title: " .. text[1])
-assert_true(text[1]:find("#work", 1, true) ~= nil, "the header shows the tags: " .. text[1])
-assert_true(text[1]:find("2026-10-20", 1, true) ~= nil, "the header shows the dates: " .. text[1])
+assert_true(text[1]:find("#work", 1, true) == nil, "the title stands alone, without the tags: " .. text[1])
+assert_true(text[1]:find("2026-10-20", 1, true) == nil, "the title stands alone, without the dates: " .. text[1])
+-- The dates and the tags sit on their own line, right above the
+-- progress footer.
+local dates_line = text[#text - 1]
+assert_true(dates_line:find("sched 2026-10-20", 1, true) ~= nil, "the dates line shows scheduled: " .. dates_line)
+assert_true(dates_line:find("due 2026-10-25", 1, true) ~= nil, "the dates line shows due: " .. dates_line)
+assert_true(dates_line:find("#work", 1, true) ~= nil, "the dates line shows the tags: " .. dates_line)
 assert_true(text[2]:find("Parent Note", 1, true) ~= nil, "the parents line shows the parent: " .. (text[2] or ""))
 assert_true(text[3]:find("Gamma", 1, true) ~= nil, "the first subtask row is drawn: " .. (text[3] or ""))
 assert_true(text[4]:find("Beta", 1, true) ~= nil, "the second subtask row is drawn: " .. (text[4] or ""))
@@ -320,6 +326,71 @@ assert_equal(#card_marks(outside), 0, "a non-vault buffer gets no card")
 vim.api.nvim_set_current_buf(buf4)
 vim.api.nvim_exec_autocmds("User", { pattern = "TaskNotesCacheRefreshed", modeline = false })
 assert_equal(#card_marks(buf4), 1, "TaskNotesCacheRefreshed redraws the card")
+
+-- ──────────────────────────────────────────────────────────────────────
+-- 5b. Dates carry the days left, worded as in the pickers and menus
+-- ──────────────────────────────────────────────────────────────────────
+do
+	local util = require("tasknotes.util")
+	local function day(offset)
+		return os.date("%Y-%m-%d", os.time() + offset * 86400)
+	end
+	local today, in21, ago3, in6 = day(0), day(21), day(-3), day(6)
+
+	-- The menus keep their wording (one suffix: due first, then sched).
+	assert_equal(util.due_info(today, nil), " (DUE TODAY)", "menus: due today")
+	assert_equal(util.due_info(ago3, nil), " (3d OVERDUE)", "menus: overdue")
+	assert_equal(util.due_info(in21, nil), " (21d until due)", "menus: due ahead")
+	assert_equal(util.due_info(nil, today), " (Sched: Today)", "menus: scheduled today")
+	assert_equal(util.due_info(nil, ago3), " (3d ago)", "menus: scheduled in the past")
+	assert_equal(util.due_info(nil, in6), " (6d until sched)", "menus: scheduled ahead")
+	assert_equal(util.due_info(in21, today), " (21d until due)", "menus: due wins over scheduled")
+
+	local dated_buf = vim.api.nvim_create_buf(false, true)
+	vim.api.nvim_buf_set_lines(dated_buf, 0, -1, false, { "---", "title: Informe", "---", "body" })
+	card.render(dated_buf, {
+		path = ALPHA,
+		fm_end_row = 2,
+		task = {
+			title = "Informe",
+			status = "in-progress",
+			priority = "high",
+			scheduled = today,
+			due = in21,
+			tags = { "task" },
+		},
+		parents = {},
+		subtasks = {},
+		checklist = { open = 1, doing = 0, on_hold = 0, waiting = 0, done = 0, total = 1 },
+	})
+	local dated = card_text(dated_buf)
+	assert_equal(#dated, 3, "title, dates line, checklist")
+	assert_true(dated[1]:find("Informe", 1, true) ~= nil and dated[1]:find("sched", 1, true) == nil, "the title is alone")
+	assert_equal(
+		dated[2],
+		string.format("sched %s (Sched: Today) · due %s (21d until due)   #task", today, in21),
+		"each date shows the days left, then the tags"
+	)
+	assert_equal(dated[3], "checklist 0/1", "the checklist comes after the dates")
+
+	-- The days left take the menus' highlight (today warns).
+	local groups = {}
+	for _, chunk in ipairs(card_marks(dated_buf)[1][4].virt_lines[2]) do
+		groups[chunk[1]] = chunk[2]
+	end
+	assert_equal(groups[" (Sched: Today)"], "DiagnosticWarn", "scheduled today is highlighted as in the menus")
+	assert_equal(groups[" (21d until due)"], "Comment", "a date ahead stays dim")
+
+	-- A task with neither dates nor tags has no dates line.
+	card.render(dated_buf, {
+		path = ALPHA,
+		fm_end_row = 2,
+		task = { title = "Bare", status = "inbox" },
+		parents = {},
+		subtasks = {},
+	})
+	assert_equal(#card_text(dated_buf), 1, "no dates and no tags: only the title")
+end
 
 -- ──────────────────────────────────────────────────────────────────────
 -- 6. Require-set guarantee
