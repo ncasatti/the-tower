@@ -187,7 +187,7 @@ nothing is written to the file.
 What the card shows:
 
 - **Header** — status icon and priority dot (in the live colors from
-  `/api/filter-options`) and the title, alone on its line.
+  `/api/filter-options`) and the title in normal text, alone on its line.
 - **Parents** — the projects the task declares (`↑ project`).
 - **Subtasks** — tasks whose `projects` point back at this note, as tree
   rows (`├`/`└`) with their status icon. At most `card_max_subtasks` rows

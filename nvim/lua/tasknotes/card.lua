@@ -108,7 +108,7 @@ local function build_lines(ctx)
 		chunk(" "),
 		chunk(config.priority_icon, priority_hl),
 		chunk("  "),
-		chunk(task_title(ctx)),
+		chunk(task_title(ctx), "Normal"),
 	}
 
 	-- Dates (each with its days left, worded as in the menus) and tags:

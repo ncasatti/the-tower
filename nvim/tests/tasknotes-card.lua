@@ -216,9 +216,14 @@ assert_equal(http.calls, 0, "rendering performs no request")
 -- The status icon and the priority dot carry their own highlight groups.
 local header_chunks = marks[1][4].virt_lines[1]
 local groups = {}
+local title_hl
 for _, chunk in ipairs(header_chunks) do
 	groups[chunk[2]] = true
+	if chunk[1] == "Alpha" then
+		title_hl = chunk[2]
+	end
 end
+assert_equal(title_hl, "Normal", "the title is drawn in normal text, not dimmed")
 assert_true(groups["TaskNotesStatus_in_progress"] == true, "the status icon uses the live status color")
 assert_true(groups["TaskNotesPriority_high"] == true, "the priority dot uses the live priority color")
 
