@@ -58,6 +58,7 @@ panel follows.
 - `p` — Edit the priority
 - `c` — Edit the scheduled date
 - `d` — Edit the due date
+- `t` — Edit the tags
 - `<q>` — Close the panel
 - `<leader>W` — Toggle wrap in the panel (it starts with the global `wrap`)
 

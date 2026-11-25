@@ -411,7 +411,6 @@ for _, field in ipairs({
 	"priority",
 	"scheduled",
 	"due",
-	"contexts",
 	"projects",
 	"tags",
 	"timeEstimate",
@@ -427,7 +426,16 @@ assert_contains(row_text(panel_buf, row_of_field(panel_buf, "status")), "In Prog
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "priority")), "High", "the Priority row shows the live label")
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "2026-10-20", "the Scheduled row shows the date")
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "due")), "2026-10-25", "the Due row shows the date")
-assert_contains(row_text(panel_buf, row_of_field(panel_buf, "contexts")), "—", "an empty field shows an em dash")
+assert_true(row_of_field(panel_buf, "contexts") == nil, "the panel has no Contexts row (tags replace contexts)")
+assert_not_contains(text, "Contexts", "the panel does not show contexts")
+do
+	-- An empty field still shows an em dash.
+	local untagged = vim.deepcopy(ctx)
+	untagged.task.tags = nil
+	local untagged_buf = vim.api.nvim_create_buf(false, true)
+	panel.render_into(untagged_buf, untagged)
+	assert_contains(row_text(untagged_buf, row_of_field(untagged_buf, "tags")), "—", "an empty field shows an em dash")
+end
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "projects")), "Parent Note", "the Projects row shows the project")
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "tags")), "work", "the Tags row shows the tags")
 assert_contains(row_text(panel_buf, row_of_field(panel_buf, "timeEstimate")), "60", "the Estimate row shows the minutes")
@@ -439,7 +447,7 @@ assert_not_contains(row_text(panel_buf, row_of_field(panel_buf, "scheduled")), "
 -- 9. The footer hint
 -- ──────────────────────────────────────────────────────────────────────
 assert_contains(text, "<CR> edit/open", "the footer hint is rendered for a task")
-assert_contains(text, "s status · p prio · c sched · d due", "the footer hint lists the field keys")
+assert_contains(text, "s status · p prio · c sched · d due · t tags", "the footer hint lists the field keys")
 assert_contains(text, "q close", "the footer hint lists the close key")
 
 -- The panel highlights the status icon in the live color.
@@ -727,8 +735,11 @@ if snacks then
 	assert_true(press("p"), "the panel buffer maps p")
 	assert_true(press("d"), "the panel buffer maps d")
 	assert_true(press("c"), "the panel buffer maps c")
+	assert_true(press("t"), "the panel buffer maps t")
 
-	assert_equal(#calls, 5, "the s/p/d/c keys edit four more fields")
+	assert_equal(#calls, 6, "the s/p/d/c/t keys edit five more fields")
+	assert_equal(calls[6].field, "tags", "t edits the tags")
+	assert_equal(calls[6].opts.buf, alpha_buf, "t keeps the followed note buffer in sync")
 	assert_equal(calls[2].field, "status", "s edits the status")
 	assert_equal(calls[3].field, "priority", "p edits the priority")
 	assert_equal(calls[4].field, "due", "d edits the due date")
@@ -743,7 +754,8 @@ if snacks then
 	vim.api.nvim_exec_autocmds("BufEnter", { buffer = plain_buf })
 	press("s")
 	press("c")
-	assert_equal(#calls, 5, "a panel following a non-task buffer edits nothing")
+	press("t")
+	assert_equal(#calls, 6, "a panel following a non-task buffer edits nothing")
 
 	panel.toggle()
 	package.loaded["tasknotes.task_ops"] = real_task_ops
@@ -1163,6 +1175,17 @@ if snacks then
 	vim.api.nvim_set_current_win(note_win)
 	panel.toggle()
 	assert_true(vim.api.nvim_win_get_position(panel.window())[2] > 0, "<leader>oi opens on the right")
+
+	-- 17. A field picker opened from the panel returns to the panel:
+	--     Snacks resolves the picker's main window from the options the
+	--     field pickers pass (the default skips the non-file panel).
+	local Main = require("snacks.picker.core.main")
+	local task_ops = require("tasknotes.task_ops")
+	assert_equal(vim.api.nvim_get_current_win(), panel.window(), "the cursor is in the panel")
+	assert_true(Main.new():get() ~= panel.window(), "the default main window skips the panel (the bug)")
+	assert_equal(Main.new(task_ops.picker_main):get(), panel.window(), "picker_main keeps the panel as main window")
+	vim.api.nvim_set_current_win(note_win)
+	assert_equal(Main.new(task_ops.picker_main):get(), note_win, "from the note, the note stays the main window")
 	panel.toggle()
 end
 

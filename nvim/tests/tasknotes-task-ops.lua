@@ -673,6 +673,55 @@ section("13d a saved task missing from the server list is forgotten", function()
 end)
 
 -- ──────────────────────────────────────────────────────────────────────
+-- 14. The field pickers may return to a non-file window (the panel)
+--
+-- Snacks puts the cursor back in the picker's "main" window on close,
+-- and by default skips windows that do not hold a file. The panel is a
+-- scratch buffer, so an edit started there landed in the note. Every
+-- field picker passes `main = task_ops.picker_main` (file = false).
+-- ──────────────────────────────────────────────────────────────────────
+section("14 the field pickers return to the window they were opened from", function()
+	assert_true(type(task_ops.picker_main) == "table", "task_ops exposes picker_main")
+	assert_equal(task_ops.picker_main.file, false, "picker_main accepts a non-file window")
+
+	local opened = {}
+	local real_snacks = _G.Snacks
+	_G.Snacks = {
+		picker = {
+			pick = function(opts)
+				opened[#opened + 1] = opts
+			end,
+		},
+	}
+	local original_options = api.get_filter_options
+	api.get_filter_options = function()
+		return {
+			statuses = { { value = "inbox", label = "Inbox" } },
+			priorities = { { value = "normal", label = "Normal" } },
+			tags = { "work", "home" },
+		}
+	end
+	local task = { title = "Task", status = "inbox", priority = "normal", tags = { "work" } }
+	local pickers = {
+		{ "_pick_option", "status" },
+		{ "_pick_option", "priority" },
+		{ "_pick_multi", "tags" },
+		{ "_pick_date", "scheduled" },
+		{ "_pick_date", "due" },
+	}
+	for _, p in ipairs(pickers) do
+		local before = #opened
+		local ok, err = pcall(task_ops.edit_fields[p[1]], TASK_ID, task, {}, p[2], nil, function() end)
+		assert_true(ok, p[1] .. "(" .. p[2] .. ") runs: " .. tostring(err))
+		assert_equal(#opened, before + 1, p[1] .. "(" .. p[2] .. ") opens one picker")
+		local main = opened[#opened] and opened[#opened].main
+		assert_true(main == task_ops.picker_main, p[1] .. "(" .. p[2] .. ") passes picker_main")
+	end
+	_G.Snacks = real_snacks
+	api.get_filter_options = original_options
+end)
+
+-- ──────────────────────────────────────────────────────────────────────
 -- Teardown + verdict
 -- ──────────────────────────────────────────────────────────────────────
 vim.fn.delete(vault, "rf")

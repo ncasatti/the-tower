@@ -247,7 +247,7 @@ What the panel shows:
 - **Header** — status icon and priority dot (in the live colors from
   `/api/filter-options`) and the title.
 - **Properties** — one row per editable field: Task, Status, Priority,
-  Scheduled, Due, Contexts, Projects, Tags, Estimate. Each row shows
+  Scheduled, Due, Projects, Tags, Estimate (contexts are not shown). Each row shows
   the current value (the live label and color for status and priority,
   an em dash `—` when the field is empty). The Estimate row shows the
   raw minutes — the unit the editor prompts in. The Projects row shows
@@ -299,7 +299,12 @@ The keys are local to the panel's own buffer.
 | `p` | Edit the **priority** of the followed task. |
 | `c` | Edit the **scheduled date** of the followed task. |
 | `d` | Edit the **due date** of the followed task. |
+| `t` | Edit the **tags** of the followed task. |
 | `<q>` | Close the panel. |
+
+After an edit the cursor stays in the panel (the field pickers keep the
+window they were opened from as their return window,
+`task_ops.picker_main`).
 
 The edits always act on the task the panel **follows** — not on the
 buffer under the cursor — and they go through the same path as

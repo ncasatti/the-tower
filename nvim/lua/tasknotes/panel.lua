@@ -487,7 +487,6 @@ local function build_rows(ctx)
 		)
 		property("Scheduled", "scheduled", short_date(task.scheduled))
 		property("Due", "due", short_date(task.due))
-		property("Contexts", "contexts", join_list(task.contexts))
 		-- The projects are wiki links: show their names, not the raw
 		-- links. The value sent on edit is untouched.
 		property("Projects", "projects", join_links(task.projects))
@@ -607,7 +606,7 @@ local function build_rows(ctx)
 	-- Two rows, each short enough to fit the default panel width (48).
 	if ctx then
 		add({ seg("<CR> edit/open · q close", "Comment") })
-		add({ seg("s status · p prio · c sched · d due", "Comment") })
+		add({ seg("s status · p prio · c sched · d due · t tags", "Comment") })
 	end
 
 	return rows
@@ -946,6 +945,9 @@ function M.open(opts)
 			end,
 			d = function()
 				edit_field("due")
+			end,
+			t = function()
+				edit_field("tags")
 			end,
 		},
 		on_close = function()

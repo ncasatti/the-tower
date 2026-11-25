@@ -167,6 +167,12 @@ end
 -- to change, and the change is PUT immediately (ADR-009).
 -- ──────────────────────────────────────────────────────────────────────
 
+-- The window a field picker returns the cursor to. Snacks' default
+-- skips windows that do not hold a file, so an edit started in the
+-- side panel (a scratch buffer) used to land in the note; `file =
+-- false` keeps the window the picker was opened from.
+M.picker_main = { file = false }
+
 -- The field editor's pickers. Declared here (before the single-field
 -- editor below assigns one of them) so both sections can use it.
 M.edit_fields = {}
@@ -350,6 +356,7 @@ M.edit_fields._show = function(id, task, patch, buf)
 	end
 
 	Snacks.picker.pick({
+		main = M.picker_main,
 		source = "tasknotes_edit_fields",
 		title = string.format(
 			"Edit Task — %s%s",
@@ -450,6 +457,7 @@ M.edit_fields._pick_option = function(id, task, patch, field, buf, on_done)
 
 	local confirmed = false
 	Snacks.picker.pick({
+		main = M.picker_main,
 		source = "tasknotes_edit_" .. field,
 		title = string.format("%s (current: %s)", field, current or "none"),
 		items = items,
@@ -521,6 +529,7 @@ M.edit_fields._pick_multi = function(id, task, patch, field, buf, on_done)
 
 	local confirmed = false
 	Snacks.picker.pick({
+		main = M.picker_main,
 		source = "tasknotes_edit_" .. field,
 		title = string.format("%s — <Tab> toggle, <CR> apply", field),
 		items = items,
@@ -587,6 +596,7 @@ M.edit_fields._pick_date = function(id, task, patch, field, buf, on_done)
 
 	local confirmed = false
 	Snacks.picker.pick({
+		main = M.picker_main,
 		source = "tasknotes_edit_" .. field,
 		title = string.format("%s (current: %s)", field, current or "none"),
 		items = items,
@@ -664,6 +674,7 @@ M.edit_fields._pick_time = function(id, task, patch, field, date_str, buf, on_do
 
 	local confirmed = false
 	Snacks.picker.pick({
+		main = M.picker_main,
 		source = "tasknotes_edit_" .. field .. "_time",
 		title = string.format("%s @ %s — pick time", field, date_str),
 		items = items,
